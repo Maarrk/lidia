@@ -2,7 +2,7 @@
 
 _Lightweight Instrument Display Interface for Aircraft_
 
-lidia is a Python module for serving a live instruments panel in a web browser.
+lidia is a Python package for serving an aircraft instruments panel as a web page.
 
 <!-- TODO: https://www.makeareadme.com/ -->
 
@@ -19,6 +19,12 @@ lidia simulink
 ```
 
 Then open the served page in a browser, by default [localhost:5555](http://localhost:5555)
+
+## Contributing
+
+- All code should be formatted with `autopep8`
+- All documentation should be formatted with Prettier
+- To properly run as a module without building and installing, **cd into `src/`** and run `python3 -m lidia`
 
 ## Acknowledgements
 
