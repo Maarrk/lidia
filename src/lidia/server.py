@@ -9,8 +9,9 @@ import socketio
 def background_loop(q: Queue, sio: socketio.Server):
     while True:
         try:
-            event, data = q.get()
-            sio.emit(event, data)
+            while not q.empty():
+                event, data = q.get()
+                sio.emit(event, data)
         except queue.Empty:
             pass
         eventlet.sleep(0.02)
