@@ -4,24 +4,50 @@ _Lightweight Instrument Display Interface for Aircraft_
 
 lidia is a Python package for serving an aircraft instruments panel as a web page.
 
-<!-- TODO: https://www.makeareadme.com/ -->
+<!-- TODO: https://www.makeareadme.com/
+- Badges: pypi version https://badge.fury.io/for/py
+- Visuals: demo GIF
+- Installation
+ -->
 
 ## Usage
 
 ```bash
-lidia simulate
+lidia demo
 
 # if your Scripts folder isn't in Path:
-python3 -m lidia simulate
+python3 -m lidia demo
 
 # use other source
-lidia simulink
+lidia rpctask
+
+# show general help
+lidia --help
+
+# show help for a specific source
+lidia demo --help
+
+# pass the main server arguments before the source name
+lidia -P 5556 demo
 ```
 
 Then open the served page in a browser, by default [localhost:5555](http://localhost:5555)
 
+## Support
+
+Report problems in either repository:
+
+- [GitLab Issues](https://gitlab.com/Maarrk/lidia/-/issues) (primary)
+- [GitHub Issues](https://github.com/Maarrk/lidia/issues) (mirror)
+
+## Roadmap
+
+- USB HID joystick source
+- Configurable error margins (currently always yellow at 3%, red at 5%)
+
 ## Contributing
 
+- Contributions should be made to the [GitLab repository](https://gitlab.com/Maarrk/lidia)
 - Python code should be formatted with autopep8
 - Other source files should be formatted with Prettier
 - To properly run as a module without building and installing, **cd into `src/`** and run `python3 -m lidia`
