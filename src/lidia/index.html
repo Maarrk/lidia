@@ -28,8 +28,8 @@
         <rect width="2150" height="1250" x="-25" y="-25" fill="#000" />
         <!-- Region extents -->
         <!-- <rect width="630" height="1200" x="0" y="0" fill="#700" />
-    <rect width="340" height="1200" x="630" y="0" fill="#070" />
-    <rect width="1130" height="1200" x="970" y="0" fill="#007" /> -->
+        <rect width="340" height="1200" x="630" y="0" fill="#070" />
+        <rect width="1130" height="1200" x="970" y="0" fill="#007" /> -->
         <g id="textRegion" font-family="sans-serif">
             <rect width="500" height="500" x="60" y="70" fill="none" stroke="#fff" stroke-width="5" rx="15" />
             <rect width="150" height="30" x="125" y="55" fill="#000" />
@@ -53,8 +53,8 @@
                 <tspan x="495" y="805">%</tspan>
             </text>
         </g>
-        <g id="collectiveRegion">
-            <rect width="60" height="1000" x="775" y="75" fill="#4d4d4d" stroke="#fff" stroke-width="5" />
+        <g id="collectiveRegion" stroke="#fff">
+            <rect width="60" height="1000" x="775" y="75" fill="#4d4d4d" stroke-width="5" />
             <g id="collOrigin" transform="translate(805 1075) rotate(270)">
                 <use id="collBoundaryLow" href="#borderShort" fill="#0f0" display="none" />
                 <g id="collBoundaryUp" fill="#0f0" display="none" transform="translate(1000)">
@@ -63,46 +63,57 @@
                 <g transform="translate(0 -30)">
                     <g id="collTrimIndicator">
                         <use href="#bottomTriangle" fill="#02f7fa" transform="scale(1 -1)" />
-                        <path fill=" none" stroke="#fff" stroke-dasharray="12,12" stroke-width="4" d="M0,0 v60" />
+                        <path fill=" none" stroke-dasharray="12,12" stroke-width="4" d="M0,0 v60" />
                     </g>
                 </g>
-                <use id="collTargetIndicator" href="#star" />
+                <g id="collTargetIndicator">
+                    <use href="#star" />
+                    <g fill="none" stroke-dasharray="3,3" stroke-width="3">
+                        <line y1="-30" y2="30" x1="-30" x2="-30" />
+                        <line y1="-30" y2="30" x1="30" x2="30" />
+                        <line y1="-30" y2="30" x1="-50" x2="-50" />
+                        <line y1="-30" y2="30" x1="50" x2="50" />
+                    </g>
+                </g>
                 <g transform="translate(0 30)">
                     <use id="collInputIndicator" href="#bottomTriangle" fill="#f00" />
                 </g>
             </g>
         </g>
-        <g id="cyclicRegion">
-            <rect width="1000" height="1000" x="1025" y="75" fill="#4d4d4d" stroke="#fff" stroke-width="5" />
-            <g id="cycOrigin" transform="translate(1025 1075) scale(1 -1)">
-                <g id="cycLatOrigin" transform="scale(1 -1)">
-                    <g id="cycLatTrimIndicator" transform="translate(500)">
-                        <path fill="none" stroke="#fff" stroke-dasharray="12,12" stroke-width="4" d="M0,0 v-1000" />
+        <g id="cyclicRegion" stroke="#fff">
+            <rect width="1000" height="1000" x="1025" y="75" fill="#4d4d4d" stroke-width="5" />
+            <g id="cycOrigin" transform="translate(1525 575) scale(1 -1)">
+                <g id="cycLatOrigin" transform="translate(0 -500) scale(1 -1)">
+                    <g id="cycLatTrimIndicator">
+                        <path fill="none" stroke-dasharray="12,12" stroke-width="4" d="M0,0 v-1000" />
                         <use href="#bottomTriangle" fill="#02f7fa" />
                     </g>
-                    <use id="cycBoundaryLeft" href="#borderLong" fill="url(#borderGreen)" display="none" />
-                    <g id="cycBoundaryRight" fill="url(#borderGreen)" display="none" transform="translate(1000)">
+                    <use id="cycBoundaryLeft" href="#borderLong" fill="url(#borderGreen)" stroke="none" display="none"
+                        transform="translate(-500)" />
+                    <g id="cycBoundaryRight" fill="url(#borderGreen)" stroke="none" display="none"
+                        transform="translate(500)">
                         <use href="#borderLong" transform="scale(-1 1)" />
                     </g>
                 </g>
-                <g id="cycLonOrigin" transform="translate(1000 0) rotate(90) scale(1 -1)">
-                    <g id="cycLonTrimIndicator" transform="translate(500)">
-                        <path fill=" none" stroke="#fff" stroke-dasharray="12,12" stroke-width="4" d="M0,0 v-1000" />
+                <g id="cycLonOrigin" transform="translate(500 0) rotate(90) scale(1 -1)">
+                    <g id="cycLonTrimIndicator">
+                        <path fill=" none" stroke-dasharray="12,12" stroke-width="4" d="M0,0 v-1000" />
                         <use href="#bottomTriangle" fill="#02f7fa" />
                     </g>
-                    <use id="cycBoundaryLow" href="#borderLong" fill="url(#borderGreen)" display="none" />
-                    <g id="cycBoundaryUp" fill="url(#borderGreen)" display="none" transform="translate(1000)">
-                        <use href="#borderLong" transform="scale(-1 1)" />
+                    <use id="cycBoundaryLow" href="#borderLong" fill="url(#borderGreen)" stroke="none" display="none"
+                        transform="translate(-500)" />
+                    <g id="cycBoundaryUp" display="none" transform="translate(500)">
+                        <use href="#borderLong" fill="url(#borderGreen)" stroke="none" transform="scale(-1 1)" />
                     </g>
                 </g>
-                <g id="cycTargetIndicator" transform="translate(500 500)">
+                <g id="cycTargetIndicator">
                     <use href="#star" />
-                    <g fill="none" stroke="#fff" stroke-dasharray="3,3" stroke-width="3">
+                    <g fill="none" stroke-dasharray="3,3" stroke-width="3">
                         <circle cx="0" cy="0" r="30" />
                         <circle cx="0" cy="0" r="50" />
                     </g>
                 </g>
-                <use id="cycInputIndicator" href="#pointCircle" fill="#f00" transform="translate(500 500)" />
+                <use id="cycInputIndicator" href="#pointCircle" fill="#f00" />
             </g>
         </g>
     </svg>

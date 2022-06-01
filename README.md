@@ -22,8 +22,8 @@ Then open the served page in a browser, by default [localhost:5555](http://local
 
 ## Contributing
 
-- All code should be formatted with `autopep8`
-- All documentation should be formatted with Prettier
+- Python code should be formatted with autopep8
+- Other source files should be formatted with Prettier
 - To properly run as a module without building and installing, **cd into `src/`** and run `python3 -m lidia`
 
 ## Acknowledgements
