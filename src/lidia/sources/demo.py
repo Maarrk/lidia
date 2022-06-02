@@ -1,4 +1,4 @@
-from argparse import _SubParsersAction, ArgumentError, ArgumentParser, Namespace
+from argparse import _SubParsersAction, ArgumentDefaultsHelpFormatter, ArgumentError, ArgumentParser, Namespace
 from math import pi, sin
 from multiprocessing import Queue
 from time import sleep, time
@@ -9,8 +9,10 @@ from ..types import AircraftState, Buttons, Controls, RunFn
 
 def setup(subparsers: _SubParsersAction) -> Tuple[str, RunFn]:
     NAME = 'demo'
-    parser: ArgumentParser = subparsers.add_parser(NAME,
-                                                   help='looping simulation demonstrating GUI')
+    parser: ArgumentParser = subparsers.add_parser(
+        NAME,
+        help='looping simulation demonstrating GUI',
+        formatter_class=ArgumentDefaultsHelpFormatter)
     parser.add_argument('--period', '-T', type=float,
                         help='loop time in seconds', default=5.0)
     parser.add_argument('--frequency', '-f', type=float,

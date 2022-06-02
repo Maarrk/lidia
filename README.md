@@ -36,13 +36,11 @@ The controls for showing and hiding elements of the GUI are shown when hovering 
 
 ## Support
 
-Report problems in either repository:
-
-- [GitLab Issues](https://gitlab.com/Maarrk/lidia/-/issues) (primary)
-- [GitHub Issues](https://github.com/Maarrk/lidia/issues) (mirror)
+Report problems in [GitLab Issues](https://gitlab.com/Maarrk/lidia/-/issues)
 
 ## Roadmap
 
+- Handling values out of range (limit translation, change `stroke` to red)
 - USB HID joystick source
 - Configurable error margins (currently always yellow at 3%, red at 5%)
 

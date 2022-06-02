@@ -101,8 +101,8 @@
           </g>
           <use id="cycBoundaryLow" href="#borderLong" fill="url(#borderGreen)" stroke="none" display="none"
             transform="translate(-500)" />
-          <g id="cycBoundaryHigh" display="none" transform="translate(500)">
-            <use href="#borderLong" fill="url(#borderGreen)" stroke="none" transform="scale(-1 1)" />
+          <g id="cycBoundaryHigh" fill="url(#borderGreen)" stroke="none" display="none" transform="translate(500)">
+            <use href="#borderLong" transform="scale(-1 1)" />
           </g>
         </g>
         <g id="cycTargetIndicator">
@@ -288,6 +288,7 @@
       updateBorderPair(s.ctrl[4], s.brdr.low[4], s.brdr.high[4], collBoundaryLow, collBoundaryHigh, true);
       updateBorderPair(s.ctrl[0], s.brdr.low[0], s.brdr.high[0], cycBoundaryLeft, cycBoundaryRight, false, true);
       updateBorderPair(s.ctrl[1], s.brdr.low[1], s.brdr.high[1], cycBoundaryLow, cycBoundaryHigh, false, true);
+      console.log(s.ctrl[1], s.brdr.low[1], s.brdr.high[1]);
     }
 
     const collFtr = document.getElementById("collFtr");
