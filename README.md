@@ -1,14 +1,18 @@
 # Lidia
 
+![lidia](https://img.shields.io/pypi/v/lidia)
+
 _Lightweight Instrument Display Interface for Aircraft_
 
 lidia is a Python package for serving an aircraft instruments panel as a web page.
 
-<!-- TODO: https://www.makeareadme.com/
-- Badges: pypi version https://badge.fury.io/for/py
-- Visuals: demo GIF
-- Installation
- -->
+## Installation
+
+Use the package manager [pip](https://pip.pypa.io/en/stable/) to install lidia.
+
+```bash
+pip install lidia
+```
 
 ## Usage
 
@@ -33,6 +37,10 @@ lidia -P 5556 demo
 
 Then open the served page in a browser, by default [localhost:5555](http://localhost:5555).
 The controls for showing and hiding elements of the GUI are shown when hovering the mouse in the bottom left region of the page.
+
+<!-- TODO: visuals
+- demo GIF with moving parts
+- static screenshot with elements explained -->
 
 ## Support
 
