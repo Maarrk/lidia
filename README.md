@@ -31,7 +31,8 @@ lidia demo --help
 lidia -P 5556 demo
 ```
 
-Then open the served page in a browser, by default [localhost:5555](http://localhost:5555)
+Then open the served page in a browser, by default [localhost:5555](http://localhost:5555).
+The controls for showing and hiding elements of the GUI are shown when hovering the mouse in the bottom left region of the page.
 
 ## Support
 

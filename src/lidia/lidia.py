@@ -3,7 +3,7 @@ from multiprocessing import Process, Queue
 from typing import Dict
 
 from .server import run_server
-from .types import *
+from .types import RunFn, SetupFn
 
 from .sources import demo
 
