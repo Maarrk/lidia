@@ -56,8 +56,8 @@
     <g id="collectiveRegion" stroke="#fff">
       <rect width="60" height="1000" x="775" y="75" fill="#4d4d4d" stroke-width="5" />
       <g id="collOrigin" transform="translate(805 1075) rotate(270)">
-        <use id="collBoundaryLow" href="#borderShort" fill="#0f0" display="none" />
-        <g id="collBoundaryUp" fill="#0f0" display="none" transform="translate(1000)">
+        <use id="collBoundaryLow" href="#borderShort" fill="#0f0" stroke="none" display="none" />
+        <g id="collBoundaryHigh" fill="#0f0" stroke="none" display="none" transform="translate(1000)">
           <use href="#borderShort" transform="scale(-1 1)" />
         </g>
         <g transform="translate(0 -30)">
@@ -101,7 +101,7 @@
           </g>
           <use id="cycBoundaryLow" href="#borderLong" fill="url(#borderGreen)" stroke="none" display="none"
             transform="translate(-500)" />
-          <g id="cycBoundaryUp" display="none" transform="translate(500)">
+          <g id="cycBoundaryHigh" display="none" transform="translate(500)">
             <use href="#borderLong" fill="url(#borderGreen)" stroke="none" transform="scale(-1 1)" />
           </g>
         </g>
@@ -260,6 +260,36 @@
       cycLonTrim.setAttribute("transform", `translate(${s.trim[1] * 500})`);
     }
 
+    const collBoundaryLow = document.getElementById("collBoundaryLow");
+    const collBoundaryHigh = document.getElementById("collBoundaryHigh");
+    const cycBoundaryLow = document.getElementById("cycBoundaryLow");
+    const cycBoundaryHigh = document.getElementById("cycBoundaryHigh");
+    const cycBoundaryLeft = document.getElementById("cycBoundaryLeft");
+    const cycBoundaryRight = document.getElementById("cycBoundaryRight");
+    function updateBorderPair(input, lowBdr, highBdr, lowRef, highRef, oneSided = false, pattern = false) {
+      if (lowBdr === (oneSided ? 0.0 : -1.0) && highBdr === 1.0) {
+        lowRef.style.display = "none";
+        highRef.style.display = "none";
+        return;
+      } else {
+        lowRef.style.display = "block";
+        highRef.style.display = "block";
+      }
+
+      lowRef.setAttribute("transform", `translate(${lowBdr * (oneSided ? 1000 : 500)})`);
+      highRef.setAttribute("transform", `translate(${highBdr * (oneSided ? 1000 : 500)})`);
+
+      if (input < lowBdr) lowRef.style.fill = pattern ? "url(#borderRed)" : "#f00";
+      else lowRef.style.fill = pattern ? "url(#borderGreen)" : "#0f0";
+      if (input > highBdr) highRef.style.fill = pattern ? "url(#borderRed)" : "#f00";
+      else highRef.style.fill = pattern ? "url(#borderGreen)" : "#0f0";
+    }
+    function updateBorders(s) {
+      updateBorderPair(s.ctrl[4], s.brdr.low[4], s.brdr.high[4], collBoundaryLow, collBoundaryHigh, true);
+      updateBorderPair(s.ctrl[0], s.brdr.low[0], s.brdr.high[0], cycBoundaryLeft, cycBoundaryRight, false, true);
+      updateBorderPair(s.ctrl[1], s.brdr.low[1], s.brdr.high[1], cycBoundaryLow, cycBoundaryHigh, false, true);
+    }
+
     const collFtr = document.getElementById("collFtr");
     const cycFtr = document.getElementById("cycFtr");
     function updateButtons(s) {
@@ -271,6 +301,7 @@
       if ("ctrl" in s) updateControl(s);
       if ("trgt" in s) updateTarget(s);
       if ("trim" in s) updateTrim(s);
+      if ("brdr" in s) updateBorders(s);
       if ("btn" in s) updateButtons(s);
     })
   </script>
