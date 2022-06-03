@@ -140,7 +140,7 @@
           <rect x="37.5" y="0" width="25" height="25" rx="5" />
           <rect x="75" y="0" width="25" height="25" rx="5" />
           <rect x="0" y="37.5" width="25" height="25" rx="5" />
-          <rect x="37.5" y="37.5" width="25" height="25" rx="5" fill="#0f0" />
+          <rect x="37.5" y="37.5" width="25" height="25" rx="5" />
           <rect x="75" y="37.5" width="25" height="25" rx="5" />
           <rect x="0" y="75" width="25" height="25" rx="5" />
           <rect x="37.5" y="75" width="25" height="25" rx="5" />
@@ -150,59 +150,112 @@
     </p>
   </div>
   <script type="text/javascript">
+    var settings = {
+      showText: true,
+      showCollective: true,
+      showCyclic: true,
+      alignHorizontal: 0,
+      alignVertical: 0,
+    };
+
     const mainSvg = document.getElementById("mainSvg");
     const boxText = document.getElementById("showText");
     const boxColl = document.getElementById("showColl");
     const boxCyc = document.getElementById("showCyc");
+    const alignGroup = document.getElementById("alignGroup");
 
-    function updateRegions() {
-      document.getElementById("textRegion").style.display = boxText.checked ? "block" : "none";
-      document.getElementById("collectiveRegion").style.display = boxColl.checked ? "block" : "none";
-      document.getElementById("cyclicRegion").style.display = boxCyc.checked ? "block" : "none";
+    function applySettings() {
+      document.getElementById("textRegion").style.display = settings.showText ? "block" : "none";
+      document.getElementById("collectiveRegion").style.display = settings.showCollective ? "block" : "none";
+      document.getElementById("cyclicRegion").style.display = settings.showCyclic ? "block" : "none";
 
       var left = 2100, right = 0;
-      if (boxText.checked) {
+      if (settings.showText) {
         left = Math.min(left, 0);
         right = Math.max(right, 630);
       }
-      if (boxColl.checked) {
+      if (settings.showCollective) {
         left = Math.min(left, 630);
         right = Math.max(right, 970);
       }
-      if (boxCyc.checked) {
+      if (settings.showCyclic) {
         left = Math.min(left, 970);
         right = Math.max(right, 2100);
       }
-
       mainSvg.setAttribute("viewBox", `${left} 0 ${right - left} 1200`);
-    }
 
-    boxText.addEventListener("change", updateRegions);
-    boxColl.addEventListener("change", updateRegions);
-    boxCyc.addEventListener("change", updateRegions);
+      let alignment =
+        (settings.alignHorizontal === -1 ? "xMin" : settings.alignHorizontal === 1 ? "xMax" : "xMid") +
+        (settings.alignVertical === -1 ? "YMin" : settings.alignVertical === 1 ? "YMax" : "YMid");
+      mainSvg.setAttribute("preserveAspectRatio", alignment + " meet");
 
-    // TODO: Allow selecting regions with location.hash
-    // Update both checkboxes and hash when either one changes
+      boxText.checked = settings.showText;
+      boxColl.checked = settings.showCollective;
+      boxCyc.checked = settings.showCyclic;
 
-
-    const alignGroup = document.getElementById("alignGroup");
-
-    function setAlign(click) {
-      var x = click.target.x.baseVal.value;
-      var y = click.target.y.baseVal.value;
-      mainSvg.setAttribute("preserveAspectRatio",
-        (x === 0 ? "xMin" : x === 75 ? "xMax" : "xMid") +
-        (y === 0 ? "YMin" : y === 75 ? "YMax" : "YMid") +
-        " meet");
+      let selectedX = settings.alignHorizontal === -1 ? 0 : settings.alignHorizontal === 0 ? 37.5 : 75;
+      let selectedY = settings.alignVertical === -1 ? 0 : settings.alignVertical === 0 ? 37.5 : 75;
 
       for (rect of alignGroup.children) {
-        rect.style.fill = rect === click.target ? "#0f0" : "inherit";
+        let x = rect.x.baseVal.value;
+        let y = rect.y.baseVal.value;
+        rect.style.fill = (x === selectedX && y === selectedY) ? "#0f0" : "inherit";
       }
+
+      let hashParts = [];
+      if (!(settings.showText && settings.showCollective && settings.showCyclic)) {
+        // When everything is shown, don't put that into location
+        let shown = [];
+        if (settings.showText) shown.push("text");
+        if (settings.showCollective) shown.push("collective");
+        if (settings.showCyclic) shown.push("cyclic");
+        if (shown.length === 0) shown.push("none");
+        hashParts.push(shown.join(","));
+      }
+      if (alignment !== "xMidYMid") hashParts.push(alignment);
+
+      if (hashParts.length === 0) document.location.hash = "";
+      else document.location.hash = hashParts.join("|");
+    }
+
+    boxText.addEventListener("change", () => { settings.showText = boxText.checked; applySettings(); });
+    boxColl.addEventListener("change", () => { settings.showCollective = boxColl.checked; applySettings(); });
+    boxCyc.addEventListener("change", () => { settings.showCyclic = boxCyc.checked; applySettings(); });
+
+    function setAlign(click) {
+      let x = click.target.x.baseVal.value;
+      let y = click.target.y.baseVal.value;
+      settings.alignHorizontal = x === 0 ? -1 : x === 75 ? 1 : 0;
+      settings.alignVertical = y === 0 ? -1 : y === 75 ? 1 : 0;
+      applySettings();
     }
 
     for (rect of alignGroup.children) {
       rect.addEventListener("click", setAlign);
     }
+
+    function parseLocation() {
+      let hash = document.location.hash.replace("#", "");
+
+      const alignRe = /^xM(\w\w)YM(\w\w)$/;
+      const regionRe = /(text|collective|cyclic|none)/i;
+      for (part of hash.split("|")) {
+        if (alignRe.test(part)) {
+          let m = part.match(alignRe);
+          settings.alignHorizontal = m[1] === "in" ? -1 : m[1] === "ax" ? 1 : 0;
+          settings.alignVertical = m[2] === "in" ? -1 : m[2] === "ax" ? 1 : 0;
+        }
+        if (regionRe.test(part)) {
+          settings.showText = /text/.test(part);
+          settings.showCollective = /collective/.test(part);
+          settings.showCyclic = /cyclic/.test(part);
+        }
+      }
+
+      applySettings();
+    }
+
+    window.addEventListener("load", () => parseLocation());
   </script>
   <script type="text/javascript">
     var socket = io();
