@@ -2,7 +2,7 @@
 <html>
 
 <head>
-  <title>RPC Task GUI</title>
+  <title>Lidia display</title>
   <link rel="stylesheet" href="static/style.css">
   <script src="static/socket.io.js"></script>
 </head>
@@ -10,10 +10,9 @@
 <body>
   <svg id="mainSvg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2100 1200" preserveAspectRatio="xMidYMid meet">
     <defs>
-      <path id="bottomTriangle" stroke="#fff" stroke-width="2" d="m0,0 l-34.64,60 h69.28 z" />
-      <path id="star" fill="#f74afd" stroke="#fff" stroke-width="2"
-        d="M25,0 L9,9 L0,25 L-9,9 L-25,0 L-9,-9 L0,-25 L9,-9 z" />
-      <circle id="pointCircle" cx="0" cy="0" r="23" stroke="#fff" stroke-width="2" />
+      <path id="bottomTriangle" stroke-width="2" d="m0,0 l-34.64,60 h69.28 z" />
+      <path id="star" fill="#f74afd" stroke-width="2" d="M25,0 L9,9 L0,25 L-9,9 L-25,0 L-9,-9 L0,-25 L9,-9 z" />
+      <circle id="pointCircle" cx="0" cy="0" r="23" stroke-width="2" />
       <path id="borderShort"
         d="M0,-30 v60 h-5 l-17.32,-10 l17.32,-10 l-17.32,-10 l17.32,-10 l-17.32,-10 l17.32,-10 z" />
       <!-- The larger width prevents wrapping -->
@@ -274,6 +273,21 @@
       else return "#f00";
     }
 
+    function limitRange(elem, oneSided = false) {
+      const outsideLimit = 10;
+      let rangeMin = oneSided ? 0 : -500;
+      let rangeMax = oneSided ? 1000 : 500;
+      let x = elem.transform.baseVal.getItem(0).matrix.e;
+      let y = elem.transform.baseVal.getItem(0).matrix.f;
+
+      // Clamp translate
+      elem.transform.baseVal.getItem(0).matrix.e = Math.max(rangeMin - outsideLimit, Math.min(rangeMax + outsideLimit, x));
+      elem.transform.baseVal.getItem(0).matrix.f = Math.max(rangeMin - outsideLimit, Math.min(rangeMax + outsideLimit, y));
+
+      let inside = (x >= rangeMin && x <= rangeMax) && (y >= rangeMin && y <= rangeMax);
+      elem.style.stroke = inside ? "inherit" : "#f00";
+    }
+
     const collInput = document.getElementById("collInputIndicator");
     const cycInput = document.getElementById("cycInputIndicator");
     const collPercent = document.getElementById("collPercent");
@@ -281,7 +295,9 @@
     const cycLonPercent = document.getElementById("cycLonPercent");
     function updateControl(s) {
       collInput.setAttribute("transform", `translate(${s.ctrl[4] * 1000})`);
+      limitRange(collInput, true);
       cycInput.setAttribute("transform", `translate(${s.ctrl[0] * 500} ${s.ctrl[1] * 500})`);
+      limitRange(cycInput);
 
       collPercent.textContent = Math.round(s.ctrl[4] * 100);
       // Goes from 0% on the left and 100% on the right instead of -1 to +1
@@ -294,7 +310,9 @@
     const cycTarget = document.getElementById("cycTargetIndicator");
     function updateTarget(s) {
       collTarget.setAttribute("transform", `translate(${s.trgt[4] * 1000})`);
+      limitRange(collTarget, true);
       cycTarget.setAttribute("transform", `translate(${s.trgt[0] * 500} ${s.trgt[1] * 500})`);
+      limitRange(cycTarget);
 
       if ("ctrl" in s) {
         collInput.style.fill = errorFill(s.ctrl[4] - s.trgt[4]);
@@ -309,8 +327,11 @@
     const cycLonTrim = document.getElementById("cycLonTrimIndicator");
     function updateTrim(s) {
       collTrim.setAttribute("transform", `translate(${s.trim[4] * 1000})`);
+      limitRange(collTrim, true);
       cycLatTrim.setAttribute("transform", `translate(${s.trim[0] * 500})`);
+      limitRange(cycLatTrim);
       cycLonTrim.setAttribute("transform", `translate(${s.trim[1] * 500})`);
+      limitRange(cycLonTrim);
     }
 
     const collBoundaryLow = document.getElementById("collBoundaryLow");
@@ -341,7 +362,6 @@
       updateBorderPair(s.ctrl[4], s.brdr.low[4], s.brdr.high[4], collBoundaryLow, collBoundaryHigh, true);
       updateBorderPair(s.ctrl[0], s.brdr.low[0], s.brdr.high[0], cycBoundaryLeft, cycBoundaryRight, false, true);
       updateBorderPair(s.ctrl[1], s.brdr.low[1], s.brdr.high[1], cycBoundaryLow, cycBoundaryHigh, false, true);
-      console.log(s.ctrl[1], s.brdr.low[1], s.brdr.high[1]);
     }
 
     const collFtr = document.getElementById("collFtr");

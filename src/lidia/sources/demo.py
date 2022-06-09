@@ -21,6 +21,8 @@ def setup(subparsers: _SubParsersAction) -> Tuple[str, RunFn]:
                         help='do not demonstrate trim function')
     parser.add_argument('--no-borders', action='store_false', dest='borders',
                         help='do not demonstrate borders function')
+    parser.add_argument('--outside-range', action='store_true',
+                        help='demonstrate values outside allowed range')
 
     return (NAME, run)
 
@@ -31,9 +33,11 @@ def run(q: Queue, args: Namespace):
     if args.frequency <= 0:
         raise ArgumentError(args.frequency, 'frequency must be positive')
 
+    outside_offset = 0.6 if args.outside_range else 0.0
+
     def val(phase):
         """Generate a sinusoidal value with phase offset (from 0 to 1)"""
-        return 0.6 * sin((time() / args.period + phase) * 2 * pi)
+        return 0.6 * sin((time() / args.period + phase) * 2 * pi) + outside_offset
 
     def cycle_index(): return int(time() // args.period) % 3
     def current_phase(): return (time() / args.period) % 1
@@ -45,11 +49,11 @@ def run(q: Queue, args: Namespace):
 
         state.ctrl.stick_pull = val(0.1)
         state.ctrl.stick_right = val(0.35)
-        state.ctrl.collective_up = 0.3 + 0.5 * val(0.2)
+        state.ctrl.collective_up = 0.3 + 0.5 * (val(0.2) + outside_offset)
 
         state.trgt.stick_pull = val(0.55)
         state.trgt.stick_right = val(0.3)
-        state.trgt.collective_up = 0.3 + 0.5 * val(0.4)
+        state.trgt.collective_up = 0.3 + 0.5 * (val(0.4) + outside_offset)
 
         if cycle_index() == 1 and args.trim:
             if current_phase() < 0.4:

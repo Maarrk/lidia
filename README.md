@@ -48,7 +48,6 @@ Report problems in [GitLab Issues](https://gitlab.com/Maarrk/lidia/-/issues)
 
 ## Roadmap
 
-- Handling values out of range (limit translation, change `stroke` to red)
 - USB HID joystick source
 - Configurable error margins (currently always yellow at 3%, red at 5%)
 
@@ -61,7 +60,7 @@ Report problems in [GitLab Issues](https://gitlab.com/Maarrk/lidia/-/issues)
 
 ## Acknowledgements
 
-This software was developed in [Dipartimento di Scienze e Tecnologie Aerospaziali (DAER)](https://www.aero.polimi.it/) of Politecnico di Milano
+This software was developed in [Department of Aerospace Science and Technology](https://www.aero.polimi.it/) of Politecnico di Milano
 
 ## License
 
