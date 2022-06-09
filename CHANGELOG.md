@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [0.3.1] - 2022-06-09
+
+### Fixed
+
+- Handling `rpctask` packages without boundary data
+
 ## [0.3.0] - 2022-06-09
 
 ### Added
@@ -22,6 +28,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Initial release with `demo` and `rpctask` sources
 
 <!-- prettier-ignore -->
-[Unreleased]: https://gitlab.com/Maarrk/lidia/-/compare/v0.3.0...dev
+[Unreleased]: https://gitlab.com/Maarrk/lidia/-/compare/v0.3.1...dev
+[0.3.1]: https://gitlab.com/Maarrk/lidia/-/compare/v0.3.0...v0.3.1
 [0.3.0]: https://gitlab.com/Maarrk/lidia/-/compare/v0.2.1...v0.3.0
 [0.2.1]: https://gitlab.com/Maarrk/lidia/-/tree/v0.2.1

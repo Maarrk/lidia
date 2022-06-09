@@ -38,9 +38,10 @@ def run(q: Queue, args: Namespace):
                 # cyclic has coordinates 0,0 in bottom left and 1,1 in top right
                 (pitch_ctrl, roll_ctrl, pwr_ctrl,
                  pitch_target, roll_target, pwr_target,
-                 cyc_ftr, coll_ftr,
-                 up_bdr_cyc, low_bdr_cyc, right_bdr_cyc, left_bdr_cyc,
-                 up_bdr_coll, low_bdr_coll) = unpack_from('>' + 'd' * 14, data)
+                 cyc_ftr, coll_ftr) = unpack_from('>' + 'd' * 8, data)
+                if len(data) >= 8 * 14:
+                    (up_bdr_cyc, low_bdr_cyc, right_bdr_cyc, left_bdr_cyc,
+                     up_bdr_coll, low_bdr_coll) = unpack_from('>' + 'd' * 6, data, 8 * 8)
 
                 state = AircraftState()
                 state.ctrl.stick_right = (roll_ctrl * 2.0) - 1.0

@@ -60,7 +60,9 @@ Report problems in [GitLab Issues](https://gitlab.com/Maarrk/lidia/-/issues)
 
 ## Acknowledgements
 
-This software was developed in [Department of Aerospace Science and Technology](https://www.aero.polimi.it/) of Politecnico di Milano
+This software was developed in [Department of Aerospace Science and Technology](https://www.aero.polimi.it/) of Politecnico di Milano.
+
+Instrument graphics designed by Davide Marchesoli and Qiuyang Xia.
 
 ## License
 
