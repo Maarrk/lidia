@@ -2,6 +2,7 @@ import argparse
 from multiprocessing import Process, Queue
 from typing import Dict
 
+from . import __version__
 from .server import run_server
 from .types import RunFn, SetupFn
 
@@ -14,9 +15,11 @@ def main():
         description='serve an aircraft instruments panel as a web page',
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
         epilog='you can also see help for a specific source: "lidia <src> --help"')
-    parser.add_argument('--http-host', '-H', type=str,
+    parser.add_argument('-V', '--version', action='version', version=f'{parser.prog} {__version__}',
+                        help='display package version')
+    parser.add_argument('-H', '--http-host', type=str,
                         help='hosts to accept for web page', default='0.0.0.0')
-    parser.add_argument('--http-port', '-P', type=int,
+    parser.add_argument('-P', '--http-port', type=int,
                         help='port to serve the web page on', default=5555)
     subparsers = parser.add_subparsers(title='source', required=True, dest='source',
                                        help='source name', description='select where to get aircraft state')

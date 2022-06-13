@@ -13,9 +13,9 @@ def setup(subparsers: _SubParsersAction) -> Tuple[str, RunFn]:
         NAME,
         help='looping simulation demonstrating GUI',
         formatter_class=ArgumentDefaultsHelpFormatter)
-    parser.add_argument('--period', '-T', type=float,
+    parser.add_argument('-T', '--period', type=float,
                         help='loop time in seconds', default=5.0)
-    parser.add_argument('--frequency', '-f', type=float,
+    parser.add_argument('-f', '--frequency', type=float,
                         help='number of messages sent per second', default=30.0)
     parser.add_argument('--no-trim', action='store_false', dest='trim',
                         help='do not demonstrate trim function')

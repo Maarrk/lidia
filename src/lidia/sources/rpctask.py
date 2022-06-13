@@ -13,9 +13,9 @@ def setup(subparsers: _SubParsersAction) -> Tuple[str, RunFn]:
         NAME,
         help='listen to UDP packets from Rotorcraft-Pilot Coupling Task simulator',
         formatter_class=ArgumentDefaultsHelpFormatter)
-    parser.add_argument('--ip', '-i',
+    parser.add_argument('-i', '--ip',
                         help='listen UDP adress', default='0.0.0.0')
-    parser.add_argument('--port', '-p', type=int,
+    parser.add_argument('-p', '--port', type=int,
                         help='listen UDP port', default=5004)
 
     return (NAME, run)

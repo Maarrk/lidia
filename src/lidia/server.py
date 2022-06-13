@@ -1,4 +1,3 @@
-import imp
 import queue
 import eventlet
 from multiprocessing import Queue
@@ -28,4 +27,4 @@ def run_server(q: Queue, host: str, port: int):
     sio = socketio.Server()
     app = socketio.WSGIApp(sio, static_files=static_files)
     eventlet.spawn(background_loop, q, sio)
-    eventlet.wsgi.server(eventlet.listen((host, port)), app)
+    eventlet.wsgi.server(eventlet.listen((host, port)), app, log_output=False)
