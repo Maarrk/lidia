@@ -1,8 +1,8 @@
 from argparse import _SubParsersAction, Namespace
-from dataclasses import dataclass
+from dataclasses import dataclass, asdict
 from enum import IntFlag
 from multiprocessing import Queue
-from typing import Callable, List, NoReturn, Tuple
+from typing import Callable, List, NoReturn, Optional, Tuple
 
 
 RunFn = Callable[[Queue, Namespace], NoReturn]
@@ -48,6 +48,15 @@ class Buttons(IntFlag):
         return [int(self)]
 
 
+@dataclass
+class Instruments:
+    ias: float = 0
+    gs: Optional[float] = None
+
+    def smol(self) -> dict:
+        return asdict(self)
+
+
 class AircraftState:
     """Full state of displayed aircraft initialised with defaults"""
 
@@ -62,10 +71,12 @@ class AircraftState:
         """Task borders for inceptors"""
         self.btn = Buttons.NONE
         """Currently pressed buttons"""
+        self.instr = Instruments()
+        """Instrument values"""
 
     def smol(self) -> dict:
         """Return self as dictionary with SMOL-defined keys"""
         d = dict()
-        for key in ['ctrl', 'trgt', 'trim', 'brdr', 'btn']:
+        for key in ['ctrl', 'trgt', 'trim', 'brdr', 'btn', 'instr']:
             d[key] = getattr(self, key).smol()
         return d

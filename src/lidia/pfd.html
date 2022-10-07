@@ -1,447 +1,480 @@
 <!DOCTYPE html>
 
 <html>
-  <head>
-    <style type="text/css">
-      html,
-      :root {
-        --pfdGreen: #07ed35;
-        --pfdAmber: #ffbf00;
-        --pfdRed: #ff0f0f;
-        --pfdGround: #965b27;
-        --pfdSky: #1e88f5;
-        --pfdMagenta: #ff00ff;
-        --pfdCyan: #00ffff;
-      }
-      body {
-        margin: 0;
-        padding: 0;
-        overflow: hidden;
-        background-color: black;
-        font-family: sans-serif;
-      }
-      svg#mainSvg {
-        position: absolute;
-        top: 0;
-        bottom: 0;
-        height: 100%;
-        width: 100%;
-      }
-      .whitemask {
-        stroke: #ffffff;
-        stroke-width: 50;
-        stroke-linejoin: round;
-        fill: #ffffff;
-      }
-      .text0 {
-        font-family: sans-serif;
-        fill: white;
-        font-size: 50px;
-      }
-      .text1 {
-        font-family: sans-serif;
-        fill: white;
-        font-size: 40px;
-        font-weight: 600;
-      }
-      .text2 {
-        font-family: sans-serif;
-        fill: white;
-        font-size: 40px;
-        font-weight: 400;
-      }
-      .text3 {
-        font-family: sans-serif;
-        fill: white;
-        font-size: 30px;
-        font-weight: 520;
-      }
-      @font-face {
-        font-family: "digital";
-        src: url("./digital-7/digital-7.ttf");
-      }
-      .digitalRO {
-        font-family: digital;
-        fill: white;
-        font-size: 100px;
-      }
-      #HSI_helo {
-        fill: white;
-        stroke: none;
-      }
-      #ADI_roll_ticks {
-        stroke: white;
-        stroke-width: 3;
-        fill: white;
-      }
-      #IAS_ro {
-        fill: var(--pfdGreen);
-        font-size: 50px;
-        text-anchor: end;
-      }
-    </style>
-    <link rel="stylesheet" href="static/style.css" />
-  </head>
 
-  <body>
-    <svg id="mainSvg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2100 1200" preserveAspectRatio="xMidYMid meet">
-      <defs>
-        <mask id="ADI_main_mask" class="whitemask">
-          <rect x="800" y="60" height="500" width="500" />
-        </mask>
+<head>
+  <title>Lidia PFD</title>
+  <style type="text/css">
+    html,
+    :root {
+      --pfdGreen: #07ed35;
+      --pfdAmber: #ffbf00;
+      --pfdRed: #ff0f0f;
+      --pfdGround: #965b27;
+      --pfdSky: #1e88f5;
+      --pfdMagenta: #ff00ff;
+      --pfdCyan: #00ffff;
+    }
 
-        <mask id="ADI_ticks_mask">
-          <circle cx="1050" cy="305" r="240" stroke="none" fill="white" />
-        </mask>
+    body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background-color: black;
+      font-family: sans-serif;
+    }
 
-        <mask id="RHT_mask" class="whitemask">
-          <rect x="1600" y="650" height="500" width="250" />
-        </mask>
+    svg#mainSvg {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      height: 100%;
+      width: 100%;
+    }
 
-        <mask id="IAS_tape_mask">
-          <rect x="575" y="35" width="170" height="535" fill="white" stroke="white" stroke-width="5" />
-        </mask>
-      </defs>
-      <!-- Region extents -->
-      <!--<rect x="775" y="0" height="30" width="550" fill="#0f0" opacity="0.5" data-region="autopilot" />
-      <rect x="775" y="35" height="550" width="550" fill="#0f0" opacity="0.5" data-region="adi" />
-      <rect x="1345" y="30" height="555" width="160" fill="#0f0" opacity="0.5" data-region="vsi" />
-      <rect x="575" y="35" width="180" height="605" fill="#0f0" opacity="0.5" data-region="ias" />
-      <rect x="1585" y="620" height="560" width="270" fill="#0f0" opacity="0.5" data-region="rht" />
-      <rect x="775" y="595" height="585" width="550" fill="#0f0" opacity="0.5" data-region="hsi" />-->
-      <g id="autopilotRegion" data-extents="0 1325 30 775">
-        <path id="PIC" d="M1050 15 v5 h15 v 10 l15 -15 l-15 -15 v10 h-15 z" fill="var(--pfdGreen)" stroke="none" />
-      </g>
+    .tapeBackground {
+      fill: gray;
+    }
 
-      <g id="adiRegion" data-extents="35 1325 585 775">
-        <g id="ADI_masked" mask="url(#ADI_main_mask)">
-          <g id="ADI_back">
-            <rect width="2100" height="500" x="0" y="-200" fill="var(--pfdSky)" stroke="none" />
-            <rect width="2100" height="10" x="0" y="300" fill="#ffffff" stroke="none" />
-            <rect width="2100" height="500" x="0" y="310" fill="var(--pfdGround)" stroke="none" />
+    .tapeContour {
+      fill: none;
+      stroke: white;
+      stroke-width: 5;
+    }
+
+    .whitemask {
+      stroke: #ffffff;
+      stroke-width: 50;
+      stroke-linejoin: round;
+      fill: #ffffff;
+    }
+
+    .text0 {
+      font-family: sans-serif;
+      fill: white;
+      font-size: 50px;
+    }
+
+    .text1 {
+      font-family: sans-serif;
+      fill: white;
+      font-size: 40px;
+      font-weight: 600;
+    }
+
+    .text2 {
+      font-family: sans-serif;
+      fill: white;
+      font-size: 40px;
+      font-weight: 400;
+    }
+
+    .text3 {
+      font-family: sans-serif;
+      fill: white;
+      font-size: 30px;
+      font-weight: 520;
+    }
+
+    @font-face {
+      font-family: "digital";
+      src: url("./digital-7/digital-7.ttf");
+    }
+
+    .digitalRO {
+      font-family: digital;
+      fill: white;
+      font-size: 100px;
+    }
+
+    #HSI_helo {
+      fill: white;
+      stroke: none;
+    }
+
+    #ADI_roll_ticks {
+      stroke: white;
+      stroke-width: 3;
+      fill: white;
+    }
+  </style>
+  <link rel="stylesheet" href="static/style.css" />
+  <script src="static/socket.io.js"></script>
+</head>
+
+<body>
+  <svg id="mainSvg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2100 1200" preserveAspectRatio="xMidYMid meet">
+    <defs>
+      <mask id="ADI_main_mask" class="whitemask">
+        <rect x="800" y="60" height="500" width="500" />
+      </mask>
+
+      <mask id="ADI_ticks_mask">
+        <circle cx="1050" cy="305" r="240" stroke="none" fill="white" />
+      </mask>
+
+      <mask id="RHT_mask" class="whitemask">
+        <rect x="1600" y="650" height="500" width="250" />
+      </mask>
+
+      <mask id="IAS_tape_mask">
+        <rect x="575" y="35" width="170" height="535" fill="white" stroke="white" stroke-width="5" />
+      </mask>
+    </defs>
+    <g id="autopilotRegion" data-extents="0 1325 30 775">
+      <path id="PIC" d="M1050 15 v5 h15 v 10 l15 -15 l-15 -15 v10 h-15 z" fill="var(--pfdGreen)" stroke="none" />
+    </g>
+
+    <g id="adiRegion" data-extents="35 1325 585 775">
+      <g id="ADI_masked" mask="url(#ADI_main_mask)">
+        <g id="ADI_back">
+          <rect width="2100" height="500" x="0" y="-200" fill="var(--pfdSky)" stroke="none" />
+          <rect width="2100" height="10" x="0" y="300" fill="#ffffff" stroke="none" />
+          <rect width="2100" height="500" x="0" y="310" fill="var(--pfdGround)" stroke="none" />
+        </g>
+
+        <g id="ADI_pitch_ticks_masked" mask="url(#ADI_ticks_mask)">
+          <g id="ADI_pitch_ticks">
+            <g id="ADI_upticks">
+              <path d="m1030 285 h40" stroke="white" stroke-width="5" />
+              <!-- centre 305 -->
+              <path d="m1030 285 h40" transform="translate(0 -40)" stroke="white" stroke-width="5" />
+              <g id="ADI_510">
+                <path d="m1000 285 h100" transform="translate(0 -20)" stroke="white" stroke-width="5" />
+                <path d="m950 285 h200" transform="translate(0 -60)" stroke="white" stroke-width="5" />
+              </g>
+              <use transform="translate(0 -80)" xlink:href="#ADI_510" />
+              <use transform="translate(0 -160)" xlink:href="#ADI_510" />
+              <use transform="translate(0 -240)" xlink:href="#ADI_510" />
+            </g>
+            <use transform="rotate(180 1050 305)" xlink:href="#ADI_upticks" />
+            <text id="ADI_text_10" class="text2" transform="translate (1150 240)">10</text>
+            <use transform="translate(-255 0)" xlink:href="#ADI_text_10" />
+            <use transform="translate(-255 160)" xlink:href="#ADI_text_10" />
+            <use transform="translate(0 160)" xlink:href="#ADI_text_10" />
+            <text id="ADI_text_20" class="text2" transform="translate (1150 160)">20</text>
+            <use transform="translate(-255 0)" xlink:href="#ADI_text_20" />
+            <use transform="translate(-255 320)" xlink:href="#ADI_text_20" />
+            <use transform="translate(0 320)" xlink:href="#ADI_text_20" />
           </g>
+        </g>
 
-          <g id="ADI_pitch_ticks_masked" mask="url(#ADI_ticks_mask)">
-            <g id="ADI_pitch_ticks">
-              <g id="ADI_upticks">
-                <path d="m1030 285 h40" stroke="white" stroke-width="5" />
-                <!-- centre 305 -->
-                <path d="m1030 285 h40" transform="translate(0 -40)" stroke="white" stroke-width="5" />
-                <g id="ADI_510">
-                  <path d="m1000 285 h100" transform="translate(0 -20)" stroke="white" stroke-width="5" />
-                  <path d="m950 285 h200" transform="translate(0 -60)" stroke="white" stroke-width="5" />
+        <g id="ADI_roll_ticks">
+          <polygon points="1050 65 1065 45 1035 45" />
+          <polygon points="1050 65 1060 50 1040 50" transform="rotate(45 1050 305)" />
+          <polygon points="1050 65 1060 50 1040 50" transform="rotate(-45 1050 305)" />
+          <path d="m1050 65 v-20" transform="rotate(10 1050 305)" />
+          <path d="m1050 65 v-20" transform="rotate(20 1050 305)" />
+          <path d="m1050 65 v-20" transform="rotate(30 1050 305)" />
+          <path d="m1050 65 v-20" transform="rotate(60 1050 305)" />
+          <path d="m1050 65 v-20" transform="rotate(-10 1050 305)" />
+          <path d="m1050 65 v-20" transform="rotate(-20 1050 305)" />
+          <path d="m1050 65 v-20" transform="rotate(-30 1050 305)" />
+          <path d="m1050 65 v-20" transform="rotate(-60 1050 305)" />
+          <g id="ADI_roll_pointer">
+            <polygon points="1050 70 1065 90 1035 90" />
+            <g id="ADI_slipskid">
+              <polygon points="1030 95 1070 95 1075 100 1025 100" />
+            </g>
+          </g>
+        </g>
+
+        <circle cx="1050" cy="305" r="240" stroke="none" fill="white" fill-opacity="0.1" />
+
+        <g id="aircraft-symbol" fill="white" stroke="black" stroke-width="1.5">
+          <!-- <path d="M1050 305 L950 335 H1150 Z" />                -->
+          <path d="M1120 335 h15 v-20 h100 v-15 h-115 z " />
+          <path d="M980 335 h-15 v-20 h-100 v-15 h115 z" />
+          <circle cx="1050" cy="305" r="10" />
+        </g>
+      </g>
+    </g>
+
+    <g id="VSI_analog" display="none">
+      <circle cx="1800" cy="325" r="275" fill="black" stroke="white" stroke-width="5" />
+      <g id="zero-500">
+        <path id="zero" d="m1525 325 h75" stroke="white" stroke-width="10" />
+        <use transform="rotate(40 1800 325)" xlink:href="#zero" />
+        <use transform="rotate(-40 1800 325)" xlink:href="#zero" />
+      </g>
+      <use transform="rotate(80 1800 325)" xlink:href="#zero-500" />
+      <use transform="rotate(-80 1800 325)" xlink:href="#zero-500" />
+      <use transform="rotate(160 1800 325)" xlink:href="#zero" />
+      <use transform="rotate(-160 1800 325)" xlink:href="#zero" />
+
+      <g id="cento-400">
+        <path id="cento" d="m1525 325 h50" transform="rotate(8 1800 325)" stroke="white" stroke-width="10" />
+        <use transform="rotate(8 1800 325)" xlink:href="#cento" />
+        <use transform="rotate(16 1800 325)" xlink:href="#cento" />
+        <use transform="rotate(24 1800 325)" xlink:href="#cento" />
+        <use transform="rotate(32 1800 325)" xlink:href="#cento" />
+      </g>
+      <use transform="rotate(40 1800 325)" xlink:href="#cento-400" />
+      <use transform="rotate(-40 1800 325)" xlink:href="#cento-400" />
+      <use transform="rotate(-80 1800 325)" xlink:href="#cento-400" />
+
+      <text class="text0">
+        <tspan x="1620" y="342">0</tspan>
+        <tspan x="1660" y="240">5</tspan>
+        <tspan x="1660" y="457">5</tspan>
+        <tspan x="1740" y="190">10</tspan>
+        <tspan x="1740" y="507">10</tspan>
+        <tspan x="1860" y="210">15</tspan>
+        <tspan x="1860" y="487">15</tspan>
+        <tspan x="1915" y="290">20</tspan>
+        <tspan x="1915" y="407">20</tspan>
+        <tspan x="1765" y="290" font-size="40">VSI</tspan>
+        <tspan x="1765" y="380" font-size="30">x100</tspan>
+        <tspan x="1750" y="410" font-size="30">FT/MIN</tspan>
+        <tspan x="1650" y="290" font-size="30">UP</tspan>
+        <tspan x="1650" y="380" font-size="30">DN</tspan>
+      </text>
+
+      <g id="VSI_indicator">
+        <path d="m1800 325 h-150 v25 L1600 325 L1650 300 v25" fill="white" stroke="white" stroke-width="5" />
+        <circle cx="1800" cy="325" r="15" fill="black" stroke="white" stroke-width="5" />
+      </g>
+    </g>
+
+    <g id="vsiRegion" data-extents="30 1505 585 1345">
+      <path d="M1350 305 v-200 l50 -70 h100 v545 h-100 l-50 -70 z" fill="gray" stroke="white" stroke-width="5" />
+
+      <path d="M1500 305 h-70" stroke="white" stroke-width="8" />
+      <g id="VSI_ticks">
+        <path d="M1430 335 h25" transform="rotate(5 1430 335)" stroke="white" stroke-width="5" />
+        <path d="M1430 365 h25" transform="rotate(10 1430 365)" stroke="white" stroke-width="5" />
+        <path d="M1430 395 h25" transform="rotate(15 1430 395)" stroke="white" stroke-width="5" />
+        <path d="M1430 425 h25" transform="rotate(20 1430 425)" stroke="white" stroke-width="5" />
+        <path d="M1430 455 h35" transform="rotate(25 1430 455)" stroke="white" stroke-width="5" />
+        <path d="M1430 485 h25" transform="rotate(30 1430 485)" stroke="white" stroke-width="5" />
+        <path d="M1430 515 h35" transform="rotate(35 1430 515)" stroke="white" stroke-width="5" />
+      </g>
+      <use transform="scale (1, -1)" transform-origin="1500 305" xlink:href="#VSI_ticks" />
+      <g id="VSI_text" class="text2">
+        <text transform="translate(1465 485)">1</text>
+        <text transform="translate(1465 550)">2</text>
+        <text transform="translate(1465 155)">1</text>
+        <text transform="translate(1465 90)">2</text>
+      </g>
+      <path d="M1425 305 h-50" transform="translate(-10 0) rotate(0 1086 360)" stroke="#07ed35" stroke-width="8" />
+      <!-- 1086 305 -->
+    </g>
+
+    <g id="iasRegion" data-extents="35 755 635 575">
+      <g id="iasRoot" transform="translate(750 310)">
+        <rect id="iasBackground" x="-170" y="-270" width="170" height="540" />
+        <use href="#iasBackground" class="tapeBackground" />
+        <clipPath id="iasClip">
+          <use href="#iasBackground" />
+        </clipPath>
+
+        <g clip-path="url(#iasClip)">
+          <g transform="scale(6)">
+            <g id="iasTape" transform="translate(0 0)" fill="white" font-size="6" text-anchor="end"
+              dominant-baseline="central">
+              <path d="m0 -70 h-10" stroke="white" stroke-width="1" />
+              <text x="-12" y="-70">70</text>
+              <path d="m0 -60 h-10" stroke="white" stroke-width="1" />
+              <text x="-12" y="-60">60</text>
+              <path d="m0 -50 h-10" stroke="white" stroke-width="1" />
+              <text x="-12" y="-50">50</text>
+              <path d="m0 -40 h-10" stroke="white" stroke-width="1" />
+              <text x="-12" y="-40">40</text>
+              <path d="m0 -30 h-10" stroke="white" stroke-width="1" />
+              <text x="-12" y="-30">30</text>
+              <path d="m0 -20 h-10" stroke="white" stroke-width="1" />
+              <text x="-12" y="-20">20</text>
+              <path d="m0 -10 h-10" stroke="white" stroke-width="1" />
+              <text x="-12" y="-10">10</text>
+              <path d="m0 00 h-10" stroke="white" stroke-width="1" />
+              <text x="-12" y="0">00</text>
+              <path d="m0 10 h-10" stroke="white" stroke-width="1" />
+              <path d="m0 20 h-10" stroke="white" stroke-width="1" />
+              <path d="m0 30 h-10" stroke="white" stroke-width="1" />
+              <path d="m0 40 h-10" stroke="white" stroke-width="1" />
+
+              <!-- set V NEVER EXCEED: AW139 167kts -->
+              <path d="m0 -167 h-30 " stroke="var(--pfdRed)" stroke-width="2" />
+            </g>
+          </g>
+        </g>
+        <use href="#iasBackground" class="tapeContour" />
+        <g id="iasReadout">
+          <path id="iasReadoutBackground" d="m-5 0 l-30 -30 h-135 v60 h135 z" />
+          <clipPath id="iasReadoutClip">
+            <use href="#iasReadoutBackground" />
+          </clipPath>
+          <g clip-path="url(#iasReadoutClip)" text-anchor="end" dominant-baseline="central">
+            <text id="iasReadoutValue" x="-60" y="0" id="IAS_ro" fill="var(--pfdGreen)" font-size="50">00</text>
+            <g transform="scale(35)">
+              <g id="iasReadoutTape" transform="translate(0 0)" fill="var(--pfdGreen)" font-size="1.2">
+                <text x="-1" y="-10">0</text>
+                <text x="-1" y="-9">9</text>
+                <text x="-1" y="-8">8</text>
+                <text x="-1" y="-7">7</text>
+                <text x="-1" y="-6">6</text>
+                <text x="-1" y="-5">5</text>
+                <text x="-1" y="-4">4</text>
+                <text x="-1" y="-3">3</text>
+                <text x="-1" y="-2">2</text>
+                <text x="-1" y="-1">1</text>
+                <text x="-1" y="0">0</text>
+                <text x="-1" y="1">9</text>
+              </g>
+            </g>
+          </g>
+          <use href="#iasReadoutBackground" class="tapeContour" />
+        </g>
+        <g id="iasGroundspeed" dominant-baseline="central" class="text2">
+          <text x="-160" y="295">GS</text>
+          <text id="iasGroundspeedValue" x="-10" y="295" fill="var(--pfdAmber)" text-anchor="end">---</text>
+          <rect x="-170" y="270" width="170" height="50" class="tapeContour" />
+        </g>
+      </g>
+    </g>
+
+    <g id="rhtRegion" data-extents="620 1855 1180 1585">
+      <g id="RHT_masked" mask="url(#RHT_mask)">
+        <g id="RHT_back">
+          <rect x="1600" y="900" height="500" width="250" fill="var(--pfdGround)" stroke="none" />
+          <rect x="1600" y="-1610" height="2500" width="250" fill="grey" stroke="none" />
+          <rect x="1600" y="890" height="10" width="250" fill="white" stroke="none" />
+          <g id="RHT_tick">
+            <g id="d_RHT">
+              <g id="c_RHT">
+                <g id="b_RHT">
+                  <path id="a_RHT" d="m1600 870 h50" stroke="white" stroke-width="5" />
+                  <use transform="translate(0 -20)" xlink:href="#a_RHT" />
+                  <use transform="translate(0 -40)" xlink:href="#a_RHT" />
+                  <use transform="translate(0 -60)" xlink:href="#a_RHT" />
+                  <path d="m1600 790 h75" stroke="white" stroke-width="5" />
                 </g>
-                <use transform="translate(0 -80)" xlink:href="#ADI_510" />
-                <use transform="translate(0 -160)" xlink:href="#ADI_510" />
-                <use transform="translate(0 -240)" xlink:href="#ADI_510" />
+                <use transform="translate(0 -100)" xlink:href="#b_RHT" />
               </g>
-              <use transform="rotate(180 1050 305)" xlink:href="#ADI_upticks" />
-              <text id="ADI_text_10" class="text2" transform="translate (1150 240)">10</text>
-              <use transform="translate(-255 0)" xlink:href="#ADI_text_10" />
-              <use transform="translate(-255 160)" xlink:href="#ADI_text_10" />
-              <use transform="translate(0 160)" xlink:href="#ADI_text_10" />
-              <text id="ADI_text_20" class="text2" transform="translate (1150 160)">20</text>
-              <use transform="translate(-255 0)" xlink:href="#ADI_text_20" />
-              <use transform="translate(-255 320)" xlink:href="#ADI_text_20" />
-              <use transform="translate(0 320)" xlink:href="#ADI_text_20" />
+              <use transform="translate(0 -200)" xlink:href="#c_RHT" />
+              <use transform="translate(0 -400)" xlink:href="#c_RHT" />
+              <use transform="translate(0 -600)" xlink:href="#c_RHT" />
+              <use transform="translate(0 -800)" xlink:href="#c_RHT" />
             </g>
-          </g>
-
-          <g id="ADI_roll_ticks">
-            <polygon points="1050 65 1065 45 1035 45" />
-            <polygon points="1050 65 1060 50 1040 50" transform="rotate(45 1050 305)" />
-            <polygon points="1050 65 1060 50 1040 50" transform="rotate(-45 1050 305)" />
-            <path d="m1050 65 v-20" transform="rotate(10 1050 305)" />
-            <path d="m1050 65 v-20" transform="rotate(20 1050 305)" />
-            <path d="m1050 65 v-20" transform="rotate(30 1050 305)" />
-            <path d="m1050 65 v-20" transform="rotate(60 1050 305)" />
-            <path d="m1050 65 v-20" transform="rotate(-10 1050 305)" />
-            <path d="m1050 65 v-20" transform="rotate(-20 1050 305)" />
-            <path d="m1050 65 v-20" transform="rotate(-30 1050 305)" />
-            <path d="m1050 65 v-20" transform="rotate(-60 1050 305)" />
-            <g id="ADI_roll_pointer">
-              <polygon points="1050 70 1065 90 1035 90" />
-              <g id="ADI_slipskid">
-                <polygon points="1030 95 1070 95 1075 100 1025 100" />
-              </g>
-            </g>
-          </g>
-
-          <circle cx="1050" cy="305" r="240" stroke="none" fill="white" fill-opacity="0.1" />
-
-          <g id="aircraft-symbol" fill="white" stroke="black" stroke-width="1.5">
-            <!-- <path d="M1050 305 L950 335 H1150 Z" />                -->
-            <path d="M1120 335 h15 v-20 h100 v-15 h-115 z " />
-            <path d="M980 335 h-15 v-20 h-100 v-15 h115 z" />
-            <circle cx="1050" cy="305" r="10" />
+            <use transform="translate(0 -1000)" xlink:href="#d_RHT" />
+            <use transform="translate(0 -2000)" xlink:href="#d_RHT" />
           </g>
         </g>
       </g>
 
-      <g id="VSI_analog">
-        <circle cx="1800" cy="325" r="275" fill="black" stroke="white" stroke-width="5" />
-        <g id="zero-500">
-          <path id="zero" d="m1525 325 h75" stroke="white" stroke-width="10" />
-          <use transform="rotate(40 1800 325)" xlink:href="#zero" />
-          <use transform="rotate(-40 1800 325)" xlink:href="#zero" />
-        </g>
-        <use transform="rotate(80 1800 325)" xlink:href="#zero-500" />
-        <use transform="rotate(-80 1800 325)" xlink:href="#zero-500" />
-        <use transform="rotate(160 1800 325)" xlink:href="#zero" />
-        <use transform="rotate(-160 1800 325)" xlink:href="#zero" />
+      <rect x="1590" y="625" height="550" width="10" fill="white" />
 
-        <g id="cento-400">
-          <path id="cento" d="m1525 325 h50" transform="rotate(8 1800 325)" stroke="white" stroke-width="10" />
-          <use transform="rotate(8 1800 325)" xlink:href="#cento" />
-          <use transform="rotate(16 1800 325)" xlink:href="#cento" />
-          <use transform="rotate(24 1800 325)" xlink:href="#cento" />
-          <use transform="rotate(32 1800 325)" xlink:href="#cento" />
-        </g>
-        <use transform="rotate(40 1800 325)" xlink:href="#cento-400" />
-        <use transform="rotate(-40 1800 325)" xlink:href="#cento-400" />
-        <use transform="rotate(-80 1800 325)" xlink:href="#cento-400" />
+      <g id="RHT_read">
+        <path d="M1850 890 v-25 h-150 l-50 25 l50 25 h150 z" stroke="white" stroke-width="5" />
 
-        <text class="text0">
-          <tspan x="1620" y="342">0</tspan>
-          <tspan x="1660" y="240">5</tspan>
-          <tspan x="1660" y="457">5</tspan>
-          <tspan x="1740" y="190">10</tspan>
-          <tspan x="1740" y="507">10</tspan>
-          <tspan x="1860" y="210">15</tspan>
-          <tspan x="1860" y="487">15</tspan>
-          <tspan x="1915" y="290">20</tspan>
-          <tspan x="1915" y="407">20</tspan>
-          <tspan x="1765" y="290" font-size="40">VSI</tspan>
-          <tspan x="1765" y="380" font-size="30">x100</tspan>
-          <tspan x="1750" y="410" font-size="30">FT/MIN</tspan>
-          <tspan x="1650" y="290" font-size="30">UP</tspan>
-          <tspan x="1650" y="380" font-size="30">DN</tspan>
-        </text>
-
-        <g id="VSI_indicator">
-          <path d="m1800 325 h-150 v25 L1600 325 L1650 300 v25" fill="white" stroke="white" stroke-width="5" />
-          <circle cx="1800" cy="325" r="15" fill="black" stroke="white" stroke-width="5" />
-        </g>
+        <text class="digitalRO"></text>
       </g>
+    </g>
 
-      <g id="vsiRegion" data-extents="30 1505 585 1345">
-        <path d="M1350 305 v-200 l50 -70 h100 v545 h-100 l-50 -70 z" fill="gray" stroke="white" stroke-width="5" />
+    <g id="hsiRegion" data-extents="595 1325 1180 775">
+      <circle cx="1050" cy="900" r="275" fill="black" stroke="none" />
+      <circle cx="1050" cy="900" r="137.5" fill="none" stroke="white" stroke-dasharray="3" stroke-width="3" />
 
-        <path d="M1500 305 h-70" stroke="white" stroke-width="8" />
-        <g id="VSI_ticks">
-          <path d="M1430 335 h25" transform="rotate(5 1430 335)" stroke="white" stroke-width="5" />
-          <path d="M1430 365 h25" transform="rotate(10 1430 365)" stroke="white" stroke-width="5" />
-          <path d="M1430 395 h25" transform="rotate(15 1430 395)" stroke="white" stroke-width="5" />
-          <path d="M1430 425 h25" transform="rotate(20 1430 425)" stroke="white" stroke-width="5" />
-          <path d="M1430 455 h35" transform="rotate(25 1430 455)" stroke="white" stroke-width="5" />
-          <path d="M1430 485 h25" transform="rotate(30 1430 485)" stroke="white" stroke-width="5" />
-          <path d="M1430 515 h35" transform="rotate(35 1430 515)" stroke="white" stroke-width="5" />
-        </g>
-        <use transform="scale (1, -1)" transform-origin="1500 305" xlink:href="#VSI_ticks" />
-        <g id="VSI_text" class="text2">
-          <text transform="translate(1465 485)">1</text>
-          <text transform="translate(1465 550)">2</text>
-          <text transform="translate(1465 155)">1</text>
-          <text transform="translate(1465 90)">2</text>
-        </g>
-        <path d="M1425 305 h-50" transform="translate(-10 0) rotate(0 1086 360)" stroke="#07ed35" stroke-width="8" />
-        <!-- 1086 305 -->
-      </g>
-
-      <g id="iasRegion" data-extents="35 755 640 575">
-        <rect x="580" y="40" width="170" height="545" fill="gray" stroke="white" stroke-width="5" />
-
-        <g id="IAS_tape_masked" mask="url(#IAS_tape_mask)">
-          <g id="IAS_tape">
-            <g id="IAS_tape_50kts">
-              <path id="IAS_tape_basetick" d="m750 305 h-60 " stroke="white" stroke-width="5" />
-              <use transform="translate(0 -60)" xlink:href="#IAS_tape_basetick" />
-              <use transform="translate(0 -120)" xlink:href="#IAS_tape_basetick" />
-              <use transform="translate(0 -180)" xlink:href="#IAS_tape_basetick" />
-              <use transform="translate(0 -240)" xlink:href="#IAS_tape_basetick" />
-              <use transform="translate(0 -300)" xlink:href="#IAS_tape_basetick" />
-            </g>
-            <!-- from -50 to 0 kts-->
-            <use transform="translate(0 360)" xlink:href="#IAS_tape_50kts" />
-            <!-- from 50 to 100 kts -->
-            <use transform="translate(0 -360)" xlink:href="#IAS_tape_50kts" />
-            <!-- from 100 to 150 kts -->
-            <use transform="translate(0 -540)" xlink:href="#IAS_tape_50kts" />
-            <!-- from 150 to 200 kts -->
-            <use transform="translate(0 -900)" xlink:href="#IAS_tape_50kts" />
-            <g class="text2">
-              <text transform="translate(630 317.5)">00</text>
-              <text transform="translate(630 257.5)">10</text>
-              <text transform="translate(630 197.5)">20</text>
-              <text transform="translate(630 137.5)">30</text>
-              <text transform="translate(630 77.5)">40</text>
-              <text transform="translate(630 17.5)">50</text>
-              <text transform="translate(630 -42.5)">60</text>
-              <text transform="translate(630 -102.5)">70</text>
-              <text transform="translate(630 -162.5)">80</text>
-              <text transform="translate(630 -222.5)">90</text>
-              <text transform="translate(605 -282.5)">100</text>
-              <text transform="translate(605 -342.5)">110</text>
-              <text transform="translate(605 -402.5)">120</text>
-              <text transform="translate(605 -462.5)">130</text>
-              <text transform="translate(605 -522.5)">140</text>
-              <text transform="translate(605 -582.5)">150</text>
-              <text transform="translate(605 -642.5)">160</text>
-              <text transform="translate(605 -702.5)">170</text>
-              <text transform="translate(605 -762.5)">180</text>
-              <text transform="translate(605 -822.5)">190</text>
-              <text transform="translate(605 -882.5)">200</text>
-            </g>
-            <!-- set V NEVER EXCEED: AW139 167kts -->
-            <path d="m750 -697 h-170 " stroke="var(--pfdRed)" stroke-width="5" />
+      <g id="HSI_wheel">
+        <g id="HSI_90deg">
+          <g id="HSI_30deg">
+            <path id="HSI_big_tick" d="m1050 625 v50" stroke="white" stroke-width="7" />
+            <path id="HSI_medium_tick" d="m1050 625 v35" transform="rotate(10 1050 900)" stroke="white"
+              stroke-width="7" />
+            <use transform="rotate(10 1050 900)" xlink:href="#HSI_medium_tick" />
+            <path id="HSI_little_tick" d="m1050 625 v20" transform="rotate(5 1050 900)" stroke="white"
+              stroke-width="7" />
+            <use transform="rotate(10 1050 900)" xlink:href="#HSI_little_tick" />
+            <use transform="rotate(20 1050 900)" xlink:href="#HSI_little_tick" />
           </g>
+          <use transform="rotate(30 1050 900)" xlink:href="#HSI_30deg" />
+          <use transform="rotate(60 1050 900)" xlink:href="#HSI_30deg" />
         </g>
+        <use transform="rotate(90 1050 900)" xlink:href="#HSI_90deg" />
+        <use transform="rotate(180 1050 900)" xlink:href="#HSI_90deg" />
+        <use transform="rotate(270 1050 900)" xlink:href="#HSI_90deg" />
 
-        <g id="IAS_readout_box">
-          <path d="m745 305 l-30 -30 h-135 v60 h135 z" stroke="white" stroke-width="5" />
-          <text id="IAS_ro" transform="translate(685 320)">00</text>
-        </g>
-
-        <g id="IAS_GS_zone">
-          <rect x="580" y="585" width="170" height="50" fill="black" stroke="white" stroke-width="5" />
-          <text class="text2" x="590" y="622.5">GS</text>
-          <text id="GS_value" class="text2" x="685" y="622.5"><tspan fill="var(--pfdAmber)">---</tspan></text>
-        </g>
+        <text class="text1" x="1035" y="710">N</text>
+        <text class="text1" x="1037" y="710" transform="rotate(30 1050 900)">3</text>
+        <text class="text1" x="1037" y="710" transform="rotate(60 1050 900)">6</text>
+        <text class="text1" x="1035" y="710" transform="rotate(90 1050 900)">E</text>
+        <text class="text1" x="1025" y="710" transform="rotate(120 1050 900)">12</text>
+        <text class="text1" x="1025" y="710" transform="rotate(150 1050 900)">15</text>
+        <text class="text1" x="1035" y="710" transform="rotate(180 1050 900)">S</text>
+        <text class="text1" x="1025" y="710" transform="rotate(210 1050 900)">21</text>
+        <text class="text1" x="1025" y="710" transform="rotate(240 1050 900)">24</text>
+        <text class="text1" x="1030" y="710" transform="rotate(270 1050 900)">W</text>
+        <text class="text1" x="1025" y="710" transform="rotate(300 1050 900)">30</text>
+        <text class="text1" x="1025" y="710" transform="rotate(330 1050 900)">33</text>
       </g>
 
-      <g id="rhtRegion" data-extents="620 1855 1180 1585">
-        <g id="RHT_masked" mask="url(#RHT_mask)">
-          <g id="RHT_back">
-            <rect x="1600" y="900" height="500" width="250" fill="var(--pfdGround)" stroke="none" />
-            <rect x="1600" y="-1610" height="2500" width="250" fill="grey" stroke="none" />
-            <rect x="1600" y="890" height="10" width="250" fill="white" stroke="none" />
-            <g id="RHT_tick">
-              <g id="d_RHT">
-                <g id="c_RHT">
-                  <g id="b_RHT">
-                    <path id="a_RHT" d="m1600 870 h50" stroke="white" stroke-width="5" />
-                    <use transform="translate(0 -20)" xlink:href="#a_RHT" />
-                    <use transform="translate(0 -40)" xlink:href="#a_RHT" />
-                    <use transform="translate(0 -60)" xlink:href="#a_RHT" />
-                    <path d="m1600 790 h75" stroke="white" stroke-width="5" />
-                  </g>
-                  <use transform="translate(0 -100)" xlink:href="#b_RHT" />
-                </g>
-                <use transform="translate(0 -200)" xlink:href="#c_RHT" />
-                <use transform="translate(0 -400)" xlink:href="#c_RHT" />
-                <use transform="translate(0 -600)" xlink:href="#c_RHT" />
-                <use transform="translate(0 -800)" xlink:href="#c_RHT" />
-              </g>
-              <use transform="translate(0 -1000)" xlink:href="#d_RHT" />
-              <use transform="translate(0 -2000)" xlink:href="#d_RHT" />
-            </g>
-          </g>
-        </g>
-
-        <rect x="1590" y="625" height="550" width="10" fill="white" />
-
-        <g id="RHT_read">
-          <path d="M1850 890 v-25 h-150 l-50 25 l50 25 h150 z" stroke="white" stroke-width="5" />
-
-          <text class="digitalRO"></text>
-        </g>
+      <g id="HSI_helo">
+        <ellipse cx="1050" cy="900" rx="12" ry="30" />
+        <rect x="1047.5" y="920" height="40" width="5" />
+        <rect x="1005" y="896" height="8" width="90" transform="rotate(45 1050 900)" />
+        <rect x="1005" y="896" height="8" width="90" transform="rotate(-45 1050 900)" />
+        <rect x="1043" y="950" height="5" width="14" />
       </g>
 
-      <g id="hsiRegion" data-extents="595 1325 1180 775">
-        <circle cx="1050" cy="900" r="275" fill="black" stroke="none" />
-        <circle cx="1050" cy="900" r="137.5" fill="none" stroke="white" stroke-dasharray="3" stroke-width="3" />
+      <g id="HSI_pointer">
+        <path d="m1050 620 l20 -20 h-40 z" stroke="white" stroke-width="5" />
+      </g>
+    </g>
 
-        <g id="HSI_wheel">
-          <g id="HSI_90deg">
-            <g id="HSI_30deg">
-              <path id="HSI_big_tick" d="m1050 625 v50" stroke="white" stroke-width="7" />
-              <path
-                id="HSI_medium_tick"
-                d="m1050 625 v35"
-                transform="rotate(10 1050 900)"
-                stroke="white"
-                stroke-width="7"
-              />
-              <use transform="rotate(10 1050 900)" xlink:href="#HSI_medium_tick" />
-              <path
-                id="HSI_little_tick"
-                d="m1050 625 v20"
-                transform="rotate(5 1050 900)"
-                stroke="white"
-                stroke-width="7"
-              />
-              <use transform="rotate(10 1050 900)" xlink:href="#HSI_little_tick" />
-              <use transform="rotate(20 1050 900)" xlink:href="#HSI_little_tick" />
-            </g>
-            <use transform="rotate(30 1050 900)" xlink:href="#HSI_30deg" />
-            <use transform="rotate(60 1050 900)" xlink:href="#HSI_30deg" />
-          </g>
-          <use transform="rotate(90 1050 900)" xlink:href="#HSI_90deg" />
-          <use transform="rotate(180 1050 900)" xlink:href="#HSI_90deg" />
-          <use transform="rotate(270 1050 900)" xlink:href="#HSI_90deg" />
+    <g id="wind_indicator">
+      <circle cx="1350" cy="660" r="40" stroke="white" stroke-width="3" />
+      <path id="wind_arrow" d="m1350 695 v-70 l-15 20 h30 l -15 -20" fill="white" stroke="white" stroke-width="5" />
+      <text id="wind_speed" class="text2" transform="translate(1400 670)">0</text>
+    </g>
 
-          <text class="text1" x="1035" y="710">N</text>
-          <text class="text1" x="1037" y="710" transform="rotate(30 1050 900)">3</text>
-          <text class="text1" x="1037" y="710" transform="rotate(60 1050 900)">6</text>
-          <text class="text1" x="1035" y="710" transform="rotate(90 1050 900)">E</text>
-          <text class="text1" x="1025" y="710" transform="rotate(120 1050 900)">12</text>
-          <text class="text1" x="1025" y="710" transform="rotate(150 1050 900)">15</text>
-          <text class="text1" x="1035" y="710" transform="rotate(180 1050 900)">S</text>
-          <text class="text1" x="1025" y="710" transform="rotate(210 1050 900)">21</text>
-          <text class="text1" x="1025" y="710" transform="rotate(240 1050 900)">24</text>
-          <text class="text1" x="1030" y="710" transform="rotate(270 1050 900)">W</text>
-          <text class="text1" x="1025" y="710" transform="rotate(300 1050 900)">30</text>
-          <text class="text1" x="1025" y="710" transform="rotate(330 1050 900)">33</text>
-        </g>
-
-        <g id="HSI_helo">
-          <ellipse cx="1050" cy="900" rx="12" ry="30" />
-          <rect x="1047.5" y="920" height="40" width="5" />
-          <rect x="1005" y="896" height="8" width="90" transform="rotate(45 1050 900)" />
-          <rect x="1005" y="896" height="8" width="90" transform="rotate(-45 1050 900)" />
-          <rect x="1043" y="950" height="5" width="14" />
-        </g>
-
-        <g id="HSI_pointer">
-          <path d="m1050 620 l20 -20 h-40 z" stroke="white" stroke-width="5" />
-        </g>
+    <g id="general_info">
+      <g id="OAT">
+        <text class="text3" transform="translate(1400 750)">OAT</text>
+        <text id="OAT_ro" class="text3" transform="translate(1470 750)">15</text>
+        <text class="text3" transform="translate(1510 750)">°C</text>
       </g>
 
-      <g id="wind_indicator">
-        <circle cx="1350" cy="660" r="40" stroke="white" stroke-width="3" />
-        <path id="wind_arrow" d="m1350 695 v-70 l-15 20 h30 l -15 -20" fill="white" stroke="white" stroke-width="5" />
-        <text id="wind_speed" class="text2" transform="translate(1400 670)">0</text>
+      <g id="HSI_ovly">
+        <text id="OAT_ro" class="text3" transform="translate(1400 790)">No Ovly</text>
       </g>
+    </g>
+  </svg>
+  <script src="static/controls.js"></script>
+  <script type="text/javascript">
+    let svgElem = document.getElementById("mainSvg");
+    addControls(svgElem);
+  </script>
 
-      <g id="general_info">
-        <g id="OAT">
-          <text class="text3" transform="translate(1400 750)">OAT</text>
-          <text id="OAT_ro" class="text3" transform="translate(1470 750)">15</text>
-          <text class="text3" transform="translate(1510 750)">°C</text>
-        </g>
+  <script>
+    document.getElementById("ADI_back").setAttribute("transform", "translate(0 0) rotate(0 1050 300)");
+    document.getElementById("ADI_pitch_ticks").setAttribute("transform", "translate(0 0) rotate(0 1050 300)");
 
-        <g id="HSI_ovly">
-          <text id="OAT_ro" class="text3" transform="translate(1400 790)">No Ovly</text>
-        </g>
-      </g>
-    </svg>
-    <script src="static/controls.js"></script>
-    <script type="text/javascript">
-      let svgElem = document.getElementById("mainSvg");
-      addControls(svgElem);
-    </script>
+    document.getElementById("VSI_indicator").setAttribute("transform", "translate(0 0) rotate(0 1800 325)");
+    document.getElementById("RHT_back").setAttribute("transform", "translate(0 0)");
+    document.getElementById("HSI_wheel").setAttribute("transform", "translate(0 0) rotate(0 1050 900)");
+  </script>
 
-    <script>
-      document.getElementById("ADI_back").setAttribute("transform", "translate(0 0) rotate(0 1050 300)");
-      document.getElementById("ADI_pitch_ticks").setAttribute("transform", "translate(0 0) rotate(0 1050 300)");
+  <script type="text/javascript">
+    var socket = io();
 
-      document.getElementById("VSI_indicator").setAttribute("transform", "translate(0 0) rotate(0 1800 325)");
-      document.getElementById("RHT_back").setAttribute("transform", "translate(0 0)");
-      document.getElementById("HSI_wheel").setAttribute("transform", "translate(0 0) rotate(0 1050 900)");
+    function updateIAS(ias) {
+      document.getElementById("iasTape").setAttribute("transform", `translate(0 ${ias})`);
+      document.getElementById("iasReadoutValue").textContent = String(Math.floor(ias / 10)).padStart(2, "0");
+      document.getElementById("iasReadoutTape").setAttribute("transform", `translate(0 ${ias % 10})`);
+    }
 
-      document.getElementById("IAS_tape").setAttribute("transform", "translate(0 0)");
+    function updateGS(groundspeed) {
+      document.getElementById("iasGroundspeedValue").textContent =
+        (groundspeed !== null && isFinite(groundspeed)) ? String(Math.floor(groundspeed)).padStart(3, "0") : "---";
+    }
 
-      document.getElementById("VSI_analog").style.visibility = "hidden";
-    </script>
-  </body>
+    socket.on("smol", (s) => {
+      if ("instr" in s) {
+        if ("ias" in s.instr) updateIAS(s.instr.ias);
+        if ("gs" in s.instr) updateGS(s.instr.gs);
+      }
+    });
+  </script>
+</body>
+
 </html>

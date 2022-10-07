@@ -63,8 +63,6 @@ function addControls(svgElem) {
     label.innerText = region.name;
     label.setAttribute("for", "show" + capitalised);
     span.appendChild(label);
-
-    console.log(span);
   }
 
   let alignment = document.createElement("p");
@@ -161,7 +159,8 @@ function applySettings() {
   }
   if (alignment !== "xMidYMid") hashParts.push(alignment);
 
-  if (hashParts.length === 0) document.location.hash = "";
+  if (hashParts.length === 0)
+    history.pushState("", document.title, window.location.pathname);
   else document.location.hash = hashParts.join("|");
 }
 

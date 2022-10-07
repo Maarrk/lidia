@@ -21,6 +21,7 @@ def run_server(q: Queue, host: str, port: int):
     root_path = path.abspath(path.dirname(__file__))
     static_files = {
         '/': {'content_type': 'text/html', 'filename': path.join(root_path, 'index.html')},
+        '/pfd': {'content_type': 'text/html', 'filename': path.join(root_path, 'pfd.html')},
         '/static': path.join(root_path, 'static'),
     }
 

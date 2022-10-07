@@ -76,5 +76,9 @@ def run(q: Queue, args: Namespace):
                 state.brdr.low = Controls(-0.5, -0.5, 0.25, -0.5, 0.25)
                 state.brdr.high = Controls(0.5, 0.5, 0.75, 0.5, 0.75)
 
+        state.instr.ias = 30 + 5 * val(0)
+        if cycle_index() > 0:
+            state.instr.gs = state.instr.ias
+
         q.put(('smol', state.smol()))
         sleep(1 / args.frequency)
