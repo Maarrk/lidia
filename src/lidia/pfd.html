@@ -135,7 +135,7 @@
         </g>
 
         <use href="#adiInnerBackground" fill="white" fill-opacity="0.1" />
-        <g id="adiRoll" fill="white" stroke="white" stroke-width="3">
+        <g fill="white" stroke="white" stroke-width="3">
           <path d="m0 -240 l15 -20 h-30 z" stroke="none" />
           <path d="m0 -240 v-20" transform="rotate(10)" />
           <path d="m0 -240 v-20" transform="rotate(20)" />
@@ -167,8 +167,10 @@
           <path d="m70 25 h15 v-20 h100 v-15 h-115 z " />
           <path d="m-70 25 h-15 v-20 h-100 v-15 h115 z" />
           <circle cx="0" cy="0" r="10" />
-          <path d="m0 -240 l15 20 h-30 z" />
-          <path id="adiSlipskidIndicator" d="m16 -217 l6 7 h-44 l6 -7 z" />
+          <g id="adiRoll">
+            <path d="m0 -240 l15 20 h-30 z" />
+            <path id="adiSlipskidIndicator" d="m16 -217 l6 7 h-44 l6 -7 z" />
+          </g>
         </g>
       </g>
     </g>
