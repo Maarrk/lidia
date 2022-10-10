@@ -47,6 +47,10 @@ def run(q: Queue, args: Namespace):
     while True:
         state = AircraftState()
 
+        state.att.pitch = 0.5 * val(0)
+        state.att.roll = 0.5 * val(0.25)
+        state.att.yaw = 0.5 * val(0.5)
+
         state.ctrl.stick_pull = val(0.1)
         state.ctrl.stick_right = val(0.35)
         state.ctrl.collective_up = 0.3 + 0.5 * (val(0.2) + outside_offset)
@@ -76,7 +80,7 @@ def run(q: Queue, args: Namespace):
                 state.brdr.low = Controls(-0.5, -0.5, 0.25, -0.5, 0.25)
                 state.brdr.high = Controls(0.5, 0.5, 0.75, 0.5, 0.75)
 
-        state.instr.ias = 30 + 5 * val(0)
+        state.instr.ias = 30 + 5 * val(0.5)
         if cycle_index() > 0:
             state.instr.gs = state.instr.ias
 

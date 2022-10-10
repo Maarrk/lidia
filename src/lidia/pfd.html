@@ -105,14 +105,6 @@
 <body>
   <svg id="mainSvg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2100 1200" preserveAspectRatio="xMidYMid meet">
     <defs>
-      <mask id="ADI_main_mask" class="whitemask">
-        <rect x="800" y="60" height="500" width="500" />
-      </mask>
-
-      <mask id="ADI_ticks_mask">
-        <circle cx="1050" cy="305" r="240" stroke="none" fill="white" />
-      </mask>
-
       <mask id="RHT_mask" class="whitemask">
         <rect x="1600" y="650" height="500" width="250" />
       </mask>
@@ -122,66 +114,61 @@
     </g>
 
     <g id="adiRegion" data-extents="35 1325 585 775">
-      <g id="ADI_masked" mask="url(#ADI_main_mask)">
-        <g id="ADI_back">
-          <rect width="2100" height="500" x="0" y="-200" fill="var(--pfdSky)" stroke="none" />
-          <rect width="2100" height="10" x="0" y="300" fill="#ffffff" stroke="none" />
-          <rect width="2100" height="500" x="0" y="310" fill="var(--pfdGround)" stroke="none" />
-        </g>
+      <g transform="translate(1050 310)">
+        <rect id="adiBackground" x="-275" y="-275" height="550" width="550" rx="25" />
+        <circle id="adiInnerBackground" cx="0" cy="0" r="240" />
+        <clipPath id="adiClip">
+          <use href="#adiBackground" />
+        </clipPath>
+        <clipPath id="adiInnerClip">
+          <use href="#adiInnerBackground" />
+        </clipPath>
 
-        <g id="ADI_pitch_ticks_masked" mask="url(#ADI_ticks_mask)">
-          <g id="ADI_pitch_ticks">
-            <g id="ADI_upticks">
-              <path d="m1030 285 h40" stroke="white" stroke-width="5" />
-              <!-- centre 305 -->
-              <path d="m1030 285 h40" transform="translate(0 -40)" stroke="white" stroke-width="5" />
-              <g id="ADI_510">
-                <path d="m1000 285 h100" transform="translate(0 -20)" stroke="white" stroke-width="5" />
-                <path d="m950 285 h200" transform="translate(0 -60)" stroke="white" stroke-width="5" />
-              </g>
-              <use transform="translate(0 -80)" xlink:href="#ADI_510" />
-              <use transform="translate(0 -160)" xlink:href="#ADI_510" />
-              <use transform="translate(0 -240)" xlink:href="#ADI_510" />
-            </g>
-            <use transform="rotate(180 1050 305)" xlink:href="#ADI_upticks" />
-            <text id="ADI_text_10" class="text2" transform="translate (1150 240)">10</text>
-            <use transform="translate(-255 0)" xlink:href="#ADI_text_10" />
-            <use transform="translate(-255 160)" xlink:href="#ADI_text_10" />
-            <use transform="translate(0 160)" xlink:href="#ADI_text_10" />
-            <text id="ADI_text_20" class="text2" transform="translate (1150 160)">20</text>
-            <use transform="translate(-255 0)" xlink:href="#ADI_text_20" />
-            <use transform="translate(-255 320)" xlink:href="#ADI_text_20" />
-            <use transform="translate(0 320)" xlink:href="#ADI_text_20" />
-          </g>
-        </g>
-
-        <g id="ADI_roll_ticks">
-          <polygon points="1050 65 1065 45 1035 45" />
-          <polygon points="1050 65 1060 50 1040 50" transform="rotate(45 1050 305)" />
-          <polygon points="1050 65 1060 50 1040 50" transform="rotate(-45 1050 305)" />
-          <path d="m1050 65 v-20" transform="rotate(10 1050 305)" />
-          <path d="m1050 65 v-20" transform="rotate(20 1050 305)" />
-          <path d="m1050 65 v-20" transform="rotate(30 1050 305)" />
-          <path d="m1050 65 v-20" transform="rotate(60 1050 305)" />
-          <path d="m1050 65 v-20" transform="rotate(-10 1050 305)" />
-          <path d="m1050 65 v-20" transform="rotate(-20 1050 305)" />
-          <path d="m1050 65 v-20" transform="rotate(-30 1050 305)" />
-          <path d="m1050 65 v-20" transform="rotate(-60 1050 305)" />
-          <g id="ADI_roll_pointer">
-            <polygon points="1050 70 1065 90 1035 90" />
-            <g id="ADI_slipskid">
-              <polygon points="1030 95 1070 95 1075 100 1025 100" />
+        <g clip-path="url(#adiClip)">
+          <g transform="scale(8)">
+            <g id="adiHorizon">
+              <rect x="-150" y="-150" width="300" height="150" fill="var(--pfdSky)" stroke="none" />
+              <rect x="-150" y="0" width="300" height="150" fill="var(--pfdGround)" stroke="none" />
+              <path d="M-150 0 h300" stroke="white" stroke-width="1.25" />
             </g>
           </g>
         </g>
 
-        <circle cx="1050" cy="305" r="240" stroke="none" fill="white" fill-opacity="0.1" />
+        <use href="#adiInnerBackground" fill="white" fill-opacity="0.1" />
+        <g id="adiRoll" fill="white" stroke="white" stroke-width="3">
+          <path d="m0 -240 l15 -20 h-30 z" stroke="none" />
+          <path d="m0 -240 v-20" transform="rotate(10)" />
+          <path d="m0 -240 v-20" transform="rotate(20)" />
+          <path d="m0 -240 v-20" transform="rotate(30)" />
+          <path d="m0 -240 v-20" transform="rotate(60)" />
+          <path d="m0 -240 v-20" transform="rotate(-10)" />
+          <path d="m0 -240 v-20" transform="rotate(-20)" />
+          <path d="m0 -240 v-20" transform="rotate(-30)" />
+          <path d="m0 -240 v-20" transform="rotate(-60)" />
+          <path d="m0 -240 l10 -15 h-20 z" stroke="none" transform="rotate(45)" />
+          <path d="m0 -240 l10 -15 h-20 z" stroke="none" transform="rotate(-45)" />
+        </g>
 
-        <g id="aircraft-symbol" fill="white" stroke="black" stroke-width="1.5">
-          <!-- <path d="M1050 305 L950 335 H1150 Z" />                -->
-          <path d="M1120 335 h15 v-20 h100 v-15 h-115 z " />
-          <path d="M980 335 h-15 v-20 h-100 v-15 h115 z" />
-          <circle cx="1050" cy="305" r="10" />
+        <g clip-path="url(#adiInnerClip">
+          <g transform="scale(8)">
+            <g id="adiInnerHorizon" fill="white" stroke="white" stroke-width="0.625" font-size="5"
+              dominant-baseline="central">
+              <path d="m-2.5 -7.5 h5" />
+              <path d="m-2.5 -2.5 h5" />
+              <path d="m-2.5 2.5 h5" />
+              <path d="m-2.5 7.5 h5" />
+              <!-- Other ticks generated with script -->
+            </g>
+          </g>
+        </g>
+
+        <g fill="white" stroke="black" stroke-width="1.5">
+          <!-- <path d="M0 -5 l-100 30 h200 z" /> -->
+          <path d="m70 25 h15 v-20 h100 v-15 h-115 z " />
+          <path d="m-70 25 h-15 v-20 h-100 v-15 h115 z" />
+          <circle cx="0" cy="0" r="10" />
+          <path d="m0 -240 l15 20 h-30 z" />
+          <path id="adiSlipskidIndicator" d="m16 -217 l6 7 h-44 l6 -7 z" />
         </g>
       </g>
     </g>
@@ -257,7 +244,7 @@
     </g>
 
     <g id="iasRegion" data-extents="35 755 635 575">
-      <g id="iasRoot" transform="translate(750 310)">
+      <g transform="translate(750 310)">
         <rect id="iasBackground" x="-170" y="-270" width="170" height="540" />
         <use href="#iasBackground" class="tapeBackground" />
         <clipPath id="iasClip">
@@ -444,6 +431,20 @@
     }
     let iasTape = document.getElementById("iasTape");
     iasTape.innerHTML = iasTape.innerHTML + iasTapeHTML.join("");
+
+    let pitchHTML = [];
+    for (let pitch = -50; pitch <= 50; pitch += 10) {
+      if (pitch == 0) continue;
+
+      pitchHTML.push(`
+        <text x="-13" y="${-pitch}" text-anchor="end" stroke="none">${Math.abs(pitch)}</text>
+        <text x="13" y="${-pitch}" text-anchor="start" stroke="none">${Math.abs(pitch)}</text>
+        <path d="m-12 ${-pitch} h24" />
+        <path d="m-6 ${-pitch + Math.sign(pitch) * 5} h12" />
+      `);
+    }
+    let adiInnerHorizon = document.getElementById("adiInnerHorizon");
+    adiInnerHorizon.innerHTML = adiInnerHorizon.innerHTML + pitchHTML.join("");
   </script>
 
   <script type="text/javascript">
@@ -458,13 +459,28 @@
         (groundspeed !== null && isFinite(groundspeed)) ? String(Math.floor(groundspeed)).padStart(3, "0") : "---";
     }
 
+    function updateADI(roll, pitch) {
+      let horizonTransform = `rotate(${-roll}) translate(0 ${pitch}) `
+      document.getElementById("adiHorizon").setAttribute("transform", horizonTransform);
+      document.getElementById("adiInnerHorizon").setAttribute("transform", horizonTransform);
+      document.getElementById("adiRoll").setAttribute("transform", `rotate(${-roll})`);
+    }
+
+    function degrees(radians) {
+      return radians * 180 / Math.PI;
+    }
+
     var socket = io();
     socket.on("smol", (s) => {
+      if ("att" in s) {
+        updateADI(degrees(s.att[0]), degrees(s.att[1]));
+      }
       if ("instr" in s) {
         if ("ias" in s.instr) updateIAS(s.instr.ias);
         if ("gs" in s.instr) updateGS(s.instr.gs);
       }
     });
+
   </script>
 </body>
 

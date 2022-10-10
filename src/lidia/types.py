@@ -10,6 +10,20 @@ SetupFn = Callable[[_SubParsersAction], Tuple[str, RunFn]]
 
 
 @dataclass
+class Attitude:
+    roll: float = 0
+    pitch: float = 0
+    yaw: float = 0
+
+    def smol(self) -> List[float]:
+        return [
+            self.roll,
+            self.pitch,
+            self.yaw
+        ]
+
+
+@dataclass
 class Controls:
     stick_right: float = 0
     stick_pull: float = 0
@@ -61,6 +75,8 @@ class AircraftState:
     """Full state of displayed aircraft initialised with defaults"""
 
     def __init__(self) -> None:
+        self.att = Attitude()
+        """Aircraft attitude, in radians"""
         self.ctrl = Controls()
         """Current control inceptors position"""
         self.trgt = Controls()
@@ -77,6 +93,6 @@ class AircraftState:
     def smol(self) -> dict:
         """Return self as dictionary with SMOL-defined keys"""
         d = dict()
-        for key in ['ctrl', 'trgt', 'trim', 'brdr', 'btn', 'instr']:
+        for key in ['att', 'ctrl', 'trgt', 'trim', 'brdr', 'btn', 'instr']:
             d[key] = getattr(self, key).smol()
         return d
