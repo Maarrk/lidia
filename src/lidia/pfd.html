@@ -16,22 +16,6 @@
       --pfdCyan: #00ffff;
     }
 
-    body {
-      margin: 0;
-      padding: 0;
-      overflow: hidden;
-      background-color: black;
-      font-family: sans-serif;
-    }
-
-    svg#mainSvg {
-      position: absolute;
-      top: 0;
-      bottom: 0;
-      height: 100%;
-      width: 100%;
-    }
-
     .tapeBackground {
       fill: gray;
     }
@@ -50,39 +34,28 @@
     }
 
     .text0 {
-      font-family: sans-serif;
       fill: white;
       font-size: 50px;
     }
 
     .text1 {
-      font-family: sans-serif;
       fill: white;
       font-size: 40px;
       font-weight: 600;
     }
 
     .text2 {
-      font-family: sans-serif;
       fill: white;
       font-size: 40px;
-      font-weight: 400;
     }
 
     .text3 {
-      font-family: sans-serif;
       fill: white;
       font-size: 30px;
-      font-weight: 520;
-    }
-
-    @font-face {
-      font-family: "digital";
-      src: url("./digital-7/digital-7.ttf");
+      font-weight: 500;
     }
 
     .digitalRO {
-      font-family: digital;
       fill: white;
       font-size: 100px;
     }
@@ -416,9 +389,6 @@
   </script>
 
   <script>
-    document.getElementById("ADI_back").setAttribute("transform", "translate(0 0) rotate(0 1050 300)");
-    document.getElementById("ADI_pitch_ticks").setAttribute("transform", "translate(0 0) rotate(0 1050 300)");
-
     document.getElementById("VSI_indicator").setAttribute("transform", "translate(0 0) rotate(0 1800 325)");
     document.getElementById("RHT_back").setAttribute("transform", "translate(0 0)");
     document.getElementById("HSI_wheel").setAttribute("transform", "translate(0 0) rotate(0 1050 900)");

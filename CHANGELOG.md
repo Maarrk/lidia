@@ -6,6 +6,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added
+
+- PFD (Primary Flight Display) view
+- Roboto Mono font for all text
+
+### Changed
+
+- Reworked display options into generic system
+
 ## [0.3.2] - 2022-06-13
 
 ### Added
