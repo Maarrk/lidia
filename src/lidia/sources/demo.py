@@ -1,5 +1,5 @@
 from argparse import _SubParsersAction, ArgumentDefaultsHelpFormatter, ArgumentError, ArgumentParser, Namespace
-from math import pi, sin
+from math import cos, pi, sin
 from multiprocessing import Queue
 from time import sleep, time
 from typing import Tuple
@@ -51,6 +51,10 @@ def run(q: Queue, args: Namespace):
         state.att.roll = 0.5 * val(0.25)
         state.att.yaw = 0.5 * val(0.5)
 
+        state.v_body.x = 15 + 2.5 * val(0.5)
+
+        state.v_ned.down = state.v_body.x * sin(state.att.pitch)
+
         state.ctrl.stick_pull = val(0.1)
         state.ctrl.stick_right = val(0.35)
         state.ctrl.collective_up = 0.3 + 0.5 * (val(0.2) + outside_offset)
@@ -80,9 +84,10 @@ def run(q: Queue, args: Namespace):
                 state.brdr.low = Controls(-0.5, -0.5, 0.25, -0.5, 0.25)
                 state.brdr.high = Controls(0.5, 0.5, 0.75, 0.5, 0.75)
 
-        state.instr.ias = 30 + 5 * val(0.5)
+        # only converts from m/s to kt
+        state.instr.ias = state.v_body.x * 3600.0 / 1852.0
         if cycle_index() > 0:
-            state.instr.gs = state.instr.ias
+            state.instr.gs = state.instr.ias * cos(state.att.pitch)
 
         q.put(('smol', state.smol()))
         sleep(1 / args.frequency)

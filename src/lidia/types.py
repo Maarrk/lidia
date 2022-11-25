@@ -24,6 +24,35 @@ class Attitude:
 
 
 @dataclass
+class XYZ:
+    """Vector in aircraft coordinate system"""
+    x: float = 0
+    """Longitudinal axis forward"""
+    y: float = 0
+    """Lateral axis to the right"""
+    z: float = 0
+    """Vertical axis downward"""
+
+    def smol(self) -> List[float]:
+        return [self.x, self.y, self.z]
+
+
+@dataclass
+class NED:
+    """Vector in local horizon coordinate system"""
+    north: float = 0
+    east: float = 0
+    down: float = 0
+
+    def smol(self) -> List[float]:
+        return [
+            self.north,
+            self.east,
+            self.down
+        ]
+
+
+@dataclass
 class Controls:
     stick_right: float = 0
     stick_pull: float = 0
@@ -65,7 +94,9 @@ class Buttons(IntFlag):
 @dataclass
 class Instruments:
     ias: float = 0
+    """Indicated airspeed"""
     gs: Optional[float] = None
+    """Groundspeed"""
 
     def smol(self) -> dict:
         return asdict(self)
@@ -77,6 +108,10 @@ class AircraftState:
     def __init__(self) -> None:
         self.att = Attitude()
         """Aircraft attitude, in radians"""
+        self.v_body = XYZ()
+        """Velocity in body frame, in meters per second"""
+        self.v_ned = NED()
+        """Velocity in local horizon coordinate system, in meters per second"""
         self.ctrl = Controls()
         """Current control inceptors position"""
         self.trgt = Controls()
@@ -93,6 +128,6 @@ class AircraftState:
     def smol(self) -> dict:
         """Return self as dictionary with SMOL-defined keys"""
         d = dict()
-        for key in ['att', 'ctrl', 'trgt', 'trim', 'brdr', 'btn', 'instr']:
+        for key in ['att', 'v_body', 'v_ned', 'ctrl', 'trgt', 'trim', 'brdr', 'btn', 'instr']:
             d[key] = getattr(self, key).smol()
         return d

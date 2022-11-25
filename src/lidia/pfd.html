@@ -195,27 +195,23 @@
     </g>
 
     <g id="vsiRegion" data-extents="30 1505 585 1345">
-      <path d="M1350 305 v-200 l50 -70 h100 v545 h-100 l-50 -70 z" fill="gray" stroke="white" stroke-width="5" />
-
-      <path d="M1500 305 h-70" stroke="white" stroke-width="8" />
-      <g id="VSI_ticks">
-        <path d="M1430 335 h25" transform="rotate(5 1430 335)" stroke="white" stroke-width="5" />
-        <path d="M1430 365 h25" transform="rotate(10 1430 365)" stroke="white" stroke-width="5" />
-        <path d="M1430 395 h25" transform="rotate(15 1430 395)" stroke="white" stroke-width="5" />
-        <path d="M1430 425 h25" transform="rotate(20 1430 425)" stroke="white" stroke-width="5" />
-        <path d="M1430 455 h35" transform="rotate(25 1430 455)" stroke="white" stroke-width="5" />
-        <path d="M1430 485 h25" transform="rotate(30 1430 485)" stroke="white" stroke-width="5" />
-        <path d="M1430 515 h35" transform="rotate(35 1430 515)" stroke="white" stroke-width="5" />
+      <g transform="translate(1050 310)">
+        <path d="M300 0 v-200 l50 -70 h100 v545 h-100 l-50 -70 z" fill="gray" stroke="white" stroke-width="5" />
+        <path d="M380 0 h70" stroke="white" stroke-width="8" />
+        <g id="vsiTicks" stroke="white" stroke-width="5">
+          <path d="M380 33.1 L405 35.3 M380 66.0 L405 70.3 M380 98.4 L405 104.8 M380 130.0
+          L405 138.5 M380 160.6 L405 171.2 M380 190.0 L405 202.5 M380 218.0 L405 232.3" />
+          <path d="M380 160.6 L415 175.4 M380 218.0 L415 238.0" />
+        </g>
+        <use xlink:href="#vsiTicks" transform="scale (1, -1)" />
+        <g id="vsiText" class="text2" dominant-baseline="central" transform="translate(420)">
+          <text y="-240">2</text>
+          <text y="-180">1</text>
+          <text y="180">1</text>
+          <text y="240">2</text>
+        </g>
+        <line id="vsiIndicator" x1="320" y1="0" x2="370" y2="0" stroke="var(--pfdGreen)" stroke-width="8" />
       </g>
-      <use transform="scale (1, -1)" transform-origin="1500 305" xlink:href="#VSI_ticks" />
-      <g id="VSI_text" class="text2">
-        <text transform="translate(1465 485)">1</text>
-        <text transform="translate(1465 550)">2</text>
-        <text transform="translate(1465 155)">1</text>
-        <text transform="translate(1465 90)">2</text>
-      </g>
-      <path d="M1425 305 h-50" transform="translate(-10 0) rotate(0 1086 360)" stroke="#07ed35" stroke-width="8" />
-      <!-- 1086 305 -->
     </g>
 
     <g id="iasRegion" data-extents="35 755 635 575">
@@ -420,6 +416,18 @@
   </script>
 
   <script type="text/javascript">
+    function degrees(radians) {
+      return radians * 180 / Math.PI;
+    }
+
+    function radians(degrees) {
+      return degrees * Math.PI / 180;
+    }
+
+    function feet(meters) {
+      return meters / 0.3048;
+    }
+
     function updateIAS(ias) {
       document.getElementById("iasTape").setAttribute("transform", `translate(0 ${ias})`);
       document.getElementById("iasReadoutValue").textContent = String(Math.floor(ias / 10)).padStart(2, "0");
@@ -438,14 +446,30 @@
       document.getElementById("adiRoll").setAttribute("transform", `rotate(${-roll})`);
     }
 
-    function degrees(radians) {
-      return radians * 180 / Math.PI;
+    const vsiIndicator = document.getElementById("vsiIndicator");
+    const vsiX1 = parseFloat(vsiIndicator.getAttribute("x1"));
+    const vsiX2 = parseFloat(vsiIndicator.getAttribute("x2"));
+    function updateVSI(verticalSpeed) {
+      let direction = Math.sign(verticalSpeed);
+      let value = Math.abs(verticalSpeed);
+      const maxAngleDeg = 37;
+      let angleDeg = value <= 10 ? (value / 10 * 25) : // first 10 hft/min is 25 degrees
+        value < maxAngleDeg ? value - 10 + 25 : // above 10 it's 10 deg per 10 hft/min
+          maxAngleDeg; // limit to maximum angle
+      let angle = radians(angleDeg) * direction;
+
+      // positive vertical speed is lower y in svg
+      vsiIndicator.setAttribute("y1", -Math.sin(angle) * vsiX1);
+      vsiIndicator.setAttribute("y2", -Math.sin(angle) * vsiX2);
     }
 
     var socket = io();
     socket.on("smol", (s) => {
       if ("att" in s) {
         updateADI(degrees(s.att[0]), degrees(s.att[1]));
+      }
+      if ("v_ned" in s) {
+        updateVSI(feet(s.v_ned[2]) * 0.6); // from m/s to 100ft/min
       }
       if ("instr" in s) {
         if ("ias" in s.instr) updateIAS(s.instr.ias);
