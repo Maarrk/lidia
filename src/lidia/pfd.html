@@ -26,46 +26,6 @@
       stroke: white;
       stroke-width: 5;
     }
-
-    .whitemask {
-      stroke: #ffffff;
-      stroke-width: 50;
-      stroke-linejoin: round;
-      fill: #ffffff;
-    }
-
-    .text0 {
-      fill: white;
-      font-size: 50px;
-    }
-
-    .text1 {
-      fill: white;
-      font-size: 40px;
-      font-weight: 600;
-    }
-
-    .text2 {
-      fill: white;
-      font-size: 40px;
-    }
-
-    .text3 {
-      fill: white;
-      font-size: 30px;
-      font-weight: 500;
-    }
-
-    #HSI_helo {
-      fill: white;
-      stroke: none;
-    }
-
-    #ADI_roll_ticks {
-      stroke: white;
-      stroke-width: 3;
-      fill: white;
-    }
   </style>
   <link rel="stylesheet" href="static/style.css" />
   <script src="static/socket.io.js"></script>
@@ -139,52 +99,6 @@
       </g>
     </g>
 
-    <g id="VSI_analog" display="none">
-      <circle cx="1800" cy="325" r="275" fill="black" stroke="white" stroke-width="5" />
-      <g id="zero-500">
-        <path id="zero" d="m1525 325 h75" stroke="white" stroke-width="10" />
-        <use transform="rotate(40 1800 325)" xlink:href="#zero" />
-        <use transform="rotate(-40 1800 325)" xlink:href="#zero" />
-      </g>
-      <use transform="rotate(80 1800 325)" xlink:href="#zero-500" />
-      <use transform="rotate(-80 1800 325)" xlink:href="#zero-500" />
-      <use transform="rotate(160 1800 325)" xlink:href="#zero" />
-      <use transform="rotate(-160 1800 325)" xlink:href="#zero" />
-
-      <g id="cento-400">
-        <path id="cento" d="m1525 325 h50" transform="rotate(8 1800 325)" stroke="white" stroke-width="10" />
-        <use transform="rotate(8 1800 325)" xlink:href="#cento" />
-        <use transform="rotate(16 1800 325)" xlink:href="#cento" />
-        <use transform="rotate(24 1800 325)" xlink:href="#cento" />
-        <use transform="rotate(32 1800 325)" xlink:href="#cento" />
-      </g>
-      <use transform="rotate(40 1800 325)" xlink:href="#cento-400" />
-      <use transform="rotate(-40 1800 325)" xlink:href="#cento-400" />
-      <use transform="rotate(-80 1800 325)" xlink:href="#cento-400" />
-
-      <text class="text0">
-        <tspan x="1620" y="342">0</tspan>
-        <tspan x="1660" y="240">5</tspan>
-        <tspan x="1660" y="457">5</tspan>
-        <tspan x="1740" y="190">10</tspan>
-        <tspan x="1740" y="507">10</tspan>
-        <tspan x="1860" y="210">15</tspan>
-        <tspan x="1860" y="487">15</tspan>
-        <tspan x="1915" y="290">20</tspan>
-        <tspan x="1915" y="407">20</tspan>
-        <tspan x="1765" y="290" font-size="40">VSI</tspan>
-        <tspan x="1765" y="380" font-size="30">x100</tspan>
-        <tspan x="1750" y="410" font-size="30">FT/MIN</tspan>
-        <tspan x="1650" y="290" font-size="30">UP</tspan>
-        <tspan x="1650" y="380" font-size="30">DN</tspan>
-      </text>
-
-      <g id="VSI_indicator">
-        <path d="m1800 325 h-150 v25 L1600 325 L1650 300 v25" fill="white" stroke="white" stroke-width="5" />
-        <circle cx="1800" cy="325" r="15" fill="black" stroke="white" stroke-width="5" />
-      </g>
-    </g>
-
     <g id="vsiRegion" data-extents="30 1505 585 1345">
       <g transform="translate(1050 310)">
         <path d="M300 0 v-200 l50 -70 h100 v545 h-100 l-50 -70 z" fill="gray" stroke="white" stroke-width="5" />
@@ -195,13 +109,35 @@
           <path d="M380 160.6 L415 175.4 M380 218.0 L415 238.0" />
         </g>
         <use xlink:href="#vsiTicks" transform="scale (1, -1)" />
-        <g id="vsiText" class="text2" dominant-baseline="central" transform="translate(420)">
+        <g id="vsiText" fill="white" font-size="40" dominant-baseline="central" transform="translate(420)">
           <text y="-240">2</text>
           <text y="-180">1</text>
           <text y="180">1</text>
           <text y="240">2</text>
         </g>
         <line id="vsiIndicator" x1="320" y1="0" x2="370" y2="0" stroke="var(--pfdGreen)" stroke-width="8" />
+      </g>
+    </g>
+
+    <g id="vsidialRegionIgnored" display="none" data-extents="25 2080 585 1520">
+      <g transform="translate(1800 310)">
+        <circle cx="0" cy="0" r="275" fill="black" stroke="white" stroke-width="5" />
+        <g id="vsidialDial" text-anchor="middle" dominant-baseline="central" fill="white" stroke="white" font-size="50"
+          stroke-width="8">
+          <text x="0" y="-60" stroke="none">VSI</text>
+          <g font-size="30" stroke="none">
+            <text x="0" y="50">x100</text>
+            <text x="0" y="80">FT/MIN</text>
+            <text x="-120" y="-30">UP</text>
+            <text x="-120" y="30">DN</text>
+          </g>
+
+          <!-- Ticks generated with script -->
+        </g>
+        <g id="vsidialIndicator" stroke-width="5" stroke="white">
+          <path d="M0 0 h-150 v25 l-50 -25 l50 -25 v25" fill="white" />
+          <circle cx="0" cy="0" r="15" fill="black" />
+        </g>
       </g>
     </g>
 
@@ -255,8 +191,8 @@
           </g>
           <use href="#iasReadoutBackground" class="tapeContour" />
         </g>
-        <g id="iasGroundspeed" dominant-baseline="central" class="text2">
-          <text x="-160" y="295">GS</text>
+        <g id="iasGroundspeed" dominant-baseline="central" font-size="40">
+          <text x="-160" y="295" fill="white">GS</text>
           <text id="iasGroundspeedValue" x="-10" y="295" fill="var(--pfdAmber)" text-anchor="end">---</text>
           <rect x="-170" y="270" width="170" height="50" class="tapeContour" />
         </g>
@@ -293,7 +229,7 @@
         <circle cx="0" cy="0" r="275" fill="black" stroke="none" />
         <circle cx="0" cy="0" r="137.5" fill="none" stroke="white" stroke-dasharray="3" stroke-width="3" />
         <path d="M0 -280 l20 -20 h-40 z" stroke="white" stroke-width="5" />
-        <g id="hsiWheel" text-anchor="middle" dominant-baseline="hanging" class="text1">
+        <g id="hsiWheel" text-anchor="middle" dominant-baseline="hanging" fill="white" font-size="40" font-weight="600">
           <text x="0" y="-225">N</text>
           <text x="0" y="-225" transform="rotate(30)">3</text>
           <text x="0" y="-225" transform="rotate(60)">6</text>
@@ -317,21 +253,23 @@
       </g>
     </g>
 
-    <g id="wind_indicator">
-      <circle cx="1350" cy="660" r="40" stroke="white" stroke-width="3" />
-      <path id="wind_arrow" d="m1350 695 v-70 l-15 20 h30 l -15 -20" fill="white" stroke="white" stroke-width="5" />
-      <text id="wind_speed" class="text2" transform="translate(1400 670)">0</text>
-    </g>
-
-    <g id="general_info">
-      <g id="OAT">
-        <text class="text3" transform="translate(1400 750)">OAT</text>
-        <text id="OAT_ro" class="text3" transform="translate(1470 750)">15</text>
-        <text class="text3" transform="translate(1510 750)">°C</text>
+    <g id="infoRegionIgnored" display="none">
+      <g id="wind_indicator">
+        <circle cx="1350" cy="660" r="40" stroke="white" stroke-width="3" />
+        <path id="wind_arrow" d="m1350 695 v-70 l-15 20 h30 l -15 -20" fill="white" stroke="white" stroke-width="5" />
+        <text id="wind_speed" fill="white" font-size="40" transform="translate(1400 670)">0</text>
       </g>
 
-      <g id="HSI_ovly">
-        <text id="OAT_ro" class="text3" transform="translate(1400 790)">No Ovly</text>
+      <g id="general_info" fill="white" font-size="30" font-weight="500">
+        <g id="OAT">
+          <text transform="translate(1400 750)">OAT</text>
+          <text id="OAT_ro" transform="translate(1470 750)">15</text>
+          <text transform="translate(1510 750)">°C</text>
+        </g>
+
+        <g id="HSI_ovly">
+          <text id="OAT_ro" transform="translate(1400 790)">No Ovly</text>
+        </g>
       </g>
     </g>
   </svg>
@@ -341,13 +279,40 @@
     addControls(svgElem);
   </script>
 
-  <script>
-    document.getElementById("VSI_indicator").setAttribute("transform", "translate(0 0) rotate(0 1800 325)");
-    document.getElementById("RHT_back").setAttribute("transform", "translate(0 0)");
-    document.getElementById("HSI_wheel").setAttribute("transform", "translate(0 0) rotate(0 1050 900)");
+  <script type="text/javascript">
+    function degrees(radians) {
+      return radians * 180 / Math.PI;
+    }
+
+    function radians(degrees) {
+      return degrees * Math.PI / 180;
+    }
+
+    function feet(meters) {
+      return meters / 0.3048;
+    }
   </script>
 
   <script type="text/javascript">
+    let vsidialHTML = [];
+    const textR = 165;
+    for (let vsi = -20; vsi <= 20; vsi += 1) {
+      let angle = vsi * 8;
+      if (vsi % 5 === 0) {
+        vsidialHTML.push(`
+          <path d="M-275 0 h75" transform="rotate(${angle})" />
+          <text x="${-textR * Math.cos(radians(angle))}" y="${-textR * Math.sin(radians(angle))}"
+            stroke="none">${Math.abs(vsi)}</text>
+        `);
+      } else if (Math.abs(vsi) < 10) {
+        vsidialHTML.push(`
+          <path d="M-275 0 h50" transform="rotate(${angle})" />
+        `);
+      }
+    }
+    let vsidial = document.getElementById("vsidialDial");
+    vsidial.innerHTML = vsidial.innerHTML + vsidialHTML.join("");
+
     let iasTapeHTML = [];
     for (let ias = 0; ias <= 400; ias += 10) {
       iasTapeHTML.push(`
@@ -398,18 +363,6 @@
   </script>
 
   <script type="text/javascript">
-    function degrees(radians) {
-      return radians * 180 / Math.PI;
-    }
-
-    function radians(degrees) {
-      return degrees * Math.PI / 180;
-    }
-
-    function feet(meters) {
-      return meters / 0.3048;
-    }
-
     function updateOptional(value, element, decimal = 0, width = 1) {
       if (value !== null && isFinite(value)) {
         element.textContent = value.toFixed(decimal).padStart(width, "0");
@@ -452,6 +405,9 @@
       // positive vertical speed is lower y in svg
       vsiIndicator.setAttribute("y1", -Math.sin(angle) * vsiX1);
       vsiIndicator.setAttribute("y2", -Math.sin(angle) * vsiX2);
+
+      let dialAngle = Math.max(-170, Math.min(170, verticalSpeed * 8));
+      document.getElementById("vsidialIndicator").setAttribute("transform", `rotate(${dialAngle})`);
     }
 
     function updateRHT(rht) {

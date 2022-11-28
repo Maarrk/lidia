@@ -6,9 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
-### Added
+### [0.3.3] - 2022-11-28
 
 - PFD (Primary Flight Display) view
+- Extended `AircraftState` and `demo` source with information shown on PFD
 - Roboto Mono font for all text
 
 ### Changed
@@ -49,7 +50,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Initial release with `demo` and `rpctask` sources
 
 <!-- prettier-ignore -->
-[Unreleased]: https://gitlab.com/Maarrk/lidia/-/compare/v0.3.2...dev
+[Unreleased]: https://gitlab.com/Maarrk/lidia/-/compare/v0.3.3...dev
+[0.3.3]: https://gitlab.com/Maarrk/lidia/-/compare/v0.3.2...v0.3.3
 [0.3.2]: https://gitlab.com/Maarrk/lidia/-/compare/v0.3.1...v0.3.2
 [0.3.1]: https://gitlab.com/Maarrk/lidia/-/compare/v0.3.0...v0.3.1
 [0.3.0]: https://gitlab.com/Maarrk/lidia/-/compare/v0.2.1...v0.3.0

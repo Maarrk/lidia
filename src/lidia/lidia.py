@@ -37,7 +37,10 @@ def main():
         queue, args.http_host, args.http_port))
     server_process.start()
 
-    print(f'Lidia GUI for {args.source} on http://localhost:{args.http_port}')
+    print(f"""\
+Lidia GUIs driven by '{args.source}' source served on:
+  - RPC task: http://localhost:{args.http_port}
+  - Primary Flight Display: http://localhost:{args.http_port}/pfd""")
     try:
         (sources[args.source])(queue, args)
 
