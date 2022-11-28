@@ -56,6 +56,7 @@ Report problems in [GitLab Issues](https://gitlab.com/Maarrk/lidia/-/issues)
 - Contributions should be made to the [GitLab repository](https://gitlab.com/Maarrk/lidia)
 - Python code should be formatted with autopep8
 - Other source files should be formatted with Prettier
+- Install packages for development with `pip install -r requirements.txt`
 - To properly run as a module without building and installing, **cd into `src/`** and run `python3 -m lidia`
 
 ## Acknowledgements

@@ -6,7 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
-### [0.3.3] - 2022-11-28
+## [0.3.3] - 2022-11-28
+
+### Added
 
 - PFD (Primary Flight Display) view
 - Extended `AircraftState` and `demo` source with information shown on PFD
