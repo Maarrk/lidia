@@ -88,6 +88,7 @@ def run(q: Queue, args: Namespace):
         state.instr.ias = state.v_body.x * 3600.0 / 1852.0
         if cycle_index() > 0:
             state.instr.gs = state.instr.ias * cos(state.att.pitch)
+            state.instr.ralt = 200 + 25 * val(0.75)
 
         q.put(('smol', state.smol()))
         sleep(1 / args.frequency)

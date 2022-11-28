@@ -4,6 +4,7 @@
 
 <head>
   <title>Lidia PFD</title>
+  <meta charset="UTF-8">
   <style type="text/css">
     html,
     :root {
@@ -55,11 +56,6 @@
       font-weight: 500;
     }
 
-    .digitalRO {
-      fill: white;
-      font-size: 100px;
-    }
-
     #HSI_helo {
       fill: white;
       stroke: none;
@@ -77,11 +73,6 @@
 
 <body>
   <svg id="mainSvg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2100 1200" preserveAspectRatio="xMidYMid meet">
-    <defs>
-      <mask id="RHT_mask" class="whitemask">
-        <rect x="1600" y="650" height="500" width="250" />
-      </mask>
-    </defs>
     <g id="autopilotRegion" data-extents="0 1325 30 775">
       <path id="PIC" d="M1050 15 v5 h15 v 10 l15 -15 l-15 -15 v10 h-15 z" fill="var(--pfdGreen)" stroke="none" />
     </g>
@@ -273,40 +264,27 @@
     </g>
 
     <g id="rhtRegion" data-extents="620 1855 1180 1585">
-      <g id="RHT_masked" mask="url(#RHT_mask)">
-        <g id="RHT_back">
-          <rect x="1600" y="900" height="500" width="250" fill="var(--pfdGround)" stroke="none" />
-          <rect x="1600" y="-1610" height="2500" width="250" fill="grey" stroke="none" />
-          <rect x="1600" y="890" height="10" width="250" fill="white" stroke="none" />
-          <g id="RHT_tick">
-            <g id="d_RHT">
-              <g id="c_RHT">
-                <g id="b_RHT">
-                  <path id="a_RHT" d="m1600 870 h50" stroke="white" stroke-width="5" />
-                  <use transform="translate(0 -20)" xlink:href="#a_RHT" />
-                  <use transform="translate(0 -40)" xlink:href="#a_RHT" />
-                  <use transform="translate(0 -60)" xlink:href="#a_RHT" />
-                  <path d="m1600 790 h75" stroke="white" stroke-width="5" />
-                </g>
-                <use transform="translate(0 -100)" xlink:href="#b_RHT" />
-              </g>
-              <use transform="translate(0 -200)" xlink:href="#c_RHT" />
-              <use transform="translate(0 -400)" xlink:href="#c_RHT" />
-              <use transform="translate(0 -600)" xlink:href="#c_RHT" />
-              <use transform="translate(0 -800)" xlink:href="#c_RHT" />
+      <g transform="translate(1600 890)">
+        <rect id="rhtBackground" x="0" y="-275" height="550" width="250" />
+        <use href="#rhtBackground" class="tapeBackground" />
+        <clipPath id="rhtClip">
+          <use href="#rhtBackground" />
+        </clipPath>
+        <rect x="-10" y="-275" height="550" width="10" fill="white" />
+        <g clip-path="url(#rhtClip)">
+          <g transform="scale(1 1)">
+            <g id="rhtTape" transform="translate(0 0)" fill="white" stroke="white" stroke-width="5"
+              dominant-baseline="central" font-size="40">
+              <rect x="0" y="0" height="10" width="250" fill="white" stroke="none" />
+              <rect x="0" y="10" height="500" width="500" fill="var(--pfdGround)" stroke="none" />
+
+              <!-- Ticks generated with script -->
             </g>
-            <use transform="translate(0 -1000)" xlink:href="#d_RHT" />
-            <use transform="translate(0 -2000)" xlink:href="#d_RHT" />
           </g>
         </g>
-      </g>
-
-      <rect x="1590" y="625" height="550" width="10" fill="white" />
-
-      <g id="RHT_read">
-        <path d="M1850 890 v-25 h-150 l-50 25 l50 25 h150 z" stroke="white" stroke-width="5" />
-
-        <text class="digitalRO"></text>
+        <path d="M250 0 v-25 h-150 l-50 25 l50 25 h150 z" stroke="white" stroke-width="5" />
+        <text id="rhtValue" x="245" y="0" fill="var(--pfdAmber)" font-size="48" text-anchor="end"
+          dominant-baseline="central">---</text>
       </g>
     </g>
 
@@ -413,6 +391,20 @@
     }
     let adiInnerHorizon = document.getElementById("adiInnerHorizon");
     adiInnerHorizon.innerHTML = adiInnerHorizon.innerHTML + pitchHTML.join("");
+
+    let rhtTapeHTML = [];
+    for (let rht = 100; rht <= 2500; rht += 100) {
+      rhtTapeHTML.push(`
+        <text x="80" y="${-rht}" stroke="none">${rht / 100}</text>
+        <path d="m0 ${-rht} h75"/>
+        <path d="m0 ${-rht + 20} h50"/>
+        <path d="m0 ${-rht + 40} h50"/>
+        <path d="m0 ${-rht + 60} h50"/>
+        <path d="m0 ${-rht + 80} h50"/>
+      `)
+    }
+    let rhtTape = document.getElementById("rhtTape");
+    rhtTape.innerHTML = rhtTape.innerHTML + rhtTapeHTML.join("");
   </script>
 
   <script type="text/javascript">
@@ -428,6 +420,16 @@
       return meters / 0.3048;
     }
 
+    function updateOptional(value, element, decimal = 0, width = 1) {
+      if (value !== null && isFinite(value)) {
+        element.textContent = value.toFixed(decimal).padStart(width, "0");
+        element.setAttribute("fill", "white");
+      } else {
+        element.textContent = "---";
+        element.setAttribute("fill", "var(--pfdAmber)");
+      }
+    }
+
     function updateIAS(ias) {
       document.getElementById("iasTape").setAttribute("transform", `translate(0 ${ias})`);
       document.getElementById("iasReadoutValue").textContent = String(Math.floor(ias / 10)).padStart(2, "0");
@@ -435,8 +437,7 @@
     }
 
     function updateGS(groundspeed) {
-      document.getElementById("iasGroundspeedValue").textContent =
-        (groundspeed !== null && isFinite(groundspeed)) ? String(Math.floor(groundspeed)).padStart(3, "0") : "---";
+      updateOptional(groundspeed, document.getElementById("iasGroundspeedValue"), 0, 3);
     }
 
     function updateADI(roll, pitch) {
@@ -463,6 +464,15 @@
       vsiIndicator.setAttribute("y2", -Math.sin(angle) * vsiX2);
     }
 
+    function updateRHT(rht) {
+      updateOptional(rht, document.getElementById("rhtValue"));
+      if (rht !== null && isFinite(rht)) {
+        document.getElementById("rhtTape").setAttribute("transform", `translate(0 ${rht})`);
+      } else {
+        document.getElementById("rhtTape").setAttribute("transform", `translate(0 0)`);
+      }
+    }
+
     var socket = io();
     socket.on("smol", (s) => {
       if ("att" in s) {
@@ -474,6 +484,7 @@
       if ("instr" in s) {
         if ("ias" in s.instr) updateIAS(s.instr.ias);
         if ("gs" in s.instr) updateGS(s.instr.gs);
+        if ("ralt" in s.instr) updateRHT(s.instr.ralt);
       }
     });
 

@@ -97,6 +97,8 @@ class Instruments:
     """Indicated airspeed"""
     gs: Optional[float] = None
     """Groundspeed"""
+    ralt: Optional[float] = None
+    """Radio altimeter"""
 
     def smol(self) -> dict:
         return asdict(self)
