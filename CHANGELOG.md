@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [0.3.4] - 2022-12-05
+
+### Fixed
+
+- Included PFD page in manifest
+
 ## [0.3.3] - 2022-11-28
 
 ### Added
@@ -52,7 +58,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Initial release with `demo` and `rpctask` sources
 
 <!-- prettier-ignore -->
-[Unreleased]: https://gitlab.com/Maarrk/lidia/-/compare/v0.3.3...dev
+[Unreleased]: https://gitlab.com/Maarrk/lidia/-/compare/v0.3.4...dev
+[0.3.4]: https://gitlab.com/Maarrk/lidia/-/compare/v0.3.3...v0.3.4
 [0.3.3]: https://gitlab.com/Maarrk/lidia/-/compare/v0.3.2...v0.3.3
 [0.3.2]: https://gitlab.com/Maarrk/lidia/-/compare/v0.3.1...v0.3.2
 [0.3.1]: https://gitlab.com/Maarrk/lidia/-/compare/v0.3.0...v0.3.1
