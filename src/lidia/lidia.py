@@ -6,7 +6,7 @@ from . import __version__
 from .server import run_server
 from .types import RunFn, SetupFn
 
-from .sources import demo, rpctask
+from .sources import demo, rpctask, approach
 
 
 def main():
@@ -25,7 +25,7 @@ def main():
                                        help='source name', description='select where to get aircraft state')
 
     sources: Dict[str, RunFn] = {}
-    for source_module in [demo, rpctask]:
+    for source_module in [demo, rpctask, approach]:
         setup: SetupFn = source_module.setup
         name, run_function = setup(subparsers)
         sources[name] = run_function

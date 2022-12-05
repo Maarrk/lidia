@@ -104,7 +104,7 @@
       const helideck = document.getElementById("heli_deck");
       const Xship = 1100; 
       const Yship = 600; 
-      helideck.setAttribute("transform", `translate(${Xship*(1 - ScalingFactor) + s.ctrl[0]*2000} ${Yship * (1 - ScalingFactor) + s.ctrl[1]*1000}) scale(${s.ctrl[4]})`);
+      helideck.setAttribute("transform", `translate(${Xship*(1 - s.ctrl[4]) + s.ctrl[0]*2000} ${Yship * (1 - s.ctrl[4]) + s.ctrl[1]*1000}) scale(${s.ctrl[4]})`);
     }
     
    

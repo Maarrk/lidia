@@ -38,10 +38,11 @@ def run(q: Queue, args: Namespace):
                 # cyclic has coordinates 0,0 in bottom left and 1,1 in top right
                 (pitch_ctrl, roll_ctrl, pwr_ctrl) = unpack_from('>' + 'd' * 3, data)
                 
-                # probably the controls should be in (-1, 1)
+                # the controls should be in (-1, 1)
+                # we receive inside (0, 1)
                 state = AircraftState()
                 state.ctrl.stick_right = (roll_ctrl * 2.0) - 1.0
-                state.ctrl.stick_pull = (pitch_ctrl * -2.0) + 1.0
+                state.ctrl.stick_pull = (pitch_ctrl * 2.0) - 1.0 # this is correct: fwd cyclic --> fwd flight, so the ship moves aft from ownship position
                 state.ctrl.collective_up = pwr_ctrl
                 
                 
