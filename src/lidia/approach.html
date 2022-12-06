@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Starboard Approach</title>
+  <link rel="stylesheet" href="static/style.css" />
+  <style type="text/css">
+    html,
+    :root {
+      --pfdGreen: #07ed35;
+      --pfdAmber: #ffbf00;
+      --pfdRed: #ff0f0f;
+      --pfdGround: #965b27;
+      --pfdSky: #1e88f5;
+      --pfdMagenta: #ff00ff;
+      --pfdCyan: #00ffff;
+    }
+    .heli_deck{
+      stroke: white;
+      stroke-width: 5;
+      fill: none;
+    }
+    .ownship{
+      stroke: var(--pfdGreen);
+      stroke-width: 5;
+      fill: none;
+      
+    }
+  </style>
+  <script src="static/socket.io.js"></script>
+</head>
+
+<body>
+  <svg id="mainSvg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2100 1200" preserveAspectRatio="xMidYMid meet">
+    <g  transform="translate(-0 -0) scale(1)">
+      <g id="heli_deck" class="heli_deck" >
+          <path d="M-100 300 l400 -200 h1800 v1000 h-1800 l-400 -200 z M-100 300 l2200 550 M-100 900 l2200 -550 M1600 100 v1000"/>
+          <circle cx="1100" cy="600" r="200"/>
+      </g>
+    </g>
+    <g id="ownship" class="ownship" transform="translate(-700 -600) scale(2)">
+        <path d="M800 600 h50 M1000 600 h-50 M900 700 v-50 M885 600 h30 M900 585 v30 M900 503 l-30 50 h60 z"/>
+        <circle cx="900" cy="600" r="100"/>
+    </g>
+  </svg>
+
+
+
+
+  
+  <script src="static/controls.js"></script>
+  <script type="text/javascript">
+    let svgElem = document.getElementById("mainSvg");
+    addControls(svgElem);
+  </script>
+
+
+
+  <script type="text/javascript">
+    var socket = io();
+
+    socket.on("echo", (s) => {
+      console.log(s);
+    });
+  </script>
+
+
+
+
+  <script type="text/javascript">
+    var socket = io();
+
+    function errorFill(difference) {
+      var e = Math.abs(difference);
+      if (e <= 0.03) return "#0f0";
+      else if (e <= 0.05) return "#ff0";
+      else return "#f00";
+    }
+
+    function limitRange(elem, oneSided = false) {
+      const outsideLimit = 10;
+      let rangeMin = oneSided ? 0 : -500;
+      let rangeMax = oneSided ? 1000 : 500;
+      let x = elem.transform.baseVal.getItem(0).matrix.e;
+      let y = elem.transform.baseVal.getItem(0).matrix.f;
+
+      // Clamp translate
+      elem.transform.baseVal.getItem(0).matrix.e = Math.max(
+        rangeMin - outsideLimit,
+        Math.min(rangeMax + outsideLimit, x)
+      );
+      elem.transform.baseVal.getItem(0).matrix.f = Math.max(
+        rangeMin - outsideLimit,
+        Math.min(rangeMax + outsideLimit, y)
+      );
+
+      let inside = x >= rangeMin && x <= rangeMax && y >= rangeMin && y <= rangeMax;
+      elem.style.stroke = inside ? "inherit" : "#f00";
+    }
+
+    const helideck = document.getElementById("heli_deck");
+
+    function moveShip (s){
+      const helideck = document.getElementById("heli_deck");
+      const Xship = 1100; 
+      const Yship = 600; 
+      helideck.setAttribute("transform", `translate(${Xship*(1 - s.ctrl[4]) + s.ctrl[0]*2000} ${Yship * (1 - s.ctrl[4]) + s.ctrl[1]*1000}) scale(${s.ctrl[4]})`);
+    }
+    
+   
+    
+
+
+    socket.on("smol", (s) => {
+      if ("ctrl" in s) moveShip(s);
+    });
+  </script>
+
+</body>
+
+</html>
