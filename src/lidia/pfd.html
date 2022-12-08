@@ -141,6 +141,78 @@
       </g>
     </g>
 
+      <!-- from here is new -->
+
+      <g id="baroaltRegion" data-extents="30 1505 585 1345">
+        <g transform="translate(1550 310)">
+          <rect id="baroaltBackground" x="0" y="-270" width="170" height="540" />
+          <use href="#baroaltBackground" class="tapeBackground" />
+          <use href="#baroaltBackground" class="tapeContour" />
+  
+          <clipPath id="baroaltClip">
+            <use href="#baroaltBackground" />
+          </clipPath>
+  
+          <g clip-path="url(#baroaltClip)">
+            <g transform="scale(5)">
+              <g id="baroaltTape" transform="translate(0 0)" fill="white" font-size="6" text-anchor="end"
+                dominant-baseline="central" stroke="white" stroke-width="1">
+                <path d="m0 0 h5" />
+                <path d="m0 -10 h5" />
+                <path d="m0 -20 h5" />
+                <path d="m0 -30 h5" />
+                <path d="m0 -40 h5" />
+                <path d="m0 -50 h5" />
+                <path d="m0 10 h5" />
+                <path d="m0 20 h5" />
+                <path d="m0 30 h5" />
+                <path d="m0 40 h5" />
+                <path d="m0 50 h5" />
+                <!-- Ticks to be generated with script??? -->
+              </g>
+              <g>
+                <!-- to be replicated every 500 ft -->
+                <path d="m0 0 l15 -15 v-20 l-15 -15" fill="none" stroke="white" stroke-width="0.5"/>
+                <path d="m0 0 l15 15 v20 l-15 15 " fill="none" stroke="white" stroke-width="0.5"/>
+              </g>
+              <g>
+                <!-- this happens every 1000 ft -->
+                <path d="m0 0 l15 -11 v-4 " fill="none" stroke="white" stroke-width="0.5"/>
+                <path d="m0 0 l15 11 v4 " fill="none" stroke="white" stroke-width="0.5"/>
+              </g>
+            </g>
+          </g>
+  
+          <g id="baroaltReadout">
+            <path id="baroaltReadoutBackground" d="m0 0 l30 30 h75 v25 h60 v-110 h-60 v25 h-75 z" />
+            <use href="#baroaltReadoutBackground" class="tapeContour" />
+            <clipPath id="baroaltReadoutClip">
+              <use href="#baroaltReadoutBackground" />
+            </clipPath>
+            <g clip-path="url(#baroaltReadoutClip)" text-anchor="end" dominant-baseline="central">
+              <text id="baroaltReadoutValue" x="110" y="0" id="BAROALT_ro" fill="var(--pfdGreen)" font-size="50">00</text>
+              <g transform="scale(35)">
+                <g id="baroaltReadoutTape" transform="translate(5.6 0)" fill="var(--pfdGreen)" font-size="1.2">
+                  <text x="-1" y="-4">80</text>
+                  <text x="-1" y="-3">60</text>
+                  <text x="-1" y="-2">40</text>
+                  <text x="-1" y="-1">20</text>
+                  <text x="-1" y="0">00</text>
+                  <text x="-1" y="1">80</text>
+                </g>
+              </g>
+            </g>
+          </g>
+              
+          
+        </g>
+        
+      </g>
+  
+      <!-- here ends the new stuff -->
+
+
+
     <g id="iasRegion" data-extents="35 755 635 575">
       <g transform="translate(750 310)">
         <rect id="iasBackground" x="-170" y="-270" width="170" height="540" />
