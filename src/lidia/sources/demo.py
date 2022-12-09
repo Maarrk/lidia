@@ -23,6 +23,10 @@ def setup(subparsers: _SubParsersAction) -> Tuple[str, RunFn]:
                         help='do not demonstrate borders function')
     parser.add_argument('--outside-range', action='store_true',
                         help='demonstrate values outside allowed range')
+    parser.add_argument('--alt-zero', type=float,
+                        help='altitude to hover around', default=65.0)
+    parser.add_argument('--alt-change', type=float,
+                        help='altitude change amplitude', default=10.0)
 
     return (NAME, run)
 
@@ -47,7 +51,7 @@ def run(q: Queue, args: Namespace):
     while True:
         state = AircraftState()
 
-        state.ned.down = -65 - 10 * val(0.75)
+        state.ned.down = -args.alt_zero - args.alt_change * val(0.75)
 
         state.att.pitch = 0.5 * val(0)
         state.att.roll = 0.5 * val(0.25)

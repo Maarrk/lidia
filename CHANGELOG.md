@@ -6,9 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [0.3.5] - 2022-12-09
+
 ### Added
 
 - Barometric altitude in PFD
+- Ship approach screen
 - Visualising region extents with `showRegions()` JavaScript function
 
 ### Changed
@@ -67,7 +70,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Initial release with `demo` and `rpctask` sources
 
 <!-- prettier-ignore -->
-[Unreleased]: https://gitlab.com/Maarrk/lidia/-/compare/v0.3.4...dev
+[Unreleased]: https://gitlab.com/Maarrk/lidia/-/compare/v0.3.5...dev
+[0.3.5]: https://gitlab.com/Maarrk/lidia/-/compare/v0.3.4...v0.3.5
 [0.3.4]: https://gitlab.com/Maarrk/lidia/-/compare/v0.3.3...v0.3.4
 [0.3.3]: https://gitlab.com/Maarrk/lidia/-/compare/v0.3.2...v0.3.3
 [0.3.2]: https://gitlab.com/Maarrk/lidia/-/compare/v0.3.1...v0.3.2
