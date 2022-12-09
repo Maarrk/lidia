@@ -190,3 +190,16 @@ function parseLocation() {
 
   applySettings();
 }
+
+function showRegions() {
+  for (const region of document.controls.regions) {
+    let rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+    rect.setAttribute("x", region.left);
+    rect.setAttribute("y", region.top);
+    rect.setAttribute("width", region.right - region.left);
+    rect.setAttribute("height", region.bottom - region.top);
+    rect.setAttribute("fill", "#f0f");
+    rect.setAttribute("fill-opacity", 0.5);
+    document.controls.svgElem.appendChild(rect);
+  }
+}

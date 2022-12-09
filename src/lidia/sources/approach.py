@@ -4,7 +4,7 @@ import socket
 from struct import unpack_from
 from typing import Tuple
 
-from ..types import AircraftState, Buttons, Controls, RunFn
+from ..mytypes import AircraftState, Buttons, Controls, RunFn
 
 
 def setup(subparsers: _SubParsersAction) -> Tuple[str, RunFn]:
@@ -37,15 +37,14 @@ def run(q: Queue, args: Namespace):
                 # As named in the original FlightGear protocol file
                 # cyclic has coordinates 0,0 in bottom left and 1,1 in top right
                 (pitch_ctrl, roll_ctrl, pwr_ctrl) = unpack_from('>' + 'd' * 3, data)
-                
+
                 # the controls should be in (-1, 1)
                 # we receive inside (0, 1)
                 state = AircraftState()
                 state.ctrl.stick_right = (roll_ctrl * 2.0) - 1.0
-                state.ctrl.stick_pull = (pitch_ctrl * 2.0) - 1.0 # this is correct: fwd cyclic --> fwd flight, so the ship moves aft from ownship position
+                # this is correct: fwd cyclic --> fwd flight, so the ship moves aft from ownship position
+                state.ctrl.stick_pull = (pitch_ctrl * 2.0) - 1.0
                 state.ctrl.collective_up = pwr_ctrl
-                
-                
 
                 q.put(('smol', state.smol()))
             except socket.timeout:

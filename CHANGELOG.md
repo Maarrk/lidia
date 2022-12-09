@@ -6,6 +6,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added
+
+- Barometric altitude in PFD
+- Visualising region extents with `showRegions()` JavaScript function
+
+### Changed
+
+- Renamed `types` module to `mytypes` to avoid collision with built-in module
+
 ## [0.3.4] - 2022-12-05
 
 ### Fixed

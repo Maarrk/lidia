@@ -4,7 +4,7 @@ from typing import Dict
 
 from . import __version__
 from .server import run_server
-from .types import RunFn, SetupFn
+from .mytypes import RunFn, SetupFn
 
 from .sources import demo, rpctask, approach
 

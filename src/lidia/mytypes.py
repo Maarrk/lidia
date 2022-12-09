@@ -97,6 +97,10 @@ class Instruments:
     """Indicated airspeed"""
     gs: Optional[float] = None
     """Groundspeed"""
+    alt: float = 0
+    """Barometric altitude"""
+    qnh: Optional[float] = 1013
+    """Altimeter setting, None for STD"""
     ralt: Optional[float] = None
     """Radio altimeter"""
 
@@ -108,6 +112,8 @@ class AircraftState:
     """Full state of displayed aircraft initialised with defaults"""
 
     def __init__(self) -> None:
+        self.ned = NED()
+        """Position in local horizon coordinate system, in meters"""
         self.att = Attitude()
         """Aircraft attitude, in radians"""
         self.v_body = XYZ()
@@ -130,6 +136,6 @@ class AircraftState:
     def smol(self) -> dict:
         """Return self as dictionary with SMOL-defined keys"""
         d = dict()
-        for key in ['att', 'v_body', 'v_ned', 'ctrl', 'trgt', 'trim', 'brdr', 'btn', 'instr']:
+        for key in ['ned', 'att', 'v_body', 'v_ned', 'ctrl', 'trgt', 'trim', 'brdr', 'btn', 'instr']:
             d[key] = getattr(self, key).smol()
         return d

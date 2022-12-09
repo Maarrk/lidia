@@ -4,7 +4,7 @@ from multiprocessing import Queue
 from time import sleep, time
 from typing import Tuple
 
-from ..types import AircraftState, Buttons, Controls, RunFn
+from ..mytypes import AircraftState, Buttons, Controls, RunFn
 
 
 def setup(subparsers: _SubParsersAction) -> Tuple[str, RunFn]:
@@ -47,6 +47,8 @@ def run(q: Queue, args: Namespace):
     while True:
         state = AircraftState()
 
+        state.ned.down = -65 - 10 * val(0.75)
+
         state.att.pitch = 0.5 * val(0)
         state.att.roll = 0.5 * val(0.25)
         state.att.yaw = 0.5 * val(0.5)
@@ -86,9 +88,12 @@ def run(q: Queue, args: Namespace):
 
         # only converts from m/s to kt
         state.instr.ias = state.v_body.x * 3600.0 / 1852.0
+        state.instr.alt = 3.28084 * (-state.ned.down)
         if cycle_index() > 0:
             state.instr.gs = state.instr.ias * cos(state.att.pitch)
-            state.instr.ralt = 200 + 25 * val(0.75)
+            state.instr.ralt = state.instr.alt
+        else:
+            state.instr.qnh = None
 
         q.put(('smol', state.smol()))
         sleep(1 / args.frequency)

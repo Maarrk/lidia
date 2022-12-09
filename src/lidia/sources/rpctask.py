@@ -4,7 +4,7 @@ import socket
 from struct import unpack_from
 from typing import Tuple
 
-from ..types import AircraftState, Buttons, Controls, RunFn
+from ..mytypes import AircraftState, Buttons, Controls, RunFn
 
 
 def setup(subparsers: _SubParsersAction) -> Tuple[str, RunFn]:
