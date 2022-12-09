@@ -1,3 +1,13 @@
+:root {
+  --pfdGreen: #07ed35;
+  --pfdAmber: #ffbf00;
+  --pfdRed: #ff0f0f;
+  --pfdGround: #965b27;
+  --pfdSky: #1e88f5;
+  --pfdMagenta: #ff00ff;
+  --pfdCyan: #00ffff;
+}
+
 @font-face {
   font-family: "Roboto Mono";
   src: url("RobotoMono-Thin.ttf") format("truetype");

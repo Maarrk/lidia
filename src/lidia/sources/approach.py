@@ -34,17 +34,19 @@ def run(q: Queue, args: Namespace):
         while True:
             try:
                 data, _ = sock.recvfrom(1024)
-                # As named in the original FlightGear protocol file
-                # cyclic has coordinates 0,0 in bottom left and 1,1 in top right
-                (pitch_ctrl, roll_ctrl, pwr_ctrl) = unpack_from('>' + 'd' * 3, data)
+                # Contents of UDP packet is 4 doubles:
+                # - Position of helicopter north of ship, in meters
+                # - Position of helicopter east of ship, in meters
+                # - Position of helicopter above  ship, in meters
+                # - Helicopter heading, in radians
+                #   - 0 pointing north, pi/2 (90⁰) pointing east
+                (north, east, altitude, yaw) = unpack_from('>' + 'd' * 4, data)
 
-                # the controls should be in (-1, 1)
-                # we receive inside (0, 1)
                 state = AircraftState()
-                state.ctrl.stick_right = (roll_ctrl * 2.0) - 1.0
-                # this is correct: fwd cyclic --> fwd flight, so the ship moves aft from ownship position
-                state.ctrl.stick_pull = (pitch_ctrl * 2.0) - 1.0
-                state.ctrl.collective_up = pwr_ctrl
+                state.ned.north = north
+                state.ned.east = east
+                state.ned.down = -altitude
+                state.att.yaw = yaw
 
                 q.put(('smol', state.smol()))
             except socket.timeout:

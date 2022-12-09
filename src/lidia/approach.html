@@ -2,59 +2,39 @@
 <html>
 
 <head>
-  <title>Starboard Approach</title>
+  <title>Lidia Ship Approach</title>
   <link rel="stylesheet" href="static/style.css" />
-  <style type="text/css">
-    html,
-    :root {
-      --pfdGreen: #07ed35;
-      --pfdAmber: #ffbf00;
-      --pfdRed: #ff0f0f;
-      --pfdGround: #965b27;
-      --pfdSky: #1e88f5;
-      --pfdMagenta: #ff00ff;
-      --pfdCyan: #00ffff;
-    }
-    .heli_deck{
-      stroke: white;
-      stroke-width: 5;
-      fill: none;
-    }
-    .ownship{
-      stroke: var(--pfdGreen);
-      stroke-width: 5;
-      fill: none;
-      
-    }
-  </style>
   <script src="static/socket.io.js"></script>
 </head>
 
 <body>
-  <svg id="mainSvg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2100 1200" preserveAspectRatio="xMidYMid meet">
-    <g  transform="translate(-0 -0) scale(1)">
-      <g id="heli_deck" class="heli_deck" >
-          <path d="M-100 300 l400 -200 h1800 v1000 h-1800 l-400 -200 z M-100 300 l2200 550 M-100 900 l2200 -550 M1600 100 v1000"/>
-          <circle cx="1100" cy="600" r="200"/>
+  <svg id="mainSvg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2200 1200" preserveAspectRatio="xMidYMid meet">
+    <g id="minimalRegion" data-extents="300 1400 900 800"></g>
+    <g id="horizontalRegion" data-extents="-100 2200 1300 -200"></g>
+    <g id="squareRegion" data-extents="-600 2300 1800 -100"></g>
+    <g transform="translate(1100 600)" fill="none">
+      <g transform="scale(10)" stroke="white">
+        <g id="helideck" transform="translate(0 0)" stroke-width="0.5">
+          <path d="M-120 -30 l40 -20 h180 v100 h-180 l-40 -20 z M-120 -30 l220 55 M-120 30 l220 -55 M50 -50 v100" />
+          <circle cx="0" cy="0" r="20" />
+        </g>
       </g>
-    </g>
-    <g id="ownship" class="ownship" transform="translate(-700 -600) scale(2)">
-        <path d="M800 600 h50 M1000 600 h-50 M900 700 v-50 M885 600 h30 M900 585 v30 M900 503 l-30 50 h60 z"/>
-        <circle cx="900" cy="600" r="100"/>
+      <g id="aircraft" class="aircraft" stroke-width="10" stroke="var(--pfdGreen)">
+        <path d="M-200 0 h100 M200 0 h-100 M0 200 v-100 M-30 0 h60 M0 -30 v60 M0 -195 l-60 100 h120 z" />
+        <circle cx="0" cy="0" r="200" />
+      </g>
     </g>
   </svg>
 
-
-
-
-  
   <script src="static/controls.js"></script>
   <script type="text/javascript">
     let svgElem = document.getElementById("mainSvg");
     addControls(svgElem);
+    // Disable other views
+    document.getElementById("showMinimal").checked = false;
+    document.getElementById("showSquare").checked = false;
+    updateSettings();
   </script>
-
-
 
   <script type="text/javascript">
     var socket = io();
@@ -64,11 +44,16 @@
     });
   </script>
 
-
-
-
   <script type="text/javascript">
     var socket = io();
+
+    function degrees(radians) {
+      return radians * 180 / Math.PI;
+    }
+
+    function radians(degrees) {
+      return degrees * Math.PI / 180;
+    }
 
     function errorFill(difference) {
       var e = Math.abs(difference);
@@ -98,21 +83,23 @@
       elem.style.stroke = inside ? "inherit" : "#f00";
     }
 
-    const helideck = document.getElementById("heli_deck");
-
-    function moveShip (s){
-      const helideck = document.getElementById("heli_deck");
-      const Xship = 1100; 
-      const Yship = 600; 
-      helideck.setAttribute("transform", `translate(${Xship*(1 - s.ctrl[4]) + s.ctrl[0]*2000} ${Yship * (1 - s.ctrl[4]) + s.ctrl[1]*1000}) scale(${s.ctrl[4]})`);
+    const helideck = document.getElementById("helideck");
+    const initialStroke = helideck.getAttribute('stroke-width');
+    const nominalAlt = 3; // Altitude at which the scale is 1, in meters
+    const cameraHeight = 10; // Position of camera above aircraft origin, in meters (larger values make scale change less)
+    function updateDeck(s) {
+      let alt = -s.ned[2]; // Altitude above deck in meters
+      let scale = (nominalAlt + cameraHeight) / (alt + cameraHeight);
+      let yaw = 0;
+      if ("att" in s) {
+        yaw = degrees(s.att[2]);
+      }
+      helideck.setAttribute("transform", `rotate(${-yaw}) scale(${scale}) translate(${-s.ned[1]} ${s.ned[0]})`);
+      helideck.setAttribute("stroke-width", initialStroke / scale);
     }
-    
-   
-    
-
 
     socket.on("smol", (s) => {
-      if ("ctrl" in s) moveShip(s);
+      if ("ned" in s) updateDeck(s);
     });
   </script>
 

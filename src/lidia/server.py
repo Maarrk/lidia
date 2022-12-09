@@ -22,6 +22,7 @@ def run_server(q: Queue, host: str, port: int):
     static_files = {
         '/': {'content_type': 'text/html', 'filename': path.join(root_path, 'index.html')},
         '/pfd': {'content_type': 'text/html', 'filename': path.join(root_path, 'pfd.html')},
+        '/approach': {'content_type': 'text/html', 'filename': path.join(root_path, 'approach.html')},
         '/static': path.join(root_path, 'static'),
     }
 
