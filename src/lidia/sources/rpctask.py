@@ -51,9 +51,9 @@ def run(q: Queue, args: Namespace):
                 state.trgt.stick_pull = (pitch_target * -2.0) + 1.0
                 state.trgt.collective_up = pwr_target
                 if cyc_ftr > 0.5:
-                    state.btn |= Buttons.CYC_FTR
+                    state.btn.cyc_ftr = True
                 if coll_ftr > 0.5:
-                    state.btn |= Buttons.COLL_FTR
+                    state.btn.coll_ftr = True
                 state.brdr.high.stick_right = (right_bdr_cyc * 2.0) - 1.0
                 state.brdr.low.stick_right = (left_bdr_cyc * 2.0) - 1.0
                 state.brdr.high.stick_pull = (low_bdr_cyc * -2.0) + 1.0
@@ -61,9 +61,9 @@ def run(q: Queue, args: Namespace):
                 state.brdr.high.collective_up = up_bdr_coll
                 state.brdr.low.collective_up = low_bdr_coll
 
-                if state.btn & Buttons.COLL_FTR:
+                if state.btn.coll_ftr:
                     last_trim.collective_up = state.ctrl.collective_up
-                if state.btn & Buttons.CYC_FTR:
+                if state.btn.cyc_ftr:
                     last_trim.stick_right = state.ctrl.stick_right
                     last_trim.stick_pull = state.ctrl.stick_pull
                 state.trim = last_trim

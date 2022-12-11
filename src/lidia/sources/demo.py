@@ -71,24 +71,28 @@ def run(q: Queue, args: Namespace):
 
         if cycle_index() == 1 and args.trim:
             if current_phase() < 0.4:
-                state.btn |= Buttons.COLL_FTR
+                state.btn.coll_ftr = True
             if current_phase() > 0.6:
-                state.btn |= Buttons.CYC_FTR
+                state.btn.cyc_ftr = True
 
-        if state.btn & Buttons.COLL_FTR:
+        if state.btn.coll_ftr:
             last_trim.collective_up = state.ctrl.collective_up
-        if state.btn & Buttons.CYC_FTR:
+        if state.btn.cyc_ftr:
             last_trim.stick_right = state.ctrl.stick_right
             last_trim.stick_pull = state.ctrl.stick_pull
         state.trim = last_trim
 
         if cycle_index() == 2 and args.borders:
             if current_phase() < 0.5:
-                state.brdr.low = Controls(-0.8, -0.8, 0.1, -0.8, 0.1)
-                state.brdr.high = Controls(0.8, 0.8, 0.9, 0.8, 0.9)
+                state.brdr.low = Controls.from_list(
+                    [-0.8, -0.8, 0.1, -0.8, 0.1])
+                state.brdr.high = Controls.from_list(
+                    [0.8, 0.8, 0.9, 0.8, 0.9])
             if current_phase() > 0.5:
-                state.brdr.low = Controls(-0.5, -0.5, 0.25, -0.5, 0.25)
-                state.brdr.high = Controls(0.5, 0.5, 0.75, 0.5, 0.75)
+                state.brdr.low = Controls.from_list(
+                    [-0.5, -0.5, 0.25, -0.5, 0.25])
+                state.brdr.high = Controls.from_list(
+                    [0.5, 0.5, 0.75, 0.5, 0.75])
 
         # only converts from m/s to kt
         state.instr.ias = state.v_body.x * 3600.0 / 1852.0

@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Changed
+
+- Reworked state representation from `dataclasses.dataclass` to `pydantic.BaseModel`
+
 ## [0.3.5] - 2022-12-09
 
 ### Added
