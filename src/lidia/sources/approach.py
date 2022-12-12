@@ -4,7 +4,7 @@ import socket
 from struct import unpack_from
 from typing import Tuple
 
-from ..mytypes import AircraftState, Buttons, Controls, RunFn
+from ..mytypes import AircraftState, Attitude, Controls, NED, RunFn
 
 
 def setup(subparsers: _SubParsersAction) -> Tuple[str, RunFn]:
@@ -43,9 +43,11 @@ def run(q: Queue, args: Namespace):
                 (north, east, altitude, yaw) = unpack_from('>' + 'd' * 4, data)
 
                 state = AircraftState()
+                state.ned = NED()
                 state.ned.north = north
                 state.ned.east = east
                 state.ned.down = -altitude
+                state.att = Attitude()
                 state.att.yaw = yaw
 
                 q.put(('smol', state.smol()))

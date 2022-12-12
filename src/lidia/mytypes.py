@@ -107,27 +107,27 @@ class Instruments(BaseModel):
 
 
 class AircraftState(BaseModel):
-    """Full state of displayed aircraft initialised with defaults"""
+    """Full state of displayed aircraft"""
 
-    ned = NED()
+    ned: Optional[NED] = None
     """Position in local horizon coordinate system, in meters"""
-    att = Attitude()
+    att: Optional[Attitude] = None
     """Aircraft attitude, in radians"""
-    v_body = XYZ()
+    v_body: Optional[XYZ] = None
     """Velocity in body frame, in meters per second"""
-    v_ned = NED()
+    v_ned: Optional[NED] = None
     """Velocity in local horizon coordinate system, in meters per second"""
-    ctrl = Controls()
+    ctrl: Optional[Controls] = None
     """Current control inceptors position"""
-    trgt = Controls()
+    trgt: Optional[Controls] = None
     """Target inceptors position"""
-    trim = Controls()
+    trim: Optional[Controls] = None
     """Controls trim"""
-    brdr = Borders()
+    brdr: Optional[Borders] = None
     """Task borders for inceptors"""
-    btn = Buttons()
+    btn: Optional[Buttons] = None
     """Currently pressed buttons"""
-    instr = Instruments()
+    instr: Optional[Instruments] = None
     """Instrument values"""
 
     class Config:
@@ -140,9 +140,11 @@ class AircraftState(BaseModel):
     def smol(self) -> Dict[str, Any]:
         """Return self as dictionary with SMOL-defined keys"""
         # HACK: JSON roundtrip is required, because there is no encoder configuration for .dict()
-        return json.loads(self.json(models_as_dict=False))
+        return json.loads(self.json(models_as_dict=False, exclude={f for f in self.__fields__ if getattr(self, f) is None}))
 
 
 if __name__ == '__main__':
     state = AircraftState()
+    state.ned = NED.from_list([1, 2, 3])
+    state.att = Attitude.from_list([4, 5, 6])
     print(state.smol())

@@ -10,6 +10,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 - Reworked state representation from `dataclasses.dataclass` to `pydantic.BaseModel`
 
+### Removed
+
+- Removed default values from `AircraftState`
+
 ## [0.3.5] - 2022-12-09
 
 ### Added

@@ -4,7 +4,7 @@ import socket
 from struct import unpack_from
 from typing import Tuple
 
-from ..mytypes import AircraftState, Buttons, Controls, RunFn
+from ..mytypes import AircraftState, Borders, Buttons, Controls, RunFn
 
 
 def setup(subparsers: _SubParsersAction) -> Tuple[str, RunFn]:
@@ -44,16 +44,19 @@ def run(q: Queue, args: Namespace):
                      up_bdr_coll, low_bdr_coll) = unpack_from('>' + 'd' * 6, data, 8 * 8)
 
                 state = AircraftState()
+                state.ctrl = Controls()
                 state.ctrl.stick_right = (roll_ctrl * 2.0) - 1.0
                 state.ctrl.stick_pull = (pitch_ctrl * -2.0) + 1.0
                 state.ctrl.collective_up = pwr_ctrl
                 state.trgt.stick_right = (roll_target * 2.0) - 1.0
                 state.trgt.stick_pull = (pitch_target * -2.0) + 1.0
                 state.trgt.collective_up = pwr_target
+                state.btn = Buttons()
                 if cyc_ftr > 0.5:
                     state.btn.cyc_ftr = True
                 if coll_ftr > 0.5:
                     state.btn.coll_ftr = True
+                state.brdr = Borders()
                 state.brdr.high.stick_right = (right_bdr_cyc * 2.0) - 1.0
                 state.brdr.low.stick_right = (left_bdr_cyc * 2.0) - 1.0
                 state.brdr.high.stick_pull = (low_bdr_cyc * -2.0) + 1.0

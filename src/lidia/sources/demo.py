@@ -4,7 +4,7 @@ from multiprocessing import Queue
 from time import sleep, time
 from typing import Tuple
 
-from ..mytypes import AircraftState, Buttons, Controls, RunFn
+from ..mytypes import Attitude, AircraftState, Borders, Buttons, Controls, Instruments, NED, RunFn, XYZ
 
 
 def setup(subparsers: _SubParsersAction) -> Tuple[str, RunFn]:
@@ -51,24 +51,31 @@ def run(q: Queue, args: Namespace):
     while True:
         state = AircraftState()
 
+        state.ned = NED()
         state.ned.down = -args.alt_zero - args.alt_change * val(0.75)
 
+        state.att = Attitude()
         state.att.pitch = 0.5 * val(0)
         state.att.roll = 0.5 * val(0.25)
         state.att.yaw = 0.5 * val(0.5)
 
+        state.v_body = XYZ()
         state.v_body.x = 15 + 2.5 * val(0.5)
 
+        state.v_ned = NED()
         state.v_ned.down = state.v_body.x * sin(state.att.pitch)
 
+        state.ctrl = Controls()
         state.ctrl.stick_pull = val(0.1)
         state.ctrl.stick_right = val(0.35)
         state.ctrl.collective_up = 0.3 + 0.5 * (val(0.2) + outside_offset)
 
+        state.trgt = Controls()
         state.trgt.stick_pull = val(0.55)
         state.trgt.stick_right = val(0.3)
         state.trgt.collective_up = 0.3 + 0.5 * (val(0.4) + outside_offset)
 
+        state.btn = Buttons()
         if cycle_index() == 1 and args.trim:
             if current_phase() < 0.4:
                 state.btn.coll_ftr = True
@@ -82,6 +89,7 @@ def run(q: Queue, args: Namespace):
             last_trim.stick_pull = state.ctrl.stick_pull
         state.trim = last_trim
 
+        state.brdr = Borders()
         if cycle_index() == 2 and args.borders:
             if current_phase() < 0.5:
                 state.brdr.low = Controls.from_list(
@@ -94,6 +102,7 @@ def run(q: Queue, args: Namespace):
                 state.brdr.high = Controls.from_list(
                     [0.5, 0.5, 0.75, 0.5, 0.75])
 
+        state.instr = Instruments()
         # only converts from m/s to kt
         state.instr.ias = state.v_body.x * 3600.0 / 1852.0
         state.instr.alt = 3.28084 * (-state.ned.down)
