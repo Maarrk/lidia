@@ -85,8 +85,6 @@
 
     const helideck = document.getElementById("helideck");
     const initialStroke = helideck.getAttribute('stroke-width');
-    const nominalAlt = 3; // Altitude at which the scale is 1, in meters
-    const cameraHeight = 10; // Position of camera above aircraft origin, in meters (larger values make scale change less)
     function updateDeck(s) {
       let alt = -s.ned[2]; // Altitude above deck in meters
       let scale = (nominalAlt + cameraHeight) / (alt + cameraHeight);

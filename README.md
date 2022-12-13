@@ -49,7 +49,6 @@ Report problems in [GitLab Issues](https://gitlab.com/Maarrk/lidia/-/issues)
 ## Roadmap
 
 - USB HID joystick source
-- Configurable error margins (currently always yellow at 3%, red at 5%)
 
 ## Contributing
 

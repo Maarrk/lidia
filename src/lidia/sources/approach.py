@@ -1,17 +1,19 @@
+"""listen to UDP packets from RPC simulator for approach task"""
 from argparse import _SubParsersAction, ArgumentDefaultsHelpFormatter, ArgumentParser, Namespace
 from multiprocessing import Queue
 import socket
 from struct import unpack_from
 from typing import Tuple
 
-from ..mytypes import AircraftState, Attitude, Controls, NED, RunFn
+from ..aircraft import *
+from ..mytypes import RunFn
 
 
 def setup(subparsers: _SubParsersAction) -> Tuple[str, RunFn]:
     NAME = 'approach'
     parser: ArgumentParser = subparsers.add_parser(
         NAME,
-        help='listen to UDP packets from Rotorcraft-Pilot Coupling Task simulator',
+        help=__doc__,
         formatter_class=ArgumentDefaultsHelpFormatter)
     parser.add_argument('-i', '--ip',
                         help='listen UDP adress', default='0.0.0.0')
@@ -22,14 +24,12 @@ def setup(subparsers: _SubParsersAction) -> Tuple[str, RunFn]:
 
 
 def run(q: Queue, args: Namespace):
-
-    last_trim = Controls()
-
     with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
         # Timeout is required to handle leaving with Ctrl+C
         sock.settimeout(1.0)
         sock.bind((args.ip, args.port))
-        print(f'Listening for UDP packets on {args.ip}:{args.port}')
+        if args.verbosity >= 0:
+            print(f'Listening for UDP packets on {args.ip}:{args.port}')
 
         while True:
             try:

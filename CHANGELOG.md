@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added
+
+- Configuration with nested dictionaries using JSON, YAML and TOML files or command line arguments
+- Command line arguments to control verbosity
+
 ### Changed
 
 - Reworked state representation from `dataclasses.dataclass` to `pydantic.BaseModel`
