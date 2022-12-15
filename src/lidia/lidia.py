@@ -9,9 +9,9 @@ import yaml
 from . import __version__
 from .server import run_server
 from .mytypes import RunFn, SetupFn
-from .config import Config
+from .config import Config, g_config
 
-from .sources import demo, rpctask, approach
+from .sources import demo, rpctask, approach, confighelp
 
 
 def main():
@@ -38,7 +38,7 @@ def main():
                                        help='source name', description='select where to get aircraft state')
 
     sources: Dict[str, RunFn] = {}
-    for source_module in [demo, rpctask, approach]:
+    for source_module in [demo, rpctask, approach, confighelp]:
         setup: SetupFn = source_module.setup
         name, run_function = setup(subparsers)
         sources[name] = run_function
@@ -49,7 +49,8 @@ def main():
         # mimic = specifier from python 3.8 to maintain 3.7 compatibility
         print(f'args={args}')
 
-    config = Config()
+    global g_config
+    g_config = Config()
     if args.config is not None:
         for config_filename in args.config.split(','):
             config_filename: str
@@ -64,23 +65,23 @@ def main():
                 parser.error(
                     'Config files have to end with ".json", ".yaml", ".yml" or ".toml" to detect correct parser type')
             if update_dict is not None:
-                config = config.updated(update_dict)
+                g_config = g_config.updated(update_dict)
     if args.config_keys is not None:
         # FIXME: does not handle single quote escaping
         separator = re.compile(
             r"""(?!\B"[^"]*),(?![^"]*"\B)""")  # comma not between double quotes
         toml_string = '\n'.join(re.split(separator, args.config_keys))
         update_dict = tomli.loads(toml_string)
-        config = config.updated(update_dict)
+        g_config = g_config.updated(update_dict)
     if args.verbosity >= 1:
-        print(f'g_config=Config({config})')
+        print(f'g_config=Config({g_config})')
 
     queue = Queue()
     server_process = Process(target=run_server, args=(
-        config, queue, args.http_host, args.http_port, args.verbosity))
+        g_config, queue, args.http_host, args.http_port, args.verbosity))
     server_process.start()
 
-    if args.verbosity >= 0:
+    if args.verbosity >= 0 and not args.source.endswith('help'):
         print(f"""\
 Lidia GUIs driven by '{args.source}' source served on:
     - RPC task: http://localhost:{args.http_port}
@@ -91,8 +92,11 @@ Lidia GUIs driven by '{args.source}' source served on:
         (sources[args.source])(queue, args)
 
     except KeyboardInterrupt:
-        if args.verbosity >= 0:
+        if args.verbosity >= 0 and not args.source.endswith('help'):
             print('Exiting main loop')
+    except Exception as e:  # needed to stop the server process
+        server_process.terminate()
+        raise e
 
     server_process.terminate()
 

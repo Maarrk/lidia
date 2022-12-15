@@ -49,5 +49,5 @@ class NestingModel(BaseModel, extra=Extra.forbid):
         """Construct new model, overriding values provided in nested dictionary
 
         The data is validated, both for type and not having keys undefined in the model"""
-        new_dict = deep_update(self.dict(), update_dict)
+        new_dict = deep_update(self.dict(by_alias=True), update_dict)
         return self.__class__(**new_dict)

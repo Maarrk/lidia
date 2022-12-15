@@ -10,6 +10,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 - Configuration with nested dictionaries using JSON, YAML and TOML files or command line arguments
 - Command line arguments to control verbosity
+- JSON Schema and file templates for configuration files
+- Mock source `confighelp` for configuration utilities
 
 ### Changed
 
