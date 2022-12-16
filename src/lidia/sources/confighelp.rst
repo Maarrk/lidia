@@ -3,9 +3,7 @@
 ===================
 
 
-Config object
-=============
-The structure of configuration object is defined as the ``Config`` class in config.py file. It is globally available through variable ``g_config`` in all source modules, but has to be passed to server from ``main()``, because it is running in a separate thread.
+The structure of configuration object is defined as the ``Config`` class in config.py file.
 
 Config files
 ============

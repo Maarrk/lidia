@@ -6,7 +6,8 @@ from struct import unpack_from
 from typing import Tuple
 
 from ..aircraft import *
-from ..mytypes import RunFn
+from ..config import Config
+from .mytypes import RunFn
 
 
 def setup(subparsers: _SubParsersAction) -> Tuple[str, RunFn]:
@@ -23,7 +24,7 @@ def setup(subparsers: _SubParsersAction) -> Tuple[str, RunFn]:
     return (NAME, run)
 
 
-def run(q: Queue, args: Namespace):
+def run(q: Queue, args: Namespace, config: Config):
     with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
         # Timeout is required to handle leaving with Ctrl+C
         sock.settimeout(1.0)
@@ -49,6 +50,7 @@ def run(q: Queue, args: Namespace):
                 state.ned.down = -altitude
                 state.att = Attitude()
                 state.att.yaw = yaw
+                state.model_instruments(config)
 
                 q.put(('smol', state.smol()))
             except socket.timeout:

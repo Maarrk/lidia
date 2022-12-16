@@ -8,8 +8,8 @@ import yaml
 
 from . import __version__
 from .server import run_server
-from .mytypes import RunFn, SetupFn
-from .config import Config, g_config
+from .config import Config
+from .sources.mytypes import RunFn, SetupFn
 
 from .sources import demo, rpctask, approach, confighelp
 
@@ -49,8 +49,7 @@ def main():
         # mimic = specifier from python 3.8 to maintain 3.7 compatibility
         print(f'args={args}')
 
-    global g_config
-    g_config = Config()
+    config = Config()
     if args.config is not None:
         for config_filename in args.config.split(','):
             config_filename: str
@@ -65,20 +64,20 @@ def main():
                 parser.error(
                     'Config files have to end with ".json", ".yaml", ".yml" or ".toml" to detect correct parser type')
             if update_dict is not None:
-                g_config = g_config.updated(update_dict)
+                config = config.updated(update_dict)
     if args.config_keys is not None:
         # FIXME: does not handle single quote escaping
         separator = re.compile(
             r"""(?!\B"[^"]*),(?![^"]*"\B)""")  # comma not between double quotes
         toml_string = '\n'.join(re.split(separator, args.config_keys))
         update_dict = tomli.loads(toml_string)
-        g_config = g_config.updated(update_dict)
+        config = config.updated(update_dict)
     if args.verbosity >= 1:
-        print(f'g_config=Config({g_config})')
+        print(f'config=Config({config})')
 
     queue = Queue()
     server_process = Process(target=run_server, args=(
-        g_config, queue, args.http_host, args.http_port, args.verbosity))
+        config, queue, args.http_host, args.http_port, args.verbosity))
     server_process.start()
 
     if args.verbosity >= 0 and not args.source.endswith('help'):
@@ -89,7 +88,7 @@ Lidia GUIs driven by '{args.source}' source served on:
     - Ship Approach: http://localhost:{args.http_port}/approach""")
 
     try:
-        (sources[args.source])(queue, args)
+        (sources[args.source])(queue, args, config)
 
     except KeyboardInterrupt:
         if args.verbosity >= 0 and not args.source.endswith('help'):

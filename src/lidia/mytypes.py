@@ -1,11 +1,6 @@
-from argparse import _SubParsersAction, Namespace
-from multiprocessing import Queue
-from typing import Callable, List, NoReturn, Tuple, Self
+from typing import List, Self
 from pydantic import BaseModel, Extra
 from pydantic.utils import deep_update
-
-RunFn = Callable[[Queue, Namespace], NoReturn]
-SetupFn = Callable[[_SubParsersAction], Tuple[str, RunFn]]
 
 
 # HACK: These classes rely on iteration through dict of fields in the order they were defined

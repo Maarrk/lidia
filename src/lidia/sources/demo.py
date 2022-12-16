@@ -6,7 +6,8 @@ from time import sleep, time
 from typing import Tuple
 
 from ..aircraft import *
-from ..mytypes import RunFn
+from ..config import Config
+from .mytypes import RunFn
 
 
 def setup(subparsers: _SubParsersAction) -> Tuple[str, RunFn]:
@@ -33,7 +34,7 @@ def setup(subparsers: _SubParsersAction) -> Tuple[str, RunFn]:
     return (NAME, run)
 
 
-def run(q: Queue, args: Namespace):
+def run(q: Queue, args: Namespace, config: Config):
     if args.period <= 0:
         raise ArgumentError(args.frequency, 'period must be positive')
     if args.frequency <= 0:
@@ -64,8 +65,7 @@ def run(q: Queue, args: Namespace):
         state.v_body = XYZ()
         state.v_body.x = 15 + 2.5 * val(0.5)
 
-        state.v_ned = NED()
-        state.v_ned.down = state.v_body.x * sin(state.att.pitch)
+        state.v_ned = state.xyz2ned(state.v_body)
 
         state.ctrl = Controls()
         state.ctrl.stick_pull = val(0.1)
@@ -104,13 +104,10 @@ def run(q: Queue, args: Namespace):
                 state.brdr.high = Controls.from_list(
                     [0.5, 0.5, 0.75, 0.5, 0.75])
 
-        state.instr = Instruments()
-        # only converts from m/s to kt
-        state.instr.ias = state.v_body.x * 3600.0 / 1852.0
-        state.instr.alt = 3.28084 * (-state.ned.down)
-        if cycle_index() > 0:
-            state.instr.gs = state.instr.ias * cos(state.att.pitch)
-            state.instr.ralt = state.instr.alt
+        state.model_instruments(config)
+        if cycle_index() == 0:
+            state.instr.gs = None
+            state.instr.ralt = None
         else:
             state.instr.qnh = None
 

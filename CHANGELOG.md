@@ -6,6 +6,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added
+
+- Instrument configuration
+- Utilities for coordinate system conversion in `AircraftState`
+
+### Changed
+
+- Simulation of instrument values moved to `AircraftState` from `demo` source
+
+### Fixed
+
+- Using shared config state to sources
+
 ## [0.4.0] - 2022-12-16
 
 ### Added

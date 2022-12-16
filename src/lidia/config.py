@@ -6,9 +6,6 @@ from pydantic import Field
 from .mytypes import NestingModel
 
 
-g_config: 'Config' = None
-
-
 class RpctaskConfig(NestingModel):
     """Configuration for `rpctask`"""
     correct_tolerance: float = 0.03
@@ -26,6 +23,15 @@ class ApproachConfig(NestingModel):
     Larger values of this make the scale change less drastically at low altitude"""
 
 
+class InstrumentsConfig(NestingModel):
+    speed_multiplier: float = 3600.0 / 1852.0
+    """Scaling factor to change state velocity in meters per second to displayed IAS and GS, default for knots"""
+    altitude_multiplier: float = 1 / 0.3048
+    """Scaling factor to change state altitude in meters to displayed altitude, default for feet"""
+    radio_altimeter_activation: float = 2500.0 * 0.3048
+    """Activation height of radio altimeter above which it is not modeled, default 2500ft"""
+
+
 class Config(NestingModel):
     """Root of configuration structure
 
@@ -36,6 +42,7 @@ class Config(NestingModel):
     """Allow the `$schema` property for specifying JSON Schema URL"""
     rpctask = RpctaskConfig()
     approach = ApproachConfig()
+    instruments = InstrumentsConfig()
 
 
 def schema_location():

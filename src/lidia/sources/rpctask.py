@@ -6,7 +6,8 @@ from struct import unpack_from
 from typing import Tuple
 
 from ..aircraft import *
-from ..mytypes import RunFn
+from ..config import Config
+from .mytypes import RunFn
 
 
 def setup(subparsers: _SubParsersAction) -> Tuple[str, RunFn]:
@@ -23,7 +24,7 @@ def setup(subparsers: _SubParsersAction) -> Tuple[str, RunFn]:
     return (NAME, run)
 
 
-def run(q: Queue, args: Namespace):
+def run(q: Queue, args: Namespace, config: Config):
 
     last_trim = Controls()
 

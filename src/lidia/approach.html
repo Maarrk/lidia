@@ -46,6 +46,10 @@
 
   <script type="text/javascript">
     var socket = io();
+    var config = {
+      nominal_alt: 3,
+      camera_height: 10,
+    };
 
     function degrees(radians) {
       return radians * 180 / Math.PI;
@@ -87,7 +91,7 @@
     const initialStroke = helideck.getAttribute('stroke-width');
     function updateDeck(s) {
       let alt = -s.ned[2]; // Altitude above deck in meters
-      let scale = (nominalAlt + cameraHeight) / (alt + cameraHeight);
+      let scale = (config.nominal_alt + config.camera_height) / (alt + config.camera_height);
       let yaw = 0;
       if ("att" in s) {
         yaw = degrees(s.att[2]);
@@ -99,6 +103,12 @@
     socket.on("smol", (s) => {
       if ("ned" in s) updateDeck(s);
     });
+    socket.on("config", (s) => {
+      if ("approach" in s) {
+        config = s.approach;
+      }
+    });
+    socket.emit("config_request", {});
   </script>
 
 </body>

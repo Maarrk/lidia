@@ -6,7 +6,7 @@ from os import path
 from typing import Tuple
 
 from ..config import Config, schema_location, write_schema
-from ..mytypes import RunFn
+from .mytypes import RunFn
 
 
 def setup(subparsers: _SubParsersAction) -> Tuple[str, RunFn]:
@@ -23,7 +23,7 @@ def setup(subparsers: _SubParsersAction) -> Tuple[str, RunFn]:
     return (NAME, run)
 
 
-def run(q: Queue, args: Namespace):
+def run(q: Queue, args: Namespace, config: Config):
     if not path.exists(schema_location()) or args.write_schema:
         write_schema()
 
