@@ -1,7 +1,7 @@
 import json
 from math import cos, sin, sqrt
 from pydantic import BaseModel
-from typing import Any, Dict, Iterable, List, Optional
+from typing import Any, Dict, Iterable, List, Optional, Self
 
 from .config import Config as LidiaConfig
 from .mytypes import VectorModel, IntFlagModel
@@ -94,6 +94,8 @@ class AircraftState(BaseModel):
     """Currently pressed buttons"""
     instr: Optional[Instruments] = None
     """Instrument values"""
+    t_boot: Optional[int] = None
+    """Time from the start of simulation, in milliseconds"""
 
     class Config:
         json_encoders = {
@@ -106,6 +108,32 @@ class AircraftState(BaseModel):
         """Return self as dictionary with SMOL-defined keys"""
         # HACK: JSON roundtrip is required, because there is no encoder configuration for .dict()
         return json.loads(self.json(models_as_dict=False, exclude={f for f in self.__fields__ if getattr(self, f) is None}))
+
+    @classmethod
+    def from_smol(cls, smol: dict) -> Self:
+        state = cls()
+        for name in ['ned', 'v_ned']:
+            if name in smol:
+                setattr(state, name, NED.from_list(smol[name]))
+        if 'att' in smol:
+            state.att = Attitude.from_list(smol['att'])
+        if 'v_body' in smol:
+            state.v_body = XYZ.from_list(smol['v_body'])
+        for name in ['ctrl', 'trgt', 'trim']:
+            if name in smol:
+                setattr(state, name, Controls.from_list(smol[name]))
+        # TODO: Borders
+        if 'btn' in smol:
+            state.btn = Buttons.from_list(smol[name])
+        if 'instr' in smol:
+            state.instr = Instruments()
+            for name in ['ias', 'gs', 'alt', 'qnh', 'alt']:
+                if name in smol['instr']:
+                    setattr(state, name, smol['instr'][name])
+        if 't_boot' in smol:
+            state.t_boot = smol['t_boot']
+
+        return state
 
     def _matmul(matrix: Iterable[float], multiplicand: Iterable[float]) -> List[float]:
         """Multiply 3x3 matrix by 3-element vector or 3x3 matrix"""

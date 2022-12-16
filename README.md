@@ -48,7 +48,6 @@ Report problems in [GitLab Issues](https://gitlab.com/Maarrk/lidia/-/issues)
 
 ## Roadmap
 
-- [MessagePack](https://msgpack.org/) and JSON source
 - Main page with links to available screens
 - Additional PFD indicators: ILS, VOR on HSI
 - Configurable limits on PFD indicators (e.g. VNE)
