@@ -17,9 +17,11 @@ To prevent silently failing in case of a mistyped key, every property is validat
 
 By default the schema URL contains full path to the installed data folder. When sharing the configuration files, you might want to set it to:
 
-- local path relative to config file: "file:lidia-config.json", if they are in same directory
+- local path relative to config file, like "lidia-config.json" if they are in same directory. (note lack of ``file:`` prefix)
 
 Config-keys argument
 ====================
-After all config files are processed, other values can be overriden using CLI arguments. To do that pass a set of properties like::
+After all config files are processed, values can be overriden using CLI arguments. To do that pass a set of properties like
+
+.. code-block:: console
     group.innergroup.value="string value, in quotes",group.innergroup.value2=2.0
