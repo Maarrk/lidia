@@ -11,7 +11,7 @@ from .server import run_server
 from .config import Config
 from .sources.mytypes import RunFn, SetupFn
 
-from .sources import demo, rpctask, approach, smol, confighelp
+from .sources import demo, rpctask, approach, smol, flightgear, confighelp
 
 
 def main():
@@ -38,7 +38,7 @@ def main():
                                        help='source name', description='select where to get aircraft state')
 
     sources: Dict[str, RunFn] = {}
-    for source_module in [demo, rpctask, approach, smol, confighelp]:
+    for source_module in [demo, rpctask, approach, smol, flightgear, confighelp]:
         setup: SetupFn = source_module.setup
         name, run_function = setup(subparsers)
         sources[name] = run_function
