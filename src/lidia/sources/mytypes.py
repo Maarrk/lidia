@@ -10,6 +10,9 @@ RunFn = Callable[[Queue, Namespace, Config], NoReturn]
 SetupFn = Callable[[_SubParsersAction], Tuple[str, RunFn]]
 
 
+FG_NET_FDM_VERSION = 24
+
+
 class FGNetFDM(BaseModel):
     """FlightGear network communication structure from src/Network/net_fdm.hxx"""
     version: int = 0
@@ -91,13 +94,6 @@ class FGNetFDM(BaseModel):
     num_tanks: int = 0
     """Max number of fuel tanks"""
     fuel_quantity: Tuple[float, float, float, float] = (0, 0, 0, 0)
-    """used by GPSsmooth and possibly others"""
-    tank_selected: Tuple[int, int, int, int] = (0, 0, 0, 0)
-    """selected, capacity, usable, density and level required for multiple-pc setups to work"""
-    capacity_m3: Tuple[float, float, float, float] = (0, 0, 0, 0)
-    unusable_m3: Tuple[float, float, float, float] = (0, 0, 0, 0)
-    density_kgpm3: Tuple[float, float, float, float] = (0, 0, 0, 0)
-    level_m3: Tuple[float, float, float, float] = (0, 0, 0, 0)
     num_wheels: int = 0
     wow: Tuple[int, int, int] = (0, 0, 0)
     gear_pos: Tuple[float, float, float] = (0, 0, 0)
@@ -122,9 +118,13 @@ class FGNetFDM(BaseModel):
 
     @classmethod
     def from_bytes(cls, data):
+        version = unpack_from("!I", data)[0]
+        if version != FG_NET_FDM_VERSION:
+            raise ValueError(
+                f"Expected protocol version {FG_NET_FDM_VERSION}, got {version}")
         this = cls()
         decoded = unpack_from(
-            "!IIdddffffffffffffffffffffffIIIIIffffffffffffffffffffffffffffffffffffIffffIIIIddddddddddddddddIIIIfffffffffIifffffffffff", data)
+            "!IIdddffffffffffffffffffffffIIIIIffffffffffffffffffffffffffffffffffffIffffIIIIfffffffffIifffffffffff", data)
         this.version = decoded[0]
         this.padding = decoded[1]
         this.longitude = decoded[2]
@@ -165,27 +165,22 @@ class FGNetFDM(BaseModel):
         this.oil_px = decoded[64:68]
         this.num_tanks = decoded[68]
         this.fuel_quantity = decoded[69:73]
-        this.tank_selected = decoded[73:77]
-        this.capacity_m3 = decoded[77:81]
-        this.unusable_m3 = decoded[81:85]
-        this.density_kgpm3 = decoded[85:89]
-        this.level_m3 = decoded[89:93]
-        this.num_wheels = decoded[93]
-        this.wow = decoded[94:97]
-        this.gear_pos = decoded[97:100]
-        this.gear_steer = decoded[100:103]
-        this.gear_compression = decoded[103:106]
-        this.cur_time = decoded[106]
-        this.warp = decoded[107]
-        this.visibility = decoded[108]
-        this.elevator = decoded[109]
-        this.elevator_trim_tab = decoded[110]
-        this.left_flap = decoded[111]
-        this.right_flap = decoded[112]
-        this.left_aileron = decoded[113]
-        this.right_aileron = decoded[114]
-        this.rudder = decoded[115]
-        this.nose_wheel = decoded[116]
-        this.speedbrake = decoded[117]
-        this.spoilers = decoded[118]
+        this.num_wheels = decoded[73]
+        this.wow = decoded[74:77]
+        this.gear_pos = decoded[77:80]
+        this.gear_steer = decoded[80:83]
+        this.gear_compression = decoded[83:86]
+        this.cur_time = decoded[86]
+        this.warp = decoded[87]
+        this.visibility = decoded[88]
+        this.elevator = decoded[89]
+        this.elevator_trim_tab = decoded[90]
+        this.left_flap = decoded[91]
+        this.right_flap = decoded[92]
+        this.left_aileron = decoded[93]
+        this.right_aileron = decoded[94]
+        this.rudder = decoded[95]
+        this.nose_wheel = decoded[96]
+        this.speedbrake = decoded[97]
+        this.spoilers = decoded[98]
         return this

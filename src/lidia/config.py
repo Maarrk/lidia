@@ -43,6 +43,8 @@ class Config(NestingModel):
     rpctask = RpctaskConfig()
     approach = ApproachConfig()
     instruments = InstrumentsConfig()
+    start_time: Optional[float] = None
+    """Epoch time in seconds of starting the program (see `time.time()`)"""
 
 
 def schema_location():

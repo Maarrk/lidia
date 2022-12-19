@@ -1,15 +1,15 @@
 import json
-from typing import List, Tuple
+from typing import Dict, List, Tuple
 
 
 def main():
     parsed: dict = json.load(open('net_fdm.json', 'rb'))
-    fields = get_fields(parsed)
+    constants, fields = get_fields(parsed)
     described_fields = get_descriptions(fields)
-    write_dataclass(described_fields)
+    write_dataclass(constants, described_fields)
 
 
-def get_fields(parsed: dict) -> List[Tuple[str, str, int]]:
+def get_fields(parsed: dict) -> Tuple[Dict[str, int], List[Tuple[str, str, int]]]:
     constants = {
         'FG_NET_FDM_VERSION': int(parsed['namespace']['variables'][0]['value']['tokens'][0]['value'])
     }
@@ -32,7 +32,7 @@ def get_fields(parsed: dict) -> List[Tuple[str, str, int]]:
 
     # print(f'{constants=}')
     # print(f'{fields=}')
-    return fields
+    return constants, fields
 
 
 def get_descriptions(fields: List[Tuple[str, str, int]]) -> List[Tuple[str, str, int, str]]:
@@ -54,14 +54,17 @@ def get_descriptions(fields: List[Tuple[str, str, int]]) -> List[Tuple[str, str,
     return result
 
 
-def write_dataclass(described_fields):
+def write_dataclass(constants: Dict[str, int], described_fields: List[Tuple[str, str, int, str]]):
     python_types = {
         'uint32_t': 'int',
         'int32_t': 'int',
         'double': 'float',
         'float': 'float'
     }
-    print('''
+    print(f'''
+FG_NET_FDM_VERSION = {constants['FG_NET_FDM_VERSION']}
+
+
 class FGNetFDM(BaseModel):
     """FlightGear network communication structure from src/Network/net_fdm.hxx"""''')
     for name, typename, count, comment in described_fields:
@@ -90,6 +93,9 @@ class FGNetFDM(BaseModel):
 
     @classmethod
     def from_bytes(cls, data):
+        version = unpack_from("!I", data)[0]
+        if version != FG_NET_FDM_VERSION:
+            raise ValueError(f"Expected protocol version {FG_NET_FDM_VERSION}, got {version}")
         this = cls()
         decoded = unpack_from(""", end='')
     print(f'"!{"".join(struct_format)}", data)')

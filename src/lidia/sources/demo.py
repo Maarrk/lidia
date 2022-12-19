@@ -50,6 +50,7 @@ def run(q: Queue, args: Namespace, config: Config):
     def current_phase(): return (time() / args.period) % 1
 
     last_trim = Controls()
+    start_time = time()
 
     while True:
         state = AircraftState()
@@ -110,6 +111,7 @@ def run(q: Queue, args: Namespace, config: Config):
             state.instr.ralt = None
         else:
             state.instr.qnh = None
+        state.set_time(config)
 
         q.put(('smol', state.smol()))
         sleep(1 / args.frequency)

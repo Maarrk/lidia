@@ -39,29 +39,36 @@ def run(q: Queue, args: Namespace, config: Config):
                 data, _ = sock.recvfrom(1024)
                 fg = FGNetFDM.from_bytes(data)
 
+                FT = 0.3048
+                """conversion multiplier from feet to meters"""
+
                 state = AircraftState()
                 state.ned = NED()
                 # TODO: Add argument for reference location, calculate north and east from that
-                state.ned.down = -fg.agl
+                state.ned.down = -fg.altitude
                 state.att = Attitude()
                 state.att.roll = fg.phi
                 state.att.pitch = fg.theta
                 state.att.yaw = fg.psi
+                # Velocities in ft/s
                 state.v_body = XYZ()
-                state.v_body.x = fg.v_body_u
-                state.v_body.y = fg.v_body_v
-                state.v_body.z = fg.v_body_w
+                state.v_body.x = fg.v_body_u * FT
+                state.v_body.y = fg.v_body_v * FT
+                state.v_body.z = fg.v_body_w * FT
                 state.v_ned = NED()
-                state.v_ned.north = fg.v_north
-                state.v_ned.east = fg.v_east
-                state.v_ned.down = fg.v_down
-                state.v_body
+                state.v_ned.north = fg.v_north * FT
+                state.v_ned.east = fg.v_east * FT
+                state.v_ned.down = fg.v_down * FT
                 state.ctrl = Controls()
                 # TODO: Check direction and range of the following
                 state.ctrl.stick_pull = fg.elevator
                 state.ctrl.stick_right = fg.right_aileron
                 state.ctrl.pedals_right = fg.rudder
+
                 state.model_instruments(config)
+                if state.instr.ralt is not None:
+                    state.instr.ralt = fg.agl * config.instruments.altitude_multiplier
+                state.set_time(config)
 
                 q.put(('smol', state.smol()))
             except socket.timeout:

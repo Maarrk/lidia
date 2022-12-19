@@ -1,6 +1,7 @@
 import argparse
 import json
 from multiprocessing import Process, Queue
+from time import time
 import tomli
 import re
 from typing import Dict
@@ -34,6 +35,10 @@ def main():
                         help='hosts to accept for web page', default='0.0.0.0')
     parser.add_argument('-P', '--http-port', type=int,
                         help='port to serve the web page on', default=5555)
+    parser.add_argument('-U', '--passthrough-host', type=str,
+                        help='address to forward state to (e.g. 127.0.0.1)')
+    parser.add_argument('-O', '--passthrough-port', type=int,
+                        help='port to forward the state to (e.g. 50010)')
     subparsers = parser.add_subparsers(title='source', required=True, dest='source',
                                        help='source name', description='select where to get aircraft state')
 
@@ -44,9 +49,15 @@ def main():
         sources[name] = run_function
 
     args = parser.parse_args()
+    passthrough_host = args.passthrough_host is None
+    passthrough_port = args.passthrough_port is None
+    if passthrough_host != passthrough_host:
+        parser.error(
+            'For passthrough UDP, both address (-U) and port (-O) must be specified')
+
     args.verbosity -= args.quiet
     if args.verbosity >= 1:
-        # mimic = specifier from python 3.8 to maintain 3.7 compatibility
+        # mimic '=' specifier from python 3.8 to maintain 3.7 compatibility
         print(f'args={args}')
 
     config = Config()
@@ -72,12 +83,13 @@ def main():
         toml_string = '\n'.join(re.split(separator, args.config_keys))
         update_dict = tomli.loads(toml_string)
         config = config.updated(update_dict)
+    if config.start_time is None:
+        config.start_time = time()
     if args.verbosity >= 1:
         print(f'config=Config({config})')
 
     queue = Queue()
-    server_process = Process(target=run_server, args=(
-        config, queue, args.http_host, args.http_port, args.verbosity))
+    server_process = Process(target=run_server, args=(queue, args, config))
     server_process.start()
 
     if args.verbosity >= 0 and not args.source.endswith('help'):

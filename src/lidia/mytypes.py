@@ -1,4 +1,4 @@
-from typing import List, Self
+from typing import List
 from pydantic import BaseModel, Extra
 from pydantic.utils import deep_update
 
@@ -40,7 +40,7 @@ class IntFlagModel(BaseModel):
 class NestingModel(BaseModel, extra=Extra.forbid):
     """Extension to `pydantic.BaseModel` allowing for updating with nested dictionary"""
 
-    def updated(self, update_dict: dict[str, object]) -> Self:
+    def updated(self, update_dict: dict[str, object]) -> 'NestingModel':
         """Construct new model, overriding values provided in nested dictionary
 
         The data is validated, both for type and not having keys undefined in the model"""

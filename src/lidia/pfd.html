@@ -529,7 +529,7 @@
         updateHSI(degrees(s.att[2]));
       }
       if ("v_ned" in s) {
-        updateVSI(feet(s.v_ned[2]) * 0.6); // from m/s to 100ft/min
+        updateVSI(feet(s.v_ned[2]) * -0.6); // from m/s down to 100ft/min up
       }
       if ("instr" in s) {
         if ("ias" in s.instr) updateIAS(s.instr.ias);

@@ -51,6 +51,7 @@ def run(q: Queue, args: Namespace, config: Config):
                 state.att = Attitude()
                 state.att.yaw = yaw
                 state.model_instruments(config)
+                state.set_time(config)
 
                 q.put(('smol', state.smol()))
             except socket.timeout:

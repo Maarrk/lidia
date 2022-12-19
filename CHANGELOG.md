@@ -11,6 +11,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Instrument configuration
 - Utilities for coordinate system conversion in `AircraftState`
 - `smol` source for packets in [MessagePack](https://msgpack.org/) or [JSON](https://www.json.org/)
+- `flightgear` source for [FlightGear](https://www.flightgear.org/) simulator
+- Forwarding received state over UDP
 
 ### Changed
 
@@ -19,6 +21,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Fixed
 
 - Using shared config state to sources
+- Type annotations use quoted name instead of `Self` to support python < 3.11
+- Radio altimeter activation condition
 
 ## [0.4.0] - 2022-12-16
 

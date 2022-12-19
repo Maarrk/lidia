@@ -1,7 +1,8 @@
 import json
 from math import cos, sin, sqrt
+from time import time
 from pydantic import BaseModel
-from typing import Any, Dict, Iterable, List, Optional, Self
+from typing import Any, Dict, Iterable, List, Optional
 
 from .config import Config as LidiaConfig
 from .mytypes import VectorModel, IntFlagModel
@@ -110,7 +111,7 @@ class AircraftState(BaseModel):
         return json.loads(self.json(models_as_dict=False, exclude={f for f in self.__fields__ if getattr(self, f) is None}))
 
     @classmethod
-    def from_smol(cls, smol: dict) -> Self:
+    def from_smol(cls, smol: dict) -> 'AircraftState':
         state = cls()
         for name in ['ned', 'v_ned']:
             if name in smol:
@@ -254,10 +255,14 @@ class AircraftState(BaseModel):
 
     def _model_ralt(self, config: LidiaConfig) -> bool:
         if self.ned is not None:
-            if -self.ned.down <= config.instruments.radio_altimeter_activation:
+            if abs(self.ned.down) <= config.instruments.radio_altimeter_activation:
                 self._get_instr().ralt = -self.ned.down * config.instruments.altitude_multiplier
                 return True
         return False
+
+    def set_time(self, config: LidiaConfig):
+        if config.start_time is not None:
+            self.t_boot = int((time() - config.start_time) * 1000)
 
 
 if __name__ == '__main__':
