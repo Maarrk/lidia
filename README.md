@@ -6,11 +6,11 @@ _Lightweight Instrument Display Interface for Aircraft_
 
 lidia is a Python package for serving an aircraft instruments panel as a web page.
 
-![screenshot of top part of primary flight display page](readme-pfd.png)
+![screenshot of top part of primary flight display page](https://gitlab.com/Maarrk/lidia/-/raw/main/readme-pfd.png)
 
 ## Installation
 
-Use the package manager [pip](https://pip.pypa.io/en/stable/) to install lidia.
+Use the package manager [pip](https://pip.pypa.io/en/stable/) to install [lidia](https://pypi.org/project/lidia/).
 
 ```bash
 pip install lidia
@@ -39,10 +39,6 @@ lidia -P 5556 demo
 
 Then open the served page in a browser, by default [localhost:5555](http://localhost:5555).
 The controls for showing and hiding elements of the GUI are shown when hovering the mouse in the bottom left region of the page.
-
-<!-- TODO: visuals
-- demo GIF with moving parts
-- static screenshot with elements explained -->
 
 ## Support
 
