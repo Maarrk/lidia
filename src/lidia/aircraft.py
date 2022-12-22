@@ -37,10 +37,15 @@ class NED(VectorModel):
 
 class Controls(VectorModel):
     stick_right: float = 0
+    """Control stick input to roll right, between -1 and 1"""
     stick_pull: float = 0
+    """Control stick input to pitch up, between -1 and 1"""
     throttle: float = 0
+    """Engine power input, between 0 and 1"""
     pedals_right: float = 0
+    """Pedals input to yaw right, between -1 and 1"""
     collective_up: float = 0
+    """Collective input to increase lift, between 0 and 1"""
 
 
 class Borders(BaseModel):
@@ -269,8 +274,26 @@ if __name__ == '__main__':
     # run this from src/ folder like this: python -m lidia.aircraft
     config = LidiaConfig()
     state = AircraftState()
-    state.ned = NED.from_list([1, 2, 3])
-    state.att = Attitude.from_list([4, 5, 6])
-    state.v_body = XYZ.from_list([5, 0, 0])
-    state.model_instruments(config)
+    state.ned = NED.from_list([0.1, 0.2, 0.3])
+    state.att = Attitude.from_list([0.1, 0.2, 0.3])
+    state.v_body = XYZ.from_list([0.1, 0.2, 0.3])
+    state.v_ned = NED.from_list([0.1, 0.2, 0.3])
+    state.ctrl = Controls.from_list([0.1, 0.2, 0.3, 0.4, 0.5])
+    state.trgt = Controls.from_list([0.1, 0.2, 0.3, 0.4, 0.5])
+    state.t_boot = 0x1337CAFE
+    # state.model_instruments(config)
     print(state.smol())
+    import msgpack
+    packer = msgpack.Packer(use_single_float=False)
+    data_double = packer.pack(state.smol())
+    packer = msgpack.Packer(use_single_float=True)
+    data_float = packer.pack(state.smol())
+    data = data_double[:0x21] + data_float[0x15:]
+    for i, b in enumerate(data):
+        print(f'0x{b:02X}, ', end='')
+        if i % 8 == 7:
+            print('...')
+    print()
+    with open('lidia/data/aircraft.bin', 'wb') as out:
+        out.write(data)
+    print(msgpack.unpackb(data))
