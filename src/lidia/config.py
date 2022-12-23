@@ -15,6 +15,7 @@ class RpctaskConfig(NestingModel):
 
 
 class ApproachConfig(NestingModel):
+    """Ship approach configuration"""
     nominal_alt: float = 3
     """Altitude at which the scale is 1, in meters"""
     camera_height: float = 10
@@ -24,6 +25,7 @@ class ApproachConfig(NestingModel):
 
 
 class InstrumentsConfig(NestingModel):
+    """Configuration for instruments visualisation, units etc."""
     speed_multiplier: float = 3600.0 / 1852.0
     """Scaling factor to change state velocity in meters per second to displayed IAS and GS, default for knots"""
     altitude_multiplier: float = 1 / 0.3048

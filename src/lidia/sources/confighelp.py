@@ -49,7 +49,7 @@ def run(q: Queue, args: Namespace, config: Config):
                 'Config files have to end with ".json", ".yaml", ".yml" or ".toml" to write correct format')
 
     root_path = path.abspath(path.dirname(__file__))
-    help_path = path.join(root_path, 'confighelp.rst')
+    help_path = path.join(root_path, 'confighelp.md')
     with open(help_path, 'r') as help_file:
         print(help_file.read())
 

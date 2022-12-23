@@ -10,6 +10,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 - MATLAB function to pack most fields of `AircraftState`
 
+### Changed
+
+- `confighelp` text in Markdown (instead of ReStructured Text)
+
 ## [0.5.0] - 2022-12-19
 
 ### Added
