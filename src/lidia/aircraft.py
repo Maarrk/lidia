@@ -221,6 +221,21 @@ class AircraftState(BaseModel):
         self._model_alt(config)
         self._model_ralt(config)
 
+    def _get_ned(self) -> NED:
+        if self.ned is None:
+            self.ned = NED()
+        return self.ned
+
+    def _get_att(self) -> Attitude:
+        if self.att is None:
+            self.att = Attitude()
+        return self.att
+
+    def _get_ctrl(self) -> Controls:
+        if self.ctrl is None:
+            self.ctrl = Controls()
+        return self.ctrl
+
     def _get_instr(self) -> Instruments:
         if self.instr is None:
             self.instr = Instruments()

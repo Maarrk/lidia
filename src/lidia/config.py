@@ -1,6 +1,7 @@
+from enum import Enum
 import os
 from os import path
-from typing import Optional
+from typing import List, Optional
 from pydantic import Field
 
 from .mytypes import NestingModel
@@ -34,6 +35,48 @@ class InstrumentsConfig(NestingModel):
     """Activation height of radio altimeter above which it is not modeled, default 2500ft"""
 
 
+class FGPropertyNode(str, Enum):
+    """Supported [FlightGear property tree](https://sourceforge.net/p/flightgear/fgdata/ci/next/tree/Docs/README.properties) paths"""
+    latitude = '/position/latitude-deg'
+    longitude = '/position/longitude-deg'
+    altitude = '/position/altitude-ft'
+    roll = '/orientation/roll-deg'
+    pitch = '/orientation/pitch-deg'
+    heading = '/orientation/heading-deg'
+    aileron = '/controls/flight/aileron'
+    elevator = '/controls/flight/elevator'
+    rudder = '/controls/flight/rudder'
+    throttle_all = '/controls/engines/throttle-all'
+
+
+class FGDataType(str, Enum):
+    """Supported FlightGear binary types"""
+    double_t = 'double'
+    float_t = 'float'
+    int_t = 'int'
+
+    def struct_char(self):
+        if self == FGDataType.double_t:
+            return 'd'
+        elif self == FGDataType.float_t:
+            return 'f'
+        elif self == FGDataType.int_t:
+            return 'i'
+
+
+class FGChunk(NestingModel):
+    """Chunk in [FlightGear Generic protocol](https://wiki.flightgear.org/Generic_protocol)"""
+    name: Optional[str] = None
+    node: FGPropertyNode
+    data_type: FGDataType
+    factor: float = 1.0
+
+
+class FlightGearConfig(NestingModel):
+    chunks: Optional[List[FGChunk]] = None
+    """List of chunks as they would be in protocol XML file"""
+
+
 class Config(NestingModel):
     """Root of configuration structure
 
@@ -45,6 +88,7 @@ class Config(NestingModel):
     rpctask = RpctaskConfig()
     approach = ApproachConfig()
     instruments = InstrumentsConfig()
+    flightgear = FlightGearConfig()
     start_time: Optional[float] = None
     """Epoch time in seconds of starting the program (see `time.time()`)"""
 

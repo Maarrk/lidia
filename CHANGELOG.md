@@ -9,6 +9,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Added
 
 - MATLAB function to pack most fields of `AircraftState`
+- Parsing a subset of [Generic protocol](https://wiki.flightgear.org/Generic_protocol) in `flightgear` source
 
 ### Changed
 
