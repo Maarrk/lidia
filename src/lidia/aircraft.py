@@ -77,6 +77,16 @@ class Instruments(BaseModel):
     """Radio altimeter"""
 
 
+class CASMessage(BaseModel):
+    msg_id: int
+    blinking: bool
+
+
+class CAS(BaseModel):
+    """Crew Alerting System state"""
+    msgs: List[CASMessage]
+
+
 class AircraftState(BaseModel):
     """Full state of displayed aircraft"""
 

@@ -1,7 +1,8 @@
+from enum import Enum
 import os
 from os import path
-from typing import Optional
-from pydantic import Field
+from typing import Dict, List, Optional
+from pydantic import BaseModel, Field
 
 from .mytypes import NestingModel
 
@@ -34,6 +35,32 @@ class InstrumentsConfig(NestingModel):
     """Activation height of radio altimeter above which it is not modeled, default 2500ft"""
 
 
+class CASCategory(Enum):
+    """Category (severity, type) of a message shown in CAS"""
+    WARNING = 1
+    """Red, blinking until acknowledged"""
+    CAUTION = 2
+    """Amber, blinking until acknowledged"""
+    ADVISORY = 3
+    """Green, blinking for a fixed time"""
+    STATUS = 4
+    """White messages"""
+
+
+class CASEvent(NestingModel):
+    """Event that can be displayed in CAS"""
+    category: CASCategory
+    """Category to put the message into"""
+    text: str
+    """Text to be shown"""
+
+
+class CASConfig(NestingModel):
+    """Configuration for Crew Alerting System, including events"""
+    events: Dict[int, CASEvent] = {}
+    """Dictionary of events by their integer id"""
+
+
 class Config(NestingModel):
     """Root of configuration structure
 
@@ -45,6 +72,7 @@ class Config(NestingModel):
     rpctask = RpctaskConfig()
     approach = ApproachConfig()
     instruments = InstrumentsConfig()
+    cas = CASConfig()
     start_time: Optional[float] = None
     """Epoch time in seconds of starting the program (see `time.time()`)"""
 
