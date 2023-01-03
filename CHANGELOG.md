@@ -9,10 +9,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Added
 
 - MATLAB function to pack most fields of `AircraftState`
+- Rudder indicator in RPC Task GUI. _Note: the old view can be shown on page load with this suffix `#text,collective,cyclic`_
 
 ### Changed
 
 - `confighelp` text in Markdown (instead of ReStructured Text)
+
+### Fixed
+
+- Control stick pull direction in `flightgear` source
 
 ## [0.5.0] - 2022-12-19
 

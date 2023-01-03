@@ -60,8 +60,7 @@ def run(q: Queue, args: Namespace, config: Config):
                 state.v_ned.east = fg.v_east * FT
                 state.v_ned.down = fg.v_down * FT
                 state.ctrl = Controls()
-                # TODO: Check direction and range of the following
-                state.ctrl.stick_pull = fg.elevator
+                state.ctrl.stick_pull = -fg.elevator
                 state.ctrl.stick_right = fg.right_aileron
                 state.ctrl.pedals_right = fg.rudder
 

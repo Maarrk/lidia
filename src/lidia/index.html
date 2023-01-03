@@ -114,6 +114,33 @@
         <use id="cycInputIndicator" href="#pointCircle" fill="#f00" />
       </g>
     </g>
+    <g id="rudderRegion" stroke="#fff" data-extents="1200 2100 1560 970">
+      <rect width="1000" height="60" x="1025" y="1265" fill="#4d4d4d" stroke-width="5" />
+      <g id="ruddOrigin" transform="translate(1525 1295)">
+        <use id="ruddBoundaryLeft" href="#borderShort" fill="#0f0" stroke="none" display="none" />
+        <g id="ruddBoundaryRight" fill="#0f0" stroke="none" display="none" transform="translate(1000)">
+          <use href="#borderShort" transform="scale(-1 1)" />
+        </g>
+        <g transform="translate(0 30)">
+          <g id="ruddTrimIndicator">
+            <use href="#bottomTriangle" fill="#02f7fa" />
+            <path fill=" none" stroke-dasharray="12,12" stroke-width="4" d="M0,0 v-60" />
+          </g>
+        </g>
+        <g id="ruddTargetIndicator">
+          <use href="#star" />
+          <g fill="none" stroke-dasharray="3,3" stroke-width="3">
+            <line y1="-30" y2="30" x1="-30" x2="-30" />
+            <line y1="-30" y2="30" x1="30" x2="30" />
+            <line y1="-30" y2="30" x1="-50" x2="-50" />
+            <line y1="-30" y2="30" x1="50" x2="50" />
+          </g>
+        </g>
+        <g transform="translate(0 -30) scale(1 -1)">
+          <use id="ruddInputIndicator" href="#bottomTriangle" fill="#f00" />
+        </g>
+      </g>
+    </g>
   </svg>
   <script src="static/controls.js"></script>
   <script type="text/javascript">
@@ -164,6 +191,7 @@
 
     const collInput = document.getElementById("collInputIndicator");
     const cycInput = document.getElementById("cycInputIndicator");
+    const ruddInput = document.getElementById("ruddInputIndicator");
     const collPercent = document.getElementById("collPercent");
     const cycLatPercent = document.getElementById("cycLatPercent");
     const cycLonPercent = document.getElementById("cycLonPercent");
@@ -172,6 +200,8 @@
       limitRange(collInput, true);
       cycInput.setAttribute("transform", `translate(${s.ctrl[0] * 500} ${s.ctrl[1] * 500})`);
       limitRange(cycInput);
+      ruddInput.setAttribute("transform", `translate(${s.ctrl[3] * 500})`);
+      limitRange(ruddInput);
 
       collPercent.textContent = Math.round(s.ctrl[4] * 100);
       // Goes from 0% on the left and 100% on the right instead of -1 to +1
@@ -182,23 +212,28 @@
 
     const collTarget = document.getElementById("collTargetIndicator");
     const cycTarget = document.getElementById("cycTargetIndicator");
+    const ruddTarget = document.getElementById("ruddTargetIndicator");
     function updateTarget(s) {
       collTarget.setAttribute("transform", `translate(${s.trgt[4] * 1000})`);
       limitRange(collTarget, true);
       cycTarget.setAttribute("transform", `translate(${s.trgt[0] * 500} ${s.trgt[1] * 500})`);
       limitRange(cycTarget);
+      ruddTarget.setAttribute("transform", `translate(${s.trgt[3] * 500})`);
+      limitRange(ruddTarget);
 
       if ("ctrl" in s) {
         collInput.style.fill = errorFill(s.ctrl[4] - s.trgt[4]);
         cycInput.style.fill = errorFill(
           Math.sqrt(Math.pow(s.ctrl[0] - s.trgt[0], 2) + Math.pow(s.ctrl[1] - s.trgt[1], 2)) / 2
         ); // The error is defined in terms of percent of range and these go -1 to +1
+        ruddInput.style.fill = errorFill(s.ctrl[3] - s.trgt[3]);
       }
     }
 
     const collTrim = document.getElementById("collTrimIndicator");
     const cycLatTrim = document.getElementById("cycLatTrimIndicator");
     const cycLonTrim = document.getElementById("cycLonTrimIndicator");
+    const ruddTrim = document.getElementById("ruddTrimIndicator");
     function updateTrim(s) {
       collTrim.setAttribute("transform", `translate(${s.trim[4] * 1000})`);
       limitRange(collTrim, true);
@@ -206,6 +241,8 @@
       limitRange(cycLatTrim);
       cycLonTrim.setAttribute("transform", `translate(${s.trim[1] * 500})`);
       limitRange(cycLonTrim);
+      ruddTrim.setAttribute("transform", `translate(${s.trim[3] * 500})`);
+      limitRange(ruddTrim);
     }
 
     const collBoundaryLow = document.getElementById("collBoundaryLow");
@@ -214,6 +251,8 @@
     const cycBoundaryHigh = document.getElementById("cycBoundaryHigh");
     const cycBoundaryLeft = document.getElementById("cycBoundaryLeft");
     const cycBoundaryRight = document.getElementById("cycBoundaryRight");
+    const ruddBoundaryLeft = document.getElementById("ruddBoundaryLeft");
+    const ruddBoundaryRight = document.getElementById("ruddBoundaryRight");
     function updateBorderPair(input, lowBdr, highBdr, lowRef, highRef, oneSided = false, pattern = false) {
       if (lowBdr === (oneSided ? 0.0 : -1.0) && highBdr === 1.0) {
         lowRef.style.display = "none";
@@ -236,6 +275,7 @@
       updateBorderPair(s.ctrl[4], s.brdr.low[4], s.brdr.high[4], collBoundaryLow, collBoundaryHigh, true);
       updateBorderPair(s.ctrl[0], s.brdr.low[0], s.brdr.high[0], cycBoundaryLeft, cycBoundaryRight, false, true);
       updateBorderPair(s.ctrl[1], s.brdr.low[1], s.brdr.high[1], cycBoundaryLow, cycBoundaryHigh, false, true);
+      updateBorderPair(s.ctrl[3], s.brdr.low[3], s.brdr.high[3], ruddBoundaryLeft, ruddBoundaryRight, false, false);
     }
 
     const collFtr = document.getElementById("collFtr");
