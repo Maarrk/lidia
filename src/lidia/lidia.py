@@ -36,7 +36,7 @@ def main():
     parser.add_argument('-P', '--http-port', type=int,
                         help='port to serve the web page on', default=5555)
     parser.add_argument('-U', '--passthrough-host', type=str,
-                        help='address to forward state to (e.g. 127.0.0.1)')
+                        help='address to forward state to', default='127.0.0.1')
     parser.add_argument('-O', '--passthrough-port', type=int,
                         help='port to forward the state to (e.g. 50010)')
     subparsers = parser.add_subparsers(title='source', required=True, dest='source',
@@ -49,11 +49,6 @@ def main():
         sources[name] = run_function
 
     args = parser.parse_args()
-    passthrough_host = args.passthrough_host is None
-    passthrough_port = args.passthrough_port is None
-    if passthrough_host != passthrough_host:
-        parser.error(
-            'For passthrough UDP, both address (-U) and port (-O) must be specified')
 
     args.verbosity -= args.quiet
     if args.verbosity >= 1:
@@ -98,6 +93,9 @@ Lidia GUIs driven by '{args.source}' source served on:
     - RPC task: http://localhost:{args.http_port}
     - Primary Flight Display: http://localhost:{args.http_port}/pfd
     - Ship Approach: http://localhost:{args.http_port}/approach""")
+        if args.passthrough_port is not None:
+            print(
+                f'State in SMOL forwarded via UDP to {args.passthrough_host}:{args.passthrough_port}')
 
     try:
         (sources[args.source])(queue, args, config)
