@@ -45,7 +45,6 @@ def run_server(q: Queue, args: Namespace, config: Config):
         '/static': path.join(root_path, 'static'),
     }
 
-    # TODO: on received `config_request` send `config` event with config dict
     sio = socketio.Server()
 
     @sio.on('config_request')

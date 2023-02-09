@@ -284,13 +284,13 @@ if __name__ == '__main__':
     # run this from src/ folder like this: python -m lidia.aircraft
     config = LidiaConfig()
     state = AircraftState()
-    state.ned = NED.from_list([0.1, 0.2, 0.3])
-    state.att = Attitude.from_list([0.1, 0.2, 0.3])
-    state.v_body = XYZ.from_list([0.1, 0.2, 0.3])
-    state.v_ned = NED.from_list([0.1, 0.2, 0.3])
-    state.ctrl = Controls.from_list([0.1, 0.2, 0.3, 0.4, 0.5])
-    state.trgt = Controls.from_list([0.1, 0.2, 0.3, 0.4, 0.5])
-    state.t_boot = 0x1337CAFE
+    state.ned = NED.from_list([0.0, 0.0, 0.0])
+    state.att = Attitude.from_list([0.0, 0.0, 0.0])
+    state.v_body = XYZ.from_list([0.0, 0.0, 0.0])
+    state.v_ned = NED.from_list([0.0, 0.0, 0.0])
+    state.ctrl = Controls.from_list([0.0, 0.0, 0.0, 0.0, 0.0])
+    state.trgt = Controls.from_list([0.0, 0.0, 0.0, 0.0, 0.0])
+    state.t_boot = 0x10000000
     # state.model_instruments(config)
     print(state.smol())
     import msgpack
@@ -301,8 +301,6 @@ if __name__ == '__main__':
     data = data_double[:0x21] + data_float[0x15:]
     for i, b in enumerate(data):
         print(f'0x{b:02X}, ', end='')
-        if i % 8 == 7:
-            print('...')
     print()
     with open('lidia/data/aircraft.bin', 'wb') as out:
         out.write(data)
