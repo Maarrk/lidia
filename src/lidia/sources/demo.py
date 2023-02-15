@@ -71,11 +71,13 @@ def run(q: Queue, args: Namespace, config: Config):
         state.ctrl = Controls()
         state.ctrl.stick_pull = val(0.1)
         state.ctrl.stick_right = val(0.35)
+        state.ctrl.pedals_right = val(0.6)
         state.ctrl.collective_up = 0.3 + 0.5 * (val(0.2) + outside_offset)
 
         state.trgt = Controls()
         state.trgt.stick_pull = val(0.55)
         state.trgt.stick_right = val(0.3)
+        state.trgt.pedals_right = val(0.5)
         state.trgt.collective_up = 0.3 + 0.5 * (val(0.4) + outside_offset)
 
         state.btn = Buttons()

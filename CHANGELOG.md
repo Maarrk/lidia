@@ -10,15 +10,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 - MATLAB function to pack most fields of `AircraftState`
 - Rudder indicator in RPC Task GUI. _Note: the old view can be shown on page load with this suffix `#text,collective,cyclic`_
+- Rudder value in `demo` source
 
 ### Changed
 
 - `confighelp` text in Markdown (instead of ReStructured Text)
 - `--passthrough-host` now has a default value for localhost
+- Limits for target in RPC Task are displayed only inside their respective region background, translation is not limited
 
 ### Fixed
 
 - Control stick pull direction in `flightgear` source
+- Graphical limits for target in RPC Task reflect configured limits
 
 ## [0.5.0] - 2022-12-19
 
