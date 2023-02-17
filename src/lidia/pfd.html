@@ -203,8 +203,9 @@
           <g transform="scale(6)">
             <g id="iasTape" transform="translate(0 0)" fill="white" font-size="6" text-anchor="end"
               dominant-baseline="central" stroke="white" stroke-width="1">
-              <!-- set V NEVER EXCEED: AW139 167kts -->
-              <path d="m0 -167 h-30 " stroke="var(--pfdRed)" stroke-width="2" />
+              <g id="iasVne" transform="translate(0 -167)">
+                <path d="m0 0 h-30 " stroke="var(--pfdRed)" stroke-width="2" />
+              </g>
 
               <path d="m0 10 h-10" />
               <path d="m0 20 h-10" />
@@ -434,6 +435,11 @@
   </script>
 
   <script type="text/javascript">
+    var socket = io();
+    var config = {
+      ias_never_exceed: 167,
+    };
+
     function updateOptional(value, element, decimal = 0, width = 1) {
       if (value !== null && isFinite(value)) {
         element.textContent = value.toFixed(decimal).padStart(width, "0");
@@ -522,7 +528,10 @@
       document.getElementById("hsiWheel").setAttribute("transform", `rotate(${hdg})`);
     }
 
-    var socket = io();
+    function updateLimits() {
+      document.getElementById("iasVne").setAttribute("transform", `translate(0 ${-config.ias_never_exceed})`);
+    }
+
     socket.on("smol", (s) => {
       if ("att" in s) {
         updateADI(degrees(s.att[0]), degrees(s.att[1]));
@@ -539,7 +548,13 @@
         if ("ralt" in s.instr) updateRHT(s.instr.ralt);
       }
     });
-
+    socket.on("config", (s) => {
+      if ("pfd" in s) {
+        config = s.pfd;
+        updateLimits();
+      }
+    });
+    socket.emit("config_request", {});
   </script>
 </body>
 

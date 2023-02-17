@@ -15,6 +15,12 @@ class RpctaskConfig(NestingModel):
     """Acceptable margin for yellow color"""
 
 
+class PfdConfig(NestingModel):
+    """configuration for `pfd`"""
+    ias_never_exceed: float = 167.0
+    """Never exceed speed (Vne) shown on IAS tape"""
+
+
 class ApproachConfig(NestingModel):
     """Ship approach configuration"""
     nominal_alt: float = 3
@@ -70,6 +76,7 @@ class Config(NestingModel):
     dollar_schema: Optional[str] = Field(alias='$schema', default=None)
     """Allow the `$schema` property for specifying JSON Schema URL"""
     rpctask = RpctaskConfig()
+    pfd = PfdConfig()
     approach = ApproachConfig()
     instruments = InstrumentsConfig()
     cas = CASConfig()

@@ -6,11 +6,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [0.6.0] - 2023-02-17
+
 ### Added
 
 - MATLAB function to pack most fields of `AircraftState`
 - Rudder indicator in RPC Task GUI. _Note: the old view can be shown on page load with this suffix `#text,collective,cyclic`_
 - Rudder value in `demo` source
+- Configurable IAS Vne in `pfd`
 
 ### Changed
 
@@ -128,7 +131,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Initial release with `demo` and `rpctask` sources
 
 <!-- prettier-ignore -->
-[Unreleased]: https://gitlab.com/Maarrk/lidia/-/compare/v0.5.0...dev
+[Unreleased]: https://gitlab.com/Maarrk/lidia/-/compare/v0.6.0...dev
+[0.6.0]: https://gitlab.com/Maarrk/lidia/-/compare/v0.5.0...v0.6.0
 [0.5.0]: https://gitlab.com/Maarrk/lidia/-/compare/v0.4.0...v0.5.0
 [0.4.0]: https://gitlab.com/Maarrk/lidia/-/compare/v0.3.5...v0.4.0
 [0.3.5]: https://gitlab.com/Maarrk/lidia/-/compare/v0.3.4...v0.3.5

@@ -48,7 +48,6 @@ Report problems in [GitLab Issues](https://gitlab.com/Maarrk/lidia/-/issues)
 
 - Main page with links to available screens
 - Additional PFD indicators: ILS, VOR on HSI
-- Configurable limits on PFD indicators (e.g. VNE)
 - Ship approach screen with views from the side and behind
 - CAS (Crew Alerting System) screen
 - Simple second order aircraft models
