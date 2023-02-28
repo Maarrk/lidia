@@ -22,6 +22,14 @@
 
 <body>
   <svg id="mainSvg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2100 1200" preserveAspectRatio="xMidYMid meet">
+    <defs>
+      <path id="attTarget" d="M -2,0 a 2,2 0 0,0 4,0 a 2,2 0 0,0 -4,0 M -1.5,0 h-3 M 1.5,0 h3 M 0,1.5 v1 M 0,-1.5 v-2" stroke-linecap="round" fill="none" />
+      <path id="flightpathVector" d="M -2,0 a 2,2 0 0,0 4,0 a 2,2 0 0,0 -4,0 M -2,0 h-3.5 M 2,0 h3.5 M 0,-2 v-1.5" stroke-linecap="square" fill="none" />
+      <g id="flightpathRetrograde" stroke-linecap="square" fill="none">
+        <path d="M -2,0 a 2,2 0 0,0 4,0 a 2,2 0 0,0 -4,0 M 0,-2 v-2 M -1.73, 1 l -1.73, 1 M 1.73, 1 l 1.73, 1" />
+        <path d="M -2.82,-2.82 L 2.82,2.82 M -2.82,2.82 L 2.82,-2.82" transform="scale(0.5)" />
+      </g>
+    </defs>
     <g id="autopilotRegion" data-extents="0 1325 30 775">
       <path id="PIC" d="M1050 15 v5 h15 v 10 l15 -15 l-15 -15 v10 h-15 z" fill="var(--pfdGreen)" stroke="none" />
     </g>
@@ -71,6 +79,18 @@
               <path d="m-2.5 2.5 h5" />
               <path d="m-2.5 7.5 h5" />
               <!-- Other ticks generated with script -->
+            </g>
+            <g id="flightpathIndicator" display="none">
+              <!-- <use href="#flightpathVector" stroke="black" stroke-width="1.0" /> -->
+              <use href="#flightpathVector" stroke="white" stroke-width="0.625" />
+            </g>
+            <g id="flightpathRetrogradeIndicator" display="none">
+              <!-- <use href="#flightpathRetrograde" stroke="black" stroke-width="1.0" /> -->
+              <use href="#flightpathRetrograde" stroke="white" stroke-width="0.625" />
+            </g>
+            <g id="adiTargetIndicator" display="none">
+              <use href="#attTarget" stroke="black" stroke-width="1.0" />
+              <use href="#attTarget" stroke="var(--pfdMagenta)" stroke-width="0.625" />
             </g>
           </g>
         </g>
@@ -438,6 +458,9 @@
     var socket = io();
     var config = {
       ias_never_exceed: 167,
+      rotate_adi_target: true,
+      show_flightpath: true,
+      show_retrograde: false,
     };
 
     function updateOptional(value, element, decimal = 0, width = 1) {
@@ -465,6 +488,21 @@
       document.getElementById("adiHorizon").setAttribute("transform", horizonTransform);
       document.getElementById("adiInnerHorizon").setAttribute("transform", horizonTransform);
       document.getElementById("adiRoll").setAttribute("transform", `rotate(${-roll})`);
+    }
+
+    const flightpathIndicator = document.getElementById("flightpathIndicator");
+    const flightpathRetrograde = document.getElementById("flightpathRetrogradeIndicator");
+    function updateFPV(vx, vy, vz) {
+      flightpathIndicator.setAttribute("display", vx > 0 ? "block" : "none");
+      flightpathRetrograde.setAttribute("display", (vx < 0 && config.show_retrograde) ? "block" : "none");
+
+      let alpha = degrees(Math.atan2(vz, vx));
+      let beta = degrees(Math.atan2(vy, vx));
+      if (vx > 0) {
+        flightpathIndicator.setAttribute("transform", `translate(${beta} ${alpha})`);
+      } else if (vx < 0) {
+        flightpathRetrograde.setAttribute("transform", `translate(${beta - 180} ${alpha - 180})`);
+      }
     }
 
     function updateALT(alt) {
@@ -528,6 +566,20 @@
       document.getElementById("hsiWheel").setAttribute("transform", `rotate(${hdg})`);
     }
 
+    const adiTargetIndicator = document.getElementById("adiTargetIndicator");
+    function updateTarget(s) {
+      if ("att" in s.trgt && "att" in s) {
+        adiTargetIndicator.setAttribute("display", "inline");
+        let roll = degrees(s.trgt.att[0] - s.att[0]);
+        let pitch = degrees(s.trgt.att[1] - s.att[1]);
+        let r = Math.sqrt(roll * roll + pitch * pitch);
+        let rClamped = Math.min(r, 27); // circle is r=240, scale=8 so max 30 deg, r of indicator is 2deig
+        let x = roll * (rClamped / r);
+        let y = -pitch * (rClamped / r);
+        adiTargetIndicator.setAttribute("transform", `translate(${x} ${y}) rotate(${config.rotate_adi_target ? roll : 0})`);
+      }
+    }
+
     function updateLimits() {
       document.getElementById("iasVne").setAttribute("transform", `translate(0 ${-config.ias_never_exceed})`);
     }
@@ -540,12 +592,18 @@
       if ("v_ned" in s) {
         updateVSI(feet(s.v_ned[2]) * -0.6); // from m/s down to 100ft/min up
       }
+      if ("v_body" in s) {
+        updateFPV(s.v_body[0], s.v_body[1], s.v_body[2]); // units irrelevant
+      }
       if ("instr" in s) {
         if ("ias" in s.instr) updateIAS(s.instr.ias);
         if ("gs" in s.instr) updateGS(s.instr.gs);
         if ("alt" in s.instr) updateALT(s.instr.alt);
         if ("qnh" in s.instr) updateQNH(s.instr.qnh);
         if ("ralt" in s.instr) updateRHT(s.instr.ralt);
+      }
+      if ("trgt" in s) {
+        updateTarget(s);
       }
     });
     socket.on("config", (s) => {

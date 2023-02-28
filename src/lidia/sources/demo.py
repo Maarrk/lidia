@@ -63,6 +63,8 @@ def run(q: Queue, args: Namespace, config: Config):
 
         state.v_body = XYZ()
         state.v_body.x = 15 + 2.5 * val(0.5)
+        state.v_body.y = 1 * val(0.65)
+        state.v_body.z = 2 * val(0.25)
 
         state.v_ned = state.xyz2ned(state.v_body)
 
@@ -78,6 +80,9 @@ def run(q: Queue, args: Namespace, config: Config):
         state.trgt.ctrl.stick_right = val(0.3)
         state.trgt.ctrl.pedals_right = val(0.5)
         state.trgt.ctrl.collective_up = 0.3 + 0.5 * (val(0.4) + outside_offset)
+        state.trgt.att = Attitude()
+        state.trgt.att.roll = 0.3 * val(0.35)
+        state.trgt.att.pitch = 0.3 * val(0.1)
 
         state.btn = Buttons()
         if cycle_index() == 1 and args.trim:

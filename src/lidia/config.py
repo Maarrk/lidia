@@ -19,6 +19,12 @@ class PfdConfig(NestingModel):
     """configuration for `pfd`"""
     ias_never_exceed: float = 167.0
     """Never exceed speed (Vne) shown on IAS tape"""
+    rotate_adi_target: bool = True
+    """Rotate attitude target indicator to show desired roll"""
+    show_flightpath: bool = True
+    """Show flightpath vector (FPV) indicator on ADI"""
+    show_retrograde: bool = False
+    """Show reverse flight path vector on ADI"""
 
 
 class ApproachConfig(NestingModel):
