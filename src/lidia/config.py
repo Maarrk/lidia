@@ -25,6 +25,8 @@ class PfdConfig(NestingModel):
     """Show flightpath vector (FPV) indicator on ADI"""
     show_retrograde: bool = False
     """Show reverse flight path vector on ADI"""
+    move_roll_ticks: bool = False
+    """Move roll angle scale with horizon, keeping sideslip triangle in place"""
 
 
 class ApproachConfig(NestingModel):

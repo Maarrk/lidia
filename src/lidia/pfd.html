@@ -56,7 +56,7 @@
         </g>
 
         <use href="#adiInnerBackground" fill="white" fill-opacity="0.1" />
-        <g fill="white" stroke="white" stroke-width="3">
+        <g id="adiRollTicks" fill="white" stroke="white" stroke-width="3">
           <path d="m0 -240 l15 -20 h-30 z" stroke="none" />
           <path d="m0 -240 v-20" transform="rotate(10)" />
           <path d="m0 -240 v-20" transform="rotate(20)" />
@@ -461,6 +461,7 @@
       rotate_adi_target: true,
       show_flightpath: true,
       show_retrograde: false,
+      move_roll_ticks: false,
     };
 
     function updateOptional(value, element, decimal = 0, width = 1) {
@@ -487,14 +488,13 @@
       let horizonTransform = `rotate(${-roll}) translate(0 ${pitch}) `
       document.getElementById("adiHorizon").setAttribute("transform", horizonTransform);
       document.getElementById("adiInnerHorizon").setAttribute("transform", horizonTransform);
-      document.getElementById("adiRoll").setAttribute("transform", `rotate(${-roll})`);
+      document.getElementById("adiRollTicks").setAttribute("transform", `rotate(${config.move_roll_ticks ? -roll : 0})`);
+      document.getElementById("adiRoll").setAttribute("transform", `rotate(${config.move_roll_ticks ? 0 : -roll})`);
     }
 
-    const flightpathIndicator = document.getElementById("flightpathIndicator");
-    const flightpathRetrograde = document.getElementById("flightpathRetrogradeIndicator");
     function updateFPV(vx, vy, vz) {
-      flightpathIndicator.setAttribute("display", vx > 0 ? "block" : "none");
-      flightpathRetrograde.setAttribute("display", (vx < 0 && config.show_retrograde) ? "block" : "none");
+      document.getElementById("flightpathRetrogradeIndicator").setAttribute("display", vx > 0 ? "block" : "none");
+      document.getElementById("flightpathIndicator").setAttribute("display", (vx < 0 && config.show_retrograde) ? "block" : "none");
 
       let alpha = degrees(Math.atan2(vz, vx));
       let beta = degrees(Math.atan2(vy, vx));

@@ -15,6 +15,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 - `AircraftState` had not self-referencing fields moved to `AircraftData`
 - `trgt` and `trim` fields of `AircraftState` can contain full state now
+- Method of roll indication on PFD can be configured between moving scale and pointer
 
 ### Deprecated
 
