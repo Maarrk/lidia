@@ -90,7 +90,7 @@ def main():
     if args.verbosity >= 0 and not args.source.endswith('help'):
         print(f"""\
 Lidia GUIs driven by '{args.source}' source served on:
-    - RPC task: http://localhost:{args.http_port}
+    - RPC task: http://localhost:{args.http_port}/rpctask
     - Primary Flight Display: http://localhost:{args.http_port}/pfd
     - Ship Approach: http://localhost:{args.http_port}/approach""")
         if args.passthrough_port is not None:

@@ -6,6 +6,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added
+
+- `info` page showing available screens
+
+### Deprecated
+
+- `rpctask` available on `/` address - replaced with `info`
+
 ## [0.6.0] - 2023-02-17
 
 ### Added

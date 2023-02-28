@@ -40,6 +40,8 @@ def run_server(q: Queue, args: Namespace, config: Config):
     root_path = path.abspath(path.dirname(__file__))
     static_files = {
         '/': {'content_type': 'text/html', 'filename': path.join(root_path, 'rpctask.html')},
+        '/info': {'content_type': 'text/html', 'filename': path.join(root_path, 'info.html')},
+        '/rpctask': {'content_type': 'text/html', 'filename': path.join(root_path, 'rpctask.html')},
         '/pfd': {'content_type': 'text/html', 'filename': path.join(root_path, 'pfd.html')},
         '/approach': {'content_type': 'text/html', 'filename': path.join(root_path, 'approach.html')},
         '/static': path.join(root_path, 'static'),

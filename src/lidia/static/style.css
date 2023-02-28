@@ -54,7 +54,9 @@ html,
 body {
   margin: 0;
   padding: 0;
-  overflow: hidden;
+  /* overflow: hidden; */
+  height: 100%;
+  width: 100%;
   background-color: #000;
   font-family: "Roboto Mono", monospace;
 }
@@ -89,4 +91,16 @@ svg#mainSvg {
   display: flex;
   align-items: center;
   gap: 12px;
+}
+
+.content {
+  color: #fff;
+  margin: 2rem auto;
+  padding: 0 1rem;
+  max-width: 60rem;
+  font-size: 1.2rem;
+}
+
+.content a {
+  color: var(--pfdCyan);
 }
