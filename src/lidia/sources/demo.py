@@ -1,6 +1,6 @@
 """looping simulation demonstrating GUI"""
 from argparse import _SubParsersAction, ArgumentDefaultsHelpFormatter, ArgumentError, ArgumentParser, Namespace
-from math import cos, pi, sin
+from math import pi, sin
 from multiprocessing import Queue
 from time import sleep, time
 from typing import Tuple
@@ -50,11 +50,9 @@ def run(q: Queue, args: Namespace, config: Config):
     def current_phase(): return (time() / args.period) % 1
 
     last_trim = Controls()
-    start_time = time()
 
     while True:
         state = AircraftState()
-
         state.ned = NED()
         state.ned.down = -args.alt_zero - args.alt_change * val(0.75)
 
@@ -74,11 +72,12 @@ def run(q: Queue, args: Namespace, config: Config):
         state.ctrl.pedals_right = val(0.6)
         state.ctrl.collective_up = 0.3 + 0.5 * (val(0.2) + outside_offset)
 
-        state.trgt = Controls()
-        state.trgt.stick_pull = val(0.55)
-        state.trgt.stick_right = val(0.3)
-        state.trgt.pedals_right = val(0.5)
-        state.trgt.collective_up = 0.3 + 0.5 * (val(0.4) + outside_offset)
+        state.trgt = AircraftData()
+        state.trgt.ctrl = Controls()
+        state.trgt.ctrl.stick_pull = val(0.55)
+        state.trgt.ctrl.stick_right = val(0.3)
+        state.trgt.ctrl.pedals_right = val(0.5)
+        state.trgt.ctrl.collective_up = 0.3 + 0.5 * (val(0.4) + outside_offset)
 
         state.btn = Buttons()
         if cycle_index() == 1 and args.trim:
@@ -92,7 +91,8 @@ def run(q: Queue, args: Namespace, config: Config):
         if state.btn.cyc_ftr:
             last_trim.stick_right = state.ctrl.stick_right
             last_trim.stick_pull = state.ctrl.stick_pull
-        state.trim = last_trim
+        state.trim = AircraftData()
+        state.trim.ctrl = last_trim
 
         state.brdr = Borders()
         if cycle_index() == 2 and args.borders:

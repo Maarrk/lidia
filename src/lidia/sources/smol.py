@@ -42,7 +42,7 @@ def run(q: Queue, args: Namespace, config: Config):
                 decoded = None
                 if data[0] == ord('{'):
                     try:
-                        decoded = json.load(data)
+                        decoded = json.loads(data)
                     except json.JSONDecodeError as e:
                         print(e)
                 else:

@@ -63,7 +63,7 @@ def main():
             if config_filename.lower().endswith('.json'):
                 update_dict = json.load(open(config_filename))
             elif config_filename.lower().endswith('.yaml') or config_filename.lower().endswith('.yml'):
-                update_dict = yaml.load(open(config_filename))
+                update_dict = yaml.safe_load(open(config_filename))
             elif config_filename.lower().endswith('.toml'):
                 update_dict = tomli.load(open(config_filename, 'rb'))
             else:

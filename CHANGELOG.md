@@ -10,9 +10,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 - `info` page showing available screens
 
+### Changed
+
+- `AircraftState` had not self-referencing fields moved to `AircraftData`
+- `trgt` and `trim` fields of `AircraftState` can contain full state now
+
 ### Deprecated
 
 - `rpctask` available on `/` address - replaced with `info`
+- Sending `trgt` and `trim` as property of root object - should be `trgt.ctrl` and `trim.ctrl`
+
+### Fixed
+
+- FTR indicators in `rpctask` now correspond to the right button
 
 ## [0.6.0] - 2023-02-17
 

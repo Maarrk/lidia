@@ -74,7 +74,7 @@ class FGNetFDM(BaseModel):
             print(f'{pt} = 0')
         else:
             print(
-                f'Tuple[{", ".join([pt] * count)}] = ({", ".join(["0" for i in range(count)])})')
+                f'Tuple[{", ".join([pt] * count)}] = ({", ".join(["0" for _ in range(count)])})')
         if comment != '':
             print(f'    """{comment}"""')
 

@@ -24,7 +24,7 @@ def setup(subparsers: _SubParsersAction) -> Tuple[str, RunFn]:
     return (NAME, run)
 
 
-def run(q: Queue, args: Namespace, config: Config):
+def run(q: Queue, args: Namespace, _config: Config):
 
     last_trim = Controls()
 
@@ -43,37 +43,43 @@ def run(q: Queue, args: Namespace, config: Config):
                 (pitch_ctrl, roll_ctrl, pwr_ctrl,
                  pitch_target, roll_target, pwr_target,
                  cyc_ftr, coll_ftr) = unpack_from('>' + 'd' * 8, data)
-                if len(data) >= 8 * 14:
-                    (up_bdr_cyc, low_bdr_cyc, right_bdr_cyc, left_bdr_cyc,
-                     up_bdr_coll, low_bdr_coll) = unpack_from('>' + 'd' * 6, data, 8 * 8)
 
                 state = AircraftState()
                 state.ctrl = Controls()
                 state.ctrl.stick_right = (roll_ctrl * 2.0) - 1.0
                 state.ctrl.stick_pull = (pitch_ctrl * -2.0) + 1.0
                 state.ctrl.collective_up = pwr_ctrl
-                state.trgt.stick_right = (roll_target * 2.0) - 1.0
-                state.trgt.stick_pull = (pitch_target * -2.0) + 1.0
-                state.trgt.collective_up = pwr_target
+
+                state.trgt = AircraftData()
+                state.trgt.ctrl = Controls()
+                state.trgt.ctrl.stick_right = (roll_target * 2.0) - 1.0
+                state.trgt.ctrl.stick_pull = (pitch_target * -2.0) + 1.0
+                state.trgt.ctrl.collective_up = pwr_target
+
                 state.btn = Buttons()
                 if cyc_ftr > 0.5:
                     state.btn.cyc_ftr = True
                 if coll_ftr > 0.5:
                     state.btn.coll_ftr = True
-                state.brdr = Borders()
-                state.brdr.high.stick_right = (right_bdr_cyc * 2.0) - 1.0
-                state.brdr.low.stick_right = (left_bdr_cyc * 2.0) - 1.0
-                state.brdr.high.stick_pull = (low_bdr_cyc * -2.0) + 1.0
-                state.brdr.low.stick_pull = (up_bdr_cyc * -2.0) + 1.0
-                state.brdr.high.collective_up = up_bdr_coll
-                state.brdr.low.collective_up = low_bdr_coll
+
+                if len(data) >= 8 * 14:
+                    (up_bdr_cyc, low_bdr_cyc, right_bdr_cyc, left_bdr_cyc,
+                     up_bdr_coll, low_bdr_coll) = unpack_from('>' + 'd' * 6, data, 8 * 8)
+                    state.brdr = Borders()
+                    state.brdr.high.stick_right = (right_bdr_cyc * 2.0) - 1.0
+                    state.brdr.low.stick_right = (left_bdr_cyc * 2.0) - 1.0
+                    state.brdr.high.stick_pull = (low_bdr_cyc * -2.0) + 1.0
+                    state.brdr.low.stick_pull = (up_bdr_cyc * -2.0) + 1.0
+                    state.brdr.high.collective_up = up_bdr_coll
+                    state.brdr.low.collective_up = low_bdr_coll
 
                 if state.btn.coll_ftr:
                     last_trim.collective_up = state.ctrl.collective_up
                 if state.btn.cyc_ftr:
                     last_trim.stick_right = state.ctrl.stick_right
                     last_trim.stick_pull = state.ctrl.stick_pull
-                state.trim = last_trim
+                state.trim = AircraftData()
+                state.trim.ctrl = last_trim
 
                 q.put(('smol', state.smol()))
             except socket.timeout:

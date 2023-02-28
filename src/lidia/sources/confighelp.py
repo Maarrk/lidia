@@ -1,5 +1,5 @@
 """mock source to show detailed help about configuration"""
-from argparse import _SubParsersAction, ArgumentDefaultsHelpFormatter, ArgumentError, ArgumentParser, Namespace
+from argparse import _SubParsersAction, ArgumentDefaultsHelpFormatter, ArgumentParser, Namespace
 import json
 from multiprocessing import Queue
 from os import path
@@ -23,7 +23,7 @@ def setup(subparsers: _SubParsersAction) -> Tuple[str, RunFn]:
     return (NAME, run)
 
 
-def run(q: Queue, args: Namespace, config: Config):
+def run(_q: Queue, args: Namespace, config: Config):
     if not path.exists(schema_location()) or args.write_schema:
         write_schema()
 

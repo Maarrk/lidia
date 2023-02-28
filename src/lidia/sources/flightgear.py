@@ -2,7 +2,6 @@
 from argparse import _SubParsersAction, ArgumentDefaultsHelpFormatter, ArgumentParser, Namespace
 from multiprocessing import Queue
 import socket
-from struct import unpack_from
 from typing import Tuple
 
 from ..aircraft import *

@@ -34,15 +34,16 @@ class IntFlagModel(BaseModel):
         b_values = []
         for i, intval in enumerate(values):
             b_values.append(intval[i // 32] & (1 << (i % 32)))
-        return cls(dict(zip(cls.__fields__, b_values)))
+        return cls(**dict(zip(cls.__fields__, b_values)))
 
 
 class NestingModel(BaseModel, extra=Extra.forbid):
     """Extension to `pydantic.BaseModel` allowing for updating with nested dictionary"""
 
-    def updated(self, update_dict: dict[str, object]) -> 'NestingModel':
+    def updated(self, update_dict: dict[str, object]):
         """Construct new model, overriding values provided in nested dictionary
 
         The data is validated, both for type and not having keys undefined in the model"""
+        # return value is not annotated because it problems with type analysis for children
         new_dict = deep_update(self.dict(by_alias=True), update_dict)
         return self.__class__(**new_dict)

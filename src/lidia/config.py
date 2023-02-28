@@ -1,8 +1,8 @@
 from enum import Enum
 import os
 from os import path
-from typing import Dict, List, Optional
-from pydantic import BaseModel, Field
+from typing import Dict, Optional
+from pydantic import Field
 
 from .mytypes import NestingModel
 

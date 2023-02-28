@@ -224,24 +224,24 @@
     const ruddTarget = document.getElementById("ruddTargetIndicator");
     const ruddTargetLimits = document.getElementById("ruddTargetLimits");
     function updateTarget(s) {
-      collTarget.setAttribute("transform", `translate(${s.trgt[4] * 1000})`);
+      collTarget.setAttribute("transform", `translate(${s.trgt.ctrl[4] * 1000})`);
       limitRange(collTarget, true);
-      cycTarget.setAttribute("transform", `translate(${s.trgt[0] * 500} ${s.trgt[1] * 500})`);
+      cycTarget.setAttribute("transform", `translate(${s.trgt.ctrl[0] * 500} ${s.trgt.ctrl[1] * 500})`);
       limitRange(cycTarget);
-      ruddTarget.setAttribute("transform", `translate(${s.trgt[3] * 500})`);
+      ruddTarget.setAttribute("transform", `translate(${s.trgt.ctrl[3] * 500})`);
       limitRange(ruddTarget);
 
-      collTargetLimits.setAttribute("transform", `translate(${s.trgt[4] * 1000})`);
-      cycTargetLimits.setAttribute("transform", `translate(${s.trgt[0] * 500} ${s.trgt[1] * 500})`);
-      ruddTargetLimits.setAttribute("transform", `translate(${s.trgt[3] * 500})`);
+      collTargetLimits.setAttribute("transform", `translate(${s.trgt.ctrl[4] * 1000})`);
+      cycTargetLimits.setAttribute("transform", `translate(${s.trgt.ctrl[0] * 500} ${s.trgt.ctrl[1] * 500})`);
+      ruddTargetLimits.setAttribute("transform", `translate(${s.trgt.ctrl[3] * 500})`);
 
       if ("ctrl" in s) {
-        collInput.style.fill = errorFill(s.ctrl[4] - s.trgt[4]);
+        collInput.style.fill = errorFill(s.ctrl[4] - s.trgt.ctrl[4]);
         // The error is defined in terms of percent of range and these go -1 to +1, so divide by 2
         cycInput.style.fill = errorFill(
-          Math.sqrt(Math.pow(s.ctrl[0] - s.trgt[0], 2) + Math.pow(s.ctrl[1] - s.trgt[1], 2)) / 2
+          Math.sqrt(Math.pow(s.ctrl[0] - s.trgt.ctrl[0], 2) + Math.pow(s.ctrl[1] - s.trgt.ctrl[1], 2)) / 2
         );
-        ruddInput.style.fill = errorFill((s.ctrl[3] - s.trgt[3]) / 2);
+        ruddInput.style.fill = errorFill((s.ctrl[3] - s.trgt.ctrl[3]) / 2);
       }
     }
 
@@ -250,13 +250,13 @@
     const cycLonTrim = document.getElementById("cycLonTrimIndicator");
     const ruddTrim = document.getElementById("ruddTrimIndicator");
     function updateTrim(s) {
-      collTrim.setAttribute("transform", `translate(${s.trim[4] * 1000})`);
+      collTrim.setAttribute("transform", `translate(${s.trim.ctrl[4] * 1000})`);
       limitRange(collTrim, true);
-      cycLatTrim.setAttribute("transform", `translate(${s.trim[0] * 500})`);
+      cycLatTrim.setAttribute("transform", `translate(${s.trim.ctrl[0] * 500})`);
       limitRange(cycLatTrim);
-      cycLonTrim.setAttribute("transform", `translate(${s.trim[1] * 500})`);
+      cycLonTrim.setAttribute("transform", `translate(${s.trim.ctrl[1] * 500})`);
       limitRange(cycLonTrim);
-      ruddTrim.setAttribute("transform", `translate(${s.trim[3] * 500})`);
+      ruddTrim.setAttribute("transform", `translate(${s.trim.ctrl[3] * 500})`);
       limitRange(ruddTrim);
     }
 
@@ -296,8 +296,8 @@
     const collFtr = document.getElementById("collFtr");
     const cycFtr = document.getElementById("cycFtr");
     function updateButtons(s) {
-      collFtr.style.fill = s.btn[0] & (1 << 0) ? "#ff0" : "#000";
-      cycFtr.style.fill = s.btn[0] & (1 << 1) ? "#ff0" : "#000";
+      cycFtr.style.fill = s.btn[0] & (1 << 0) ? "#ff0" : "#000";
+      collFtr.style.fill = s.btn[0] & (1 << 1) ? "#ff0" : "#000";
     }
 
     function updateLimits() {
@@ -316,9 +316,9 @@
       if ("brdr" in s) updateBorders(s);
       if ("btn" in s) updateButtons(s);
     });
-    socket.on("config", (s) => {
-      if ("rpctask" in s) {
-        config = s.rpctask;
+    socket.on("config", (c) => {
+      if ("rpctask" in c) {
+        config = c.rpctask;
         updateLimits();
       }
     });
