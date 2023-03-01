@@ -6,7 +6,7 @@ import os
 import platform
 from pydantic import BaseModel
 import sys
-from typing import Any, List, Optional, Tuple
+from typing import Any, Dict, List, Tuple, Type
 
 # setup cross-platform getch() and clear()
 if platform.system() == "Windows":
@@ -49,10 +49,11 @@ class Model:
 
         self.parts = ['main', 'trgt', 'trim']
         self.selected_part = self.parts[0]
-        self.field_source = {f: next((doc.strip().replace('"""', ''), decl, AircraftData.__fields__[f].annotation.__args__[0]) for (decl, doc)
-                                     in zip(inspect.getsourcelines(AircraftData)[0], inspect.getsourcelines(AircraftData)[0][1:])
-                                     if decl.strip().startswith(f))
-                             for f in AircraftData.__fields__}
+        self.field_source: Dict[str, Tuple[str, str, Type]] = {
+            f: next((doc.strip().replace('"""', ''), decl, AircraftData.__fields__[f].annotation.__args__[0]) for (decl, doc)
+                    in zip(inspect.getsourcelines(AircraftData)[0], inspect.getsourcelines(AircraftData)[0][1:])
+                    if decl.strip().startswith(f))
+            for f in AircraftData.__fields__}
         # only serialization of vectors is supported
         self.toggles = [(f, *src) for f, src in self.field_source.items()
                         if (issubclass(src[2], VectorModel) or src[2] is int)]
@@ -64,20 +65,17 @@ class Model:
 
         self.status = ''
 
-    def _get_choices_num(self):
+    @property
+    def choices_num(self) -> int:
         return len(self.toggles) + len(self.parts) + self.extra_choices
 
-    choices_num = property(fget=_get_choices_num)
-
-    def _get_selected_part_index(self):
+    @property
+    def selected_part_index(self) -> int:
         return next(i for i, p in enumerate(self.parts) if p == self.selected_part)
 
-    selected_part_index = property(fget=_get_selected_part_index)
-
-    def _get_enabled_num(self):
+    @property
+    def enabled_num(self) -> int:
         return sum(len([en for en in self.enabled[p] if en]) for p in self.parts)
-
-    enabled_num = property(fget=_get_enabled_num)
 
 
 class Command(IntEnum):
@@ -90,7 +88,7 @@ class Message(IntEnum):
     STATUS = auto()
 
 
-def view(model: Model):
+def view(model: Model) -> None:
     clear()
     print('Choose fields to be serialized in message')
     print('Use arrows or j, k to move, select with Enter or Space\n')
@@ -161,11 +159,19 @@ def update(model: Model, message: Message, data: Any) -> Tuple[Model, List[Comma
 
 
 def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument('-v', action='store_true', dest='verbose')
-    parser.add_argument('-o', '--output', default='pack_lidia.m')
+    parser = argparse.ArgumentParser(
+        description='generate MATLAB function to pack data for lidia',
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser.add_argument('-v', '--verbose', action='store_true', dest='verbose',
+                        help='increase amount of shown information')
+    parser.add_argument('-o', '--output', default='pack_lidia.m',
+                        help='output file path')
     args = parser.parse_args()
-    model = Model(args.output, args.verbose)
+    if not args.output.endswith('.m'):
+        parser.error(
+            'the output filename needs to end with MATLAB script extension: ".m"')
+
+    model = Model(os.path.normpath(args.output), args.verbose)
     messages = []
     while True:
         commands = []
@@ -181,8 +187,13 @@ def main():
             if cmd == Command.MAKE:
                 selected = {p: [f[0] for f, en in zip(
                     model.toggles, model.enabled[p]) if en] for p in model.parts}
+                os.makedirs(os.path.dirname(model.output), exist_ok=True)
                 with open(model.output, 'w') as out:
-                    codegen(out, model.field_source,
+                    filename = os.path.basename(model.output)
+                    if not filename.endswith('.m'):
+                        raise ValueError(
+                            'expected MATLAB script filename', filename)
+                    codegen(out, filename[:-2], model.field_source,
                             selected['main'], selected['trgt'], selected['trim'])
                 messages.append(
                     (Message.STATUS, 'Saved to {}'.format(model.output)))
@@ -195,8 +206,9 @@ def main():
         messages.append((Message.KEY, key))
 
 
-def codegen(out: StringIO, field_source: dict, main_fields: List[str], trgt_fields: List[str], trim_fields: List[str]):
-    out.write('function data = pack_lidia( ...\n    ')
+def codegen(out: StringIO, name: str, field_source: Dict[str, Tuple[str, str, Type]],
+            main_fields: List[str], trgt_fields: List[str], trim_fields: List[str]) -> None:
+    out.write('function data = {}( ...\n    '.format(name))
     arglist = []
     for f in main_fields:
         if issubclass(field_source[f][2], BaseModel):
