@@ -6,6 +6,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [0.7.1] - 2023-03-01
+
+### Changed
+
+- Moved interactive utilities to source directory
+
+### Fixed
+
+- `confighelp` file name in package manifest
+
 ## [0.7.0] - 2023-03-01
 
 ### Added
@@ -154,7 +164,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Initial release with `demo` and `rpctask` sources
 
 <!-- prettier-ignore -->
-[Unreleased]: https://gitlab.com/Maarrk/lidia/-/compare/v0.7.0...dev
+[Unreleased]: https://gitlab.com/Maarrk/lidia/-/compare/v0.7.1...dev
+[0.7.1]: https://gitlab.com/Maarrk/lidia/-/compare/v0.7.0...v0.7.1
 [0.7.0]: https://gitlab.com/Maarrk/lidia/-/compare/v0.6.0...v0.7.0
 [0.6.0]: https://gitlab.com/Maarrk/lidia/-/compare/v0.5.0...v0.6.0
 [0.5.0]: https://gitlab.com/Maarrk/lidia/-/compare/v0.4.0...v0.5.0

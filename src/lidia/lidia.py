@@ -92,7 +92,9 @@ def main():
 Lidia GUIs driven by '{args.source}' source served on:
     - RPC task: http://localhost:{args.http_port}/rpctask
     - Primary Flight Display: http://localhost:{args.http_port}/pfd
-    - Ship Approach: http://localhost:{args.http_port}/approach""")
+    - Ship Approach: http://localhost:{args.http_port}/approach
+
+(see this list and configuration at http://localhost:{args.http_port}/info)""")
         if args.passthrough_port is not None:
             print(
                 f'State in SMOL forwarded via UDP to {args.passthrough_host}:{args.passthrough_port}')

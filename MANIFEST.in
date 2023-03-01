@@ -1,3 +1,4 @@
 include src/lidia/*.html
-include src/lidia/sources/confighelp.rst
+include src/lidia/sources/confighelp.md
 graft src/lidia/static
+graft src/lidia/utils
