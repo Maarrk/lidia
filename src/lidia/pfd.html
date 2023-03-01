@@ -495,7 +495,7 @@
     }
 
     function updateFPV(vx, vy, vz) {
-      document.getElementById("flightpathIndicator").setAttribute("display", vx > 0 ? "block" : "none");
+      document.getElementById("flightpathIndicator").setAttribute("display", (vx > 0 && config.show_flightpath) ? "block" : "none");
       document.getElementById("flightpathRetrogradeIndicator").setAttribute("display", (vx < 0 && config.show_retrograde) ? "block" : "none");
 
       let alpha = degrees(Math.atan2(vz, vx));

@@ -202,7 +202,7 @@ class AircraftData(BaseModel):
             state.instr = Instruments()
             for name in ['ias', 'gs', 'alt', 'qnh', 'alt']:
                 if name in smol['instr']:
-                    setattr(state, name, smol['instr'][name])
+                    setattr(state.instr, name, smol['instr'][name])
         if 't_boot' in smol:
             state.t_boot = smol['t_boot']
 
@@ -328,6 +328,7 @@ if __name__ == '__main__':
     state.trgt = AircraftData()
     state.trgt.ctrl = Controls.from_list([0.0, 0.0, 0.0, 0.0, 0.0])
     state.t_boot = 0x10000000
+    state.model_instruments(config)
     # state.model_instruments(config)
     print(state.smol())
     import msgpack
@@ -342,4 +343,6 @@ if __name__ == '__main__':
     os.makedirs('lidia/data', exist_ok=True)
     with open('lidia/data/aircraft.bin', 'wb') as out:
         out.write(data)
-    print(msgpack.unpackb(data))
+    roundtrip = msgpack.unpackb(data)
+    print(roundtrip)
+    print(AircraftState.from_smol(roundtrip))

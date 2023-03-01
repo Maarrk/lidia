@@ -81,7 +81,7 @@ class Config(NestingModel):
     Every config field in this and children should be provided with defaults,
     that can be overriden by config files"""
 
-    dollar_schema: Optional[str] = Field(alias='$schema', default=None)
+    json_schema_url: Optional[str] = Field(alias='$schema', default=None)
     """Allow the `$schema` property for specifying JSON Schema URL"""
     rpctask = RpctaskConfig()
     pfd = PfdConfig()

@@ -36,7 +36,7 @@ else:
         os.system('clear')
 
 this_path = os.path.dirname(os.path.realpath(__file__))
-lidia_path = os.path.join(this_path, '..', 'src')
+lidia_path = os.path.join(this_path, '..', '..')
 sys.path.append(lidia_path)
 from lidia.aircraft import AircraftData, VectorModel  # noqa prevent moving to top of file
 
@@ -187,7 +187,8 @@ def main():
             if cmd == Command.MAKE:
                 selected = {p: [f[0] for f, en in zip(
                     model.toggles, model.enabled[p]) if en] for p in model.parts}
-                os.makedirs(os.path.dirname(model.output), exist_ok=True)
+                if len(os.path.dirname(model.output)) > 0:
+                    os.makedirs(os.path.dirname(model.output), exist_ok=True)
                 with open(model.output, 'w') as out:
                     filename = os.path.basename(model.output)
                     if not filename.endswith('.m'):
@@ -230,16 +231,16 @@ def codegen(out: StringIO, name: str, field_source: Dict[str, Tuple[str, str, Ty
             arglist.append('trim_{}'.format(f))
 
     out.write(', ...\n    '.join(arglist))
-    out.write(''')
+    out.write(''') % {} arguments
 %PACK_LIDIA Pack aircraft data into binary format
 %   The output is array of bytes in MsgPack format, as expected by
 %   'smol' source of lidia package
 %
 %   This is generated using pack_maker.py to create code suitable for
-%   use in Simulink - known size of I/O, no map or struct usage
+%   use in Simulink - known size of I/O (see below), no map or struct usage
 
-    data = [...
-''')
+    data = uint8([...
+'''.format(len(arglist)))
     length = 0
 
     field_count = len(main_fields) + \
@@ -257,9 +258,14 @@ def codegen(out: StringIO, name: str, field_source: Dict[str, Tuple[str, str, Ty
             for field in fieldgroup:
                 length += pack_field(out, field_source, field, prefix)
 
-    out.write('''    ];
-% data length {} bytes
+    out.write('''    ]);
+% data length {0} bytes
 end
+
+% You might need to manually configure Simulink output:
+%   Size: 1 {0}
+%   Type: uint8
+% The warning message "Wrap on overflow detected" can be ignored
 
 function bytes = b(value)
     % reverse byte order to convert from little endian to big endian
