@@ -23,8 +23,10 @@
 <body>
   <svg id="mainSvg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2100 1200" preserveAspectRatio="xMidYMid meet">
     <defs>
-      <path id="attTarget" d="M -2,0 a 2,2 0 0,0 4,0 a 2,2 0 0,0 -4,0 M -1.5,0 h-3 M 1.5,0 h3 M 0,1.5 v1 M 0,-1.5 v-2" stroke-linecap="round" fill="none" />
-      <path id="flightpathVector" d="M -2,0 a 2,2 0 0,0 4,0 a 2,2 0 0,0 -4,0 M -2,0 h-3.5 M 2,0 h3.5 M 0,-2 v-1.5" stroke-linecap="square" fill="none" />
+      <path id="attTarget" d="M -2,0 a 2,2 0 0,0 4,0 a 2,2 0 0,0 -4,0 M -1.5,0 h-3 M 1.5,0 h3 M 0,1.5 v1 M 0,-1.5 v-2"
+        stroke-linecap="round" fill="none" />
+      <path id="flightpathVector" d="M -2,0 a 2,2 0 0,0 4,0 a 2,2 0 0,0 -4,0 M -2,0 h-3.5 M 2,0 h3.5 M 0,-2 v-1.5"
+        stroke-linecap="square" fill="none" />
       <g id="flightpathRetrograde" stroke-linecap="square" fill="none">
         <path d="M -2,0 a 2,2 0 0,0 4,0 a 2,2 0 0,0 -4,0 M 0,-2 v-2 M -1.73, 1 l -1.73, 1 M 1.73, 1 l 1.73, 1" />
         <path d="M -2.82,-2.82 L 2.82,2.82 M -2.82,2.82 L 2.82,-2.82" transform="scale(0.5)" />
@@ -82,11 +84,11 @@
             </g>
             <g id="flightpathIndicator" display="none">
               <!-- <use href="#flightpathVector" stroke="black" stroke-width="1.0" /> -->
-              <use href="#flightpathVector" stroke="white" stroke-width="0.625" />
+              <use href="#flightpathVector" stroke="var(--pfdGreen)" stroke-width="0.625" />
             </g>
             <g id="flightpathRetrogradeIndicator" display="none">
               <!-- <use href="#flightpathRetrograde" stroke="black" stroke-width="1.0" /> -->
-              <use href="#flightpathRetrograde" stroke="white" stroke-width="0.625" />
+              <use href="#flightpathRetrograde" stroke="var(--pfdGreen)" stroke-width="0.625" />
             </g>
             <g id="adiTargetIndicator" display="none">
               <use href="#attTarget" stroke="black" stroke-width="1.0" />
@@ -493,8 +495,8 @@
     }
 
     function updateFPV(vx, vy, vz) {
-      document.getElementById("flightpathRetrogradeIndicator").setAttribute("display", vx > 0 ? "block" : "none");
-      document.getElementById("flightpathIndicator").setAttribute("display", (vx < 0 && config.show_retrograde) ? "block" : "none");
+      document.getElementById("flightpathIndicator").setAttribute("display", vx > 0 ? "block" : "none");
+      document.getElementById("flightpathRetrogradeIndicator").setAttribute("display", (vx < 0 && config.show_retrograde) ? "block" : "none");
 
       let alpha = degrees(Math.atan2(vz, vx));
       let beta = degrees(Math.atan2(vy, vx));

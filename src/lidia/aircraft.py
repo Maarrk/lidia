@@ -1,7 +1,7 @@
 import json
 from math import cos, sin, sqrt
 from time import time
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import Any, Dict, List, Optional, Sequence
 
 from .config import Config as LidiaConfig
@@ -208,7 +208,6 @@ class AircraftData(BaseModel):
 
         return state
 
-
     def xyz2ned(self, vec: XYZ) -> NED:
         """Transform from body frame vector to outside frame coordinates
 
@@ -282,6 +281,7 @@ class AircraftData(BaseModel):
         if config.start_time is not None:
             self.t_boot = int((time() - config.start_time) * 1000)
 
+
 class AircraftState(AircraftData):
     """Full aircraft state containing target and trim condition
 
@@ -308,11 +308,10 @@ class AircraftState(AircraftData):
                 # For backwards compatibility
                 if smol[name] is List:
                     # TODO: Some warning when logging setup available
-                    smol[name] = {'ctrl':{name: smol[name]}}
+                    smol[name] = {'ctrl': {name: smol[name]}}
                 setattr(state, name, AircraftData.from_smol(smol[name]))
 
         return state
-        
 
 
 if __name__ == '__main__':
@@ -326,7 +325,7 @@ if __name__ == '__main__':
     state.v_body = XYZ.from_list([0.0, 0.0, 0.0])
     state.v_ned = NED.from_list([0.0, 0.0, 0.0])
     state.ctrl = Controls.from_list([0.0, 0.0, 0.0, 0.0, 0.0])
-    state.trgt =  AircraftData()
+    state.trgt = AircraftData()
     state.trgt.ctrl = Controls.from_list([0.0, 0.0, 0.0, 0.0, 0.0])
     state.t_boot = 0x10000000
     # state.model_instruments(config)
