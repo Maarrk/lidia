@@ -23,7 +23,8 @@
 <body>
   <svg id="mainSvg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2100 1200" preserveAspectRatio="xMidYMid meet">
     <defs>
-      <path id="attTarget" d="M -2,0 a 2,2 0 0,0 4,0 a 2,2 0 0,0 -4,0 M -1.5,0 h-3 M 1.5,0 h3 M 0,1.5 v1 M 0,-1.5 v-2"
+      <path id="attTarget"
+        d="M -2,0 a 2,2 0 0,0 4,0 a 2,2 0 0,0 -4,0 M -1.5,0 h-2 l-2,-0.9 h-4 M 1.5,0 h2 l2,-0.9 h4 M 0,1.5 v1 M 0,-1.5 v-2"
         stroke-linecap="round" fill="none" />
       <path id="flightpathVector" d="M -2,0 a 2,2 0 0,0 4,0 a 2,2 0 0,0 -4,0 M -2,0 h-3.5 M 2,0 h3.5 M 0,-2 v-1.5"
         stroke-linecap="square" fill="none" />
@@ -461,6 +462,9 @@
     var config = {
       ias_never_exceed: 167,
       rotate_adi_target: true,
+      show_adi_target: true,
+      adi_target_roll: true,
+      adi_target_yaw: false,
       show_flightpath: true,
       show_retrograde: false,
       move_roll_ticks: false,
@@ -571,14 +575,22 @@
     const adiTargetIndicator = document.getElementById("adiTargetIndicator");
     function updateTarget(s) {
       if ("att" in s.trgt && "att" in s) {
-        adiTargetIndicator.setAttribute("display", "inline");
-        let roll = degrees(s.trgt.att[0] - s.att[0]);
-        let pitch = degrees(s.trgt.att[1] - s.att[1]);
-        let r = Math.sqrt(roll * roll + pitch * pitch);
-        let rClamped = Math.min(r, 27); // circle is r=240, scale=8 so max 30 deg, r of indicator is 2deig
-        let x = roll * (rClamped / r);
-        let y = -pitch * (rClamped / r);
-        adiTargetIndicator.setAttribute("transform", `translate(${x} ${y}) rotate(${config.rotate_adi_target ? roll : 0})`);
+        const roll = degrees(s.att[0]);
+        const pitch = degrees(s.att[1]);
+        const yaw = degrees(s.att[2]);
+        const targetRoll = degrees(s.trgt.att[0]);
+        const targetPitch = degrees(s.trgt.att[1]);
+        const targetYaw = degrees(s.trgt.att[2]);
+        adiTargetIndicator.setAttribute("display", config.show_adi_target ? "block" : "none");
+        let horizonTransform = `rotate(${-roll}) translate(0 ${pitch})`;
+        let targetTransform = horizonTransform + ` translate(0 ${-targetPitch})`;
+        if (config.adi_target_yaw) {
+          targetTransform = targetTransform + ` translate(${targetYaw - yaw})`;
+        }
+        if (config.adi_target_roll) {
+          targetTransform = targetTransform + ` rotate(${targetRoll})`
+        }
+        adiTargetIndicator.setAttribute("transform", targetTransform);
       }
     }
 

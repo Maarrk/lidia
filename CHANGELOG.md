@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Path issues in `pack_maker`, improved Simulink compatibility
 - Configuration of flight path vector on ADI
 - Deserializing `AircraftData.instr` from SMOL
+- Attitude target transform at non-zero attitude
 
 ## [0.7.1] - 2023-03-01
 
