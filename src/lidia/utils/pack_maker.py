@@ -20,7 +20,6 @@ if platform.system() == "Windows":
 else:
     import tty
     import termios
-    import sys
 
     def getch():
         fd = sys.stdin.fileno()
@@ -44,6 +43,7 @@ from lidia.aircraft import AircraftData, VectorModel  # noqa prevent moving to t
 class Model:
     def __init__(self, output: str, verbose=False):
         self.output = output
+        self.editing_output = False
         self.verbose = verbose
         self.last_key = 0
 
@@ -60,7 +60,7 @@ class Model:
         self.enabled = {part: ([False] * len(self.toggles))
                         for part in self.parts}
 
-        self.extra_choices = 2
+        self.extra_choices = 3
         self.selected_choice = 0
 
         self.status = ''
@@ -90,8 +90,13 @@ class Message(IntEnum):
 
 def view(model: Model) -> None:
     clear()
-    print('Choose fields to be serialized in message')
-    print('Use arrows or j, k to move, select with Enter or Space\n')
+    if model.editing_output:
+        print('Edit output filename')
+        print('Finish editing with Enter\n')
+    else:
+        print('Choose fields to be serialized in message')
+        print('Use arrows or j, k to move, select with Enter or Space\n')
+
     for i, ((name, doc, decl, cls), enabled) in enumerate(zip(model.toggles, model.enabled[model.selected_part])):
         print('{}({}) {:<16}{} ({})'.format(
             '->' if i == model.selected_choice else '  ',
@@ -109,6 +114,10 @@ def view(model: Model) -> None:
                              1) % len(model.parts) else '     ',
             part))
 
+    print('\n{}[o]utput file: {}'.format(
+        '->' if model.selected_choice == model.choices_num - 3 else '  ',
+        model.output + ('█' if model.editing_output else '')))
+
     print('\n{}[m]ake packer for {} field{}'.format(
         '->' if model.selected_choice == model.choices_num - 2 else '  ',
         model.enabled_num,
@@ -124,37 +133,67 @@ def view(model: Model) -> None:
 def update(model: Model, message: Message, data: Any) -> Tuple[Model, List[Command]]:
     commands = []
     if message == Message.KEY:
-        key: str = data
+        key: int = data
         model.last_key = key
 
-        if key in [ord('q'), ord('Q'), 3]:  # Ctrl+C
-            commands.append(Command.QUIT)
-        elif key in [ord('j'), ord('J'), 80]:
-            model.selected_choice = (
-                model.selected_choice + 1) % model.choices_num
-        elif key in [ord('k'), ord('K'), 72]:
-            model.selected_choice = (
-                model.selected_choice - 1) % model.choices_num
-        elif key in [ord('m'), ord('M')]:
-            commands.append(Command.MAKE)
-        elif key in [9]:  # Tab
-            model.selected_part = model.parts[(
-                model.selected_part_index + 1) % len(model.parts)]
+        if model.editing_output:
+            model = update_output(model, key)
+        else:
+            model, cs = update_menu(model, key)
+            commands.extend(cs)
 
-        elif key in [13, 32]:  # Enter, Space
-            if model.selected_choice < len(model.toggles):
-                model.enabled[model.selected_part][model.selected_choice] = not model.enabled[model.selected_part][model.selected_choice]
-            elif model.selected_choice < len(model.toggles) + len(model.parts):
-                model.selected_part = model.parts[model.selected_choice - len(
-                    model.toggles)]
-            elif model.selected_choice == model.choices_num - 2:
-                commands.append(Command.MAKE)
-            elif model.selected_choice == model.choices_num - 1:
-                commands.append(Command.QUIT)
     elif message == Message.STATUS:
         status: str = data
         model.status = status
 
+    return model, commands
+
+
+def update_output(model: Model, key: int) -> Model:
+    if key >= 32 and key <= 126:  # printable ASCII characters
+        model.output += chr(key)
+    elif key == 8:  # Backspace
+        model.output = model.output[:-1]
+    elif key == 13:  # Enter
+        if model.output == '':
+            model.status = 'Empty output filename!'
+        else:
+            model.editing_output = False
+            model.status = ''
+    return model
+
+
+def update_menu(model: Model, key: int) -> Tuple[Model, List[Command]]:
+    commands = []
+    if key in [ord('o'), ord('O')]:
+        model.selected_choice = model.choices_num - 3
+        model.editing_output = True
+    elif key in [ord('q'), ord('Q'), 3]:  # Ctrl+C
+        commands.append(Command.QUIT)
+    elif key in [ord('j'), ord('J'), 80]:
+        model.selected_choice = (
+            model.selected_choice + 1) % model.choices_num
+    elif key in [ord('k'), ord('K'), 72]:
+        model.selected_choice = (
+            model.selected_choice - 1) % model.choices_num
+    elif key in [ord('m'), ord('M')]:
+        commands.append(Command.MAKE)
+    elif key == 9:  # Tab
+        model.selected_part = model.parts[(
+            model.selected_part_index + 1) % len(model.parts)]
+
+    elif key in [13, 32]:  # Enter, Space
+        if model.selected_choice < len(model.toggles):
+            model.enabled[model.selected_part][model.selected_choice] = not model.enabled[model.selected_part][model.selected_choice]
+        elif model.selected_choice < len(model.toggles) + len(model.parts):
+            model.selected_part = model.parts[model.selected_choice - len(
+                model.toggles)]
+        elif model.selected_choice == model.choices_num - 3:
+            model.editing_output = True
+        elif model.selected_choice == model.choices_num - 2:
+            commands.append(Command.MAKE)
+        elif model.selected_choice == model.choices_num - 1:
+            commands.append(Command.QUIT)
     return model, commands
 
 

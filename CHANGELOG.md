@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Interactive editing of output filename in pack maker
+
 ### Changed
 
 - Name of `$schema` property of `Config`
@@ -44,7 +48,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Deprecated
 
-- `rpctask` available on `/` address - replaced with `info`
+- `rpctask` available on `/` address - to be replaced with `info`
 - Sending `trgt` and `trim` as property of root object - should be `trgt.ctrl` and `trim.ctrl`
 
 ### Fixed
