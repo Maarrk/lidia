@@ -68,6 +68,8 @@ def run(q: Queue, args: Namespace, config: Config):
 
         state.v_ned = state.xyz2ned(state.v_body)
 
+        state.a_body = state.ned2xyz(NED(down=9.81))
+
         state.ctrl = Controls()
         state.ctrl.stick_pull = val(0.1)
         state.ctrl.stick_right = val(0.35)

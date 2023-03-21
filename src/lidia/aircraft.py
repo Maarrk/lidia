@@ -160,6 +160,8 @@ class AircraftData(BaseModel):
     """Velocity in body frame, in meters per second"""
     v_ned: Optional[NED] = None
     """Velocity in local horizon coordinate system, in meters per second"""
+    a_body: Optional[XYZ] = None
+    """Acceleration in body frame, in meters per second squared"""
     ctrl: Optional[Controls] = None
     """Current control inceptors position"""
     brdr: Optional[Borders] = None
@@ -191,8 +193,9 @@ class AircraftData(BaseModel):
                 setattr(state, name, NED.from_list(smol[name]))
         if 'att' in smol:
             state.att = Attitude.from_list(smol['att'])
-        if 'v_body' in smol:
-            state.v_body = XYZ.from_list(smol['v_body'])
+        for name in ['v_body', 'a_body']:
+            if name in smol:
+                setattr(state, name, XYZ.from_list(smol[name]))
         if 'ctrl' in smol:
             state.ctrl = Controls.from_list(smol['ctrl'])
         # TODO: Borders
@@ -324,12 +327,12 @@ if __name__ == '__main__':
     state.att = Attitude.from_list([0.0, 0.0, 0.0])
     state.v_body = XYZ.from_list([0.0, 0.0, 0.0])
     state.v_ned = NED.from_list([0.0, 0.0, 0.0])
+    state.a_body = XYZ.from_list([0.0, 0.0, 0.0])
     state.ctrl = Controls.from_list([0.0, 0.0, 0.0, 0.0, 0.0])
     state.trgt = AircraftData()
     state.trgt.ctrl = Controls.from_list([0.0, 0.0, 0.0, 0.0, 0.0])
     state.t_boot = 0x10000000
     state.model_instruments(config)
-    # state.model_instruments(config)
     print(state.smol())
     import msgpack
     packer = msgpack.Packer(use_single_float=False)

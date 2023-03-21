@@ -100,12 +100,14 @@
 
         <g fill="white" stroke="black" stroke-width="1.5">
           <!-- <path d="M0 -5 l-100 30 h200 z" /> -->
-          <path d="m70 25 h15 v-20 h100 v-15 h-115 z " />
+          <path d="m70 25 h15 v-20 h100 v-15 h-115 z" />
           <path d="m-70 25 h-15 v-20 h-100 v-15 h115 z" />
           <circle cx="0" cy="0" r="10" />
           <g id="adiRoll">
             <path d="m0 -240 l15 20 h-30 z" />
-            <path id="adiSlipskidIndicator" d="m16 -217 l6 7 h-44 l6 -7 z" />
+            <g transform="translate(0 -240) scale(30)" stroke-width="0.05">
+              <path id="adiSlipskidIndicator" d="m0.55 0.7333 l0.15 0.2 h-1.4 l0.15 -0.2 z" />
+            </g>
           </g>
         </g>
       </g>
@@ -468,6 +470,7 @@
       show_flightpath: true,
       show_retrograde: false,
       move_roll_ticks: false,
+      sideslip_max: 15,
     };
 
     function updateOptional(value, element, decimal = 0, width = 1) {
@@ -509,6 +512,12 @@
       } else if (vx < 0) {
         flightpathRetrograde.setAttribute("transform", `translate(${beta - 180} ${alpha - 180})`);
       }
+    }
+
+    function updateSlip(ay, az) {
+      let slip = degrees(Math.atan2(ay, az));
+      let relative = Math.max(-1, Math.min(1, slip / config.sideslip_max));
+      document.getElementById("adiSlipskidIndicator").setAttribute("transform", `translate(${relative})`);
     }
 
     function updateALT(alt) {
@@ -608,6 +617,9 @@
       }
       if ("v_body" in s) {
         updateFPV(s.v_body[0], s.v_body[1], s.v_body[2]); // units irrelevant
+      }
+      if ("a_body" in s) {
+        updateSlip(s.a_body[1], s.a_body[2]); // units irrelevant
       }
       if ("instr" in s) {
         if ("ias" in s.instr) updateIAS(s.instr.ias);

@@ -31,6 +31,8 @@ class PfdConfig(NestingModel):
     """Show reverse flight path vector on ADI"""
     move_roll_ticks: bool = False
     """Move roll angle scale with horizon, keeping sideslip triangle in place"""
+    sideslip_max: float = 15.0
+    """Maximal displayed sideslip angle, in degrees"""
 
 
 class ApproachConfig(NestingModel):

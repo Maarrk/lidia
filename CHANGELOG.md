@@ -10,6 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Interactive editing of output filename in pack maker
+- Body-frame acceleration in `AircraftState`
+- Working sideslip angle indicator in on ADI
 
 ### Changed
 
@@ -24,13 +26,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.7.1] - 2023-03-01
 
-### Changed
-
-- Moved interactive utilities to source directory
-
 ### Fixed
 
 - `confighelp` file name in package manifest
+- Interactive utilities included in package
 
 ## [0.7.0] - 2023-03-01
 
