@@ -277,9 +277,16 @@ def codegen(out: StringIO, name: str, field_source: Dict[str, Tuple[str, str, Ty
 %
 %   This is generated using pack_maker.py to create code suitable for
 %   use in Simulink - known size of I/O (see below), no map or struct usage
-
-    data = uint8([...
+%
+%   Arguments:
 '''.format(len(arglist)))
+    for fieldgroup, arg_prefix, doc_prefix in [(main_fields, '', ''), (trgt_fields, 'trgt_', 'TARGET '), (trim_fields, 'trim_', 'TRIM ')]:
+        for f in fieldgroup:
+            out.write('%       {}{}: {}{}\n'.format(
+                arg_prefix, f, doc_prefix, field_source[f][0]))
+    out.write('''
+    data = uint8([...
+''')
     length = 0
 
     field_count = len(main_fields) + \

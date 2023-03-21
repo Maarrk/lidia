@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Interactive editing of output filename in pack maker
 - Body-frame acceleration in `AircraftState`
 - Working sideslip angle indicator in on ADI
+- Argument descriptions for generated code
 
 ### Changed
 

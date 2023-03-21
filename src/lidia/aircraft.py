@@ -163,11 +163,11 @@ class AircraftData(BaseModel):
     a_body: Optional[XYZ] = None
     """Acceleration in body frame, in meters per second squared"""
     ctrl: Optional[Controls] = None
-    """Current control inceptors position"""
+    """Control inceptors position, normalized by max deflection"""
     brdr: Optional[Borders] = None
     """Task borders for inceptors"""
     btn: Optional[Buttons] = None
-    """Currently pressed buttons"""
+    """Pressed buttons"""
     instr: Optional[Instruments] = None
     """Instrument values"""
     t_boot: Optional[int] = None

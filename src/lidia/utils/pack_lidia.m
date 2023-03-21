@@ -21,15 +21,24 @@ function data = pack_lidia( ...
     trgt_ctrl_stick_pull, ...
     trgt_ctrl_throttle, ...
     trgt_ctrl_pedals_right, ...
-    trgt_ctrl_collective_up)
+    trgt_ctrl_collective_up) % 23 arguments
 %PACK_LIDIA Pack aircraft data into binary format
 %   The output is array of bytes in MsgPack format, as expected by
 %   'smol' source of lidia package
 %
 %   This is generated using pack_maker.py to create code suitable for
-%   use in Simulink - known size of I/O, no map or struct usage
+%   use in Simulink - known size of I/O (see below), no map or struct usage
+%
+%   Arguments:
+%       ned: Position in local horizon coordinate system, in meters
+%       att: Aircraft attitude, in radians
+%       v_body: Velocity in body frame, in meters per second
+%       v_ned: Velocity in local horizon coordinate system, in meters per second
+%       ctrl: Control inceptors position, normalized by max deflection
+%       t_boot: Time from the start of simulation, in milliseconds
+%       trgt_ctrl: TARGET Control inceptors position, normalized by max deflection
 
-    data = [...
+    data = uint8([...
         0x87, ... % map length 7
         0xa3, 'ned', ... % string length 3
         0x93, ... % array length 3
@@ -69,9 +78,14 @@ function data = pack_lidia( ...
         0xca, b(single(trgt_ctrl_throttle)), ... % float
         0xca, b(single(trgt_ctrl_pedals_right)), ... % float
         0xca, b(single(trgt_ctrl_collective_up)), ... % float
-    ];
+    ]);
 % data length 178 bytes
 end
+
+% You might need to manually configure Simulink output:
+%   Size: 1 178
+%   Type: uint8
+% The warning message "Wrap on overflow detected" can be ignored
 
 function bytes = b(value)
     % reverse byte order to convert from little endian to big endian
