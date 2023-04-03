@@ -1,7 +1,7 @@
 import argparse
 from enum import auto, IntEnum
 import inspect
-from io import TextIOBase
+from io import StringIO, TextIOBase
 import os
 import platform
 from pydantic import BaseModel
@@ -70,6 +70,8 @@ class FieldInfo(BaseModel):
 
 class Generator(IntEnum):
     MATLAB = auto()
+    MBDYN = auto()
+    MBDYN_TYPE = auto()
 
 
 class Model:
@@ -88,6 +90,12 @@ class Model:
         self.enabled = {part: ([False] * len(self.toggles))
                         for part in self.parts}
 
+        self.generators = [
+                (Generator.MATLAB, 'MATLAB', '.m'),
+                (Generator.MBDYN, 'MBDyn', '.mbd'),
+                ]
+        self.enabled_gens = [False] * len(self.generators)
+
         self.extra_choices = 3
         self.selected_choice = 0
 
@@ -95,7 +103,7 @@ class Model:
 
     @property
     def choices_num(self) -> int:
-        return len(self.toggles) + len(self.parts) + self.extra_choices
+        return len(self.toggles) + len(self.parts) + len(self.generators) + self.extra_choices
 
     @property
     def selected_part_index(self) -> int:
@@ -141,15 +149,25 @@ def view(model: Model) -> None:
             '[Tab]' if i == (model.selected_part_index +
                              1) % len(model.parts) else '     ',
             part))
+    print()
+    for i, (_, name, extension) in enumerate(model.generators):
+        print('{}({}) {}: {}{}'.format(
+            '->' if i == model.selected_choice - len(model.toggles) - len(model.parts) else '  ',
+            '*' if model.enabled_gens[i] else ' ',
+            name,
+            model.output,
+            extension))
 
     print('\n{}[o]utput file: {}'.format(
         '->' if model.selected_choice == model.choices_num - 3 else '  ',
         model.output + ('█' if model.editing_output else '')))
-
-    print('\n{}make MATLAB packer for {} field{}'.format(
+    gen_count = model.enabled_gens.count(True)
+    field_count = sum([model.enabled[p].count(True) for p in model.parts])
+    print('\n{}[g]enerate {} output file{} for {} field{}'.format(
         '->' if model.selected_choice == model.choices_num - 2 else '  ',
-        model.enabled_num,
-        '' if model.enabled_num == 1 else 's'))
+        gen_count, '' if gen_count == 1 else 's',
+        field_count, '' if field_count == 1 else 's',
+        ))
     print('{}[q]uit'.format(
         '->' if model.selected_choice == model.choices_num - 1 else '  '))
 
@@ -180,7 +198,7 @@ def update(model: Model, message: Message, data: Any) -> Tuple[Model, List[Comma
 def update_output(model: Model, key: int) -> Model:
     if key >= 32 and key <= 126:  # printable ASCII characters
         model.output += chr(key)
-    elif key == 8:  # Backspace
+    elif key in [8, 127]:  # Backspace (Win, Linux)
         model.output = model.output[:-1]
     elif key == 13:  # Enter
         if model.output == '':
@@ -194,8 +212,10 @@ def update_output(model: Model, key: int) -> Model:
 def update_menu(model: Model, key: int) -> Tuple[Model, List[Command]]:
     commands = []
     if key in [ord('o'), ord('O')]:
-        model.selected_choice = model.choices_num - 3
+        model.selected_choice = model.choices_num - 2
         model.editing_output = True
+    elif key in [ord('g'), ord('G')]:
+        commands.append(Command.MAKE)
     elif key in [ord('q'), ord('Q'), 3]:  # Ctrl+C
         commands.append(Command.QUIT)
     elif key in [ord('j'), ord('J'), 66, 80]:  # Linux down, Win down
@@ -209,17 +229,26 @@ def update_menu(model: Model, key: int) -> Tuple[Model, List[Command]]:
             model.selected_part_index + 1) % len(model.parts)]
 
     elif key in [13, 32]:  # Enter, Space
-        if model.selected_choice < len(model.toggles):
-            model.enabled[model.selected_part][model.selected_choice] = not model.enabled[model.selected_part][model.selected_choice]
-        elif model.selected_choice < len(model.toggles) + len(model.parts):
-            model.selected_part = model.parts[model.selected_choice - len(
-                model.toggles)]
-        elif model.selected_choice == model.choices_num - 3:
+        i = model.selected_choice
+        if 0 <= i < len(model.toggles):
+            model.enabled[model.selected_part][i] = not model.enabled[model.selected_part][i]
+        i -= len(model.toggles)
+
+        if 0 <= i < len(model.parts):
+            model.selected_part = model.parts[i]
+        i -= len(model.parts)
+
+        if 0 <= i < len(model.generators):
+            model.enabled_gens[i] = not model.enabled_gens[i]
+        i -= len(model.generators)
+
+        if model.selected_choice == model.choices_num - 3:
             model.editing_output = True
         elif model.selected_choice == model.choices_num - 2:
             commands.append(Command.MAKE)
         elif model.selected_choice == model.choices_num - 1:
             commands.append(Command.QUIT)
+            
     return model, commands
 
 
@@ -229,12 +258,9 @@ def main():
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('-v', '--verbose', action='store_true', dest='verbose',
                         help='increase amount of shown information')
-    parser.add_argument('-o', '--output', default='pack_lidia.m',
+    parser.add_argument('-o', '--output', default='pack_lidia',
                         help='output file path')
     args = parser.parse_args()
-    if not args.output.endswith('.m'):
-        parser.error(
-            'the output filename needs to end with MATLAB script extension: ".m"')
 
     model = Model(os.path.normpath(args.output), args.verbose)
     messages = []
@@ -254,15 +280,30 @@ def main():
                     model.toggles, model.enabled[p]) if en] for p in model.parts}
                 if len(os.path.dirname(model.output)) > 0:
                     os.makedirs(os.path.dirname(model.output), exist_ok=True)
-                with open(model.output, 'w') as out:
-                    filename = os.path.basename(model.output)
-                    if not filename.endswith('.m'):
-                        raise ValueError(
-                            'expected MATLAB script filename', filename)
-                    codegen_matlab(out, filename[:-2], {info.name: info for info in FieldInfo.inspect_AircraftData()},
+                filename = os.path.basename(model.output)
+                
+                status = []
+                infos = {info.name: info for info in FieldInfo.inspect_AircraftData()}
+                for enabled, (gen, name, extension) in zip(model.enabled_gens, model.generators):
+                    if not enabled:
+                        continue
+
+                    out_path = model.output + extension
+                    if gen == Generator.MATLAB:
+                        forbidden_characters = re.findall(r'[^A-Za-z0-9_]', model.output)
+                        if len(forbidden_characters) > 0:
+                            status.append(f'Error: characters {set(forbidden_characters)} not allowed in MATLAB function name')
+                        else:
+                            with open(out_path, 'w') as out:
+                                codegen_matlab(out, filename, infos,
                                    selected['main'], selected['trgt'], selected['trim'])
-                messages.append(
-                    (Message.STATUS, 'Saved to {}'.format(model.output)))
+                            status.append(f'Saved {name} generator to {out_path}')
+                    elif gen == Generator.MBDYN:
+                        with open(out_path, 'w') as out:
+                            codegen_mbdyn(out, infos, 
+                                   selected['main'], selected['trgt'], selected['trim'])
+                            status.append(f'Saved {name} generator to {out_path}')
+                    messages.append((Message.STATUS, '\n'.join(status)))
 
         view(model)
         if len(messages) > 0:
@@ -271,11 +312,76 @@ def main():
         key = ord(getch())
         messages.append((Message.KEY, key))
 
+MBD_PREFIX = 'LIDIA_'
 
-def codegen_matlab(out: TextIOBase, name: str, infos: Dict[str, FieldInfo],
+def codegen_mbdyn(out: TextIOBase, infos: Dict[str, FieldInfo],
                    main_fields: List[str], trgt_fields: List[str], trim_fields: List[str]) -> None:
-    gen = Generator.MATLAB
-    out.write('function data = {}( ...\n    '.format(name))
+    out.write('''##### Generated with pack_maker.py
+begin: control data;
+\toutput elements: +1;
+end: control data;
+
+### identifiers:
+''')
+    defines = ['output']
+    for group, prefix in [(main_fields, ''), (trgt_fields, 'trgt_'), (trim_fields, 'trim_')]:
+        for f in group:
+            if issubclass(infos[f].field_type, BaseModel):
+                defines.extend(f'{prefix}{f}_{a}' for a in infos[f].field_type.__fields__)
+            else:
+                defines.append(f'{prefix}{f}')
+    next_id = 55000
+    for d in defines:
+            out.write('set: const integer {}{} = {};\n'.format(
+                MBD_PREFIX,
+                d.upper(),
+                next_id))
+            next_id += 1
+    
+    out.write('''
+begin: elements;
+
+### drive templates:
+#
+# Modify the following to get relevant data from model
+# 
+# Example of getting Z-axis position of NODE_CG:
+# drive caller: LIDIA_NED_DOWN, node, NODE_CG, structural, string "X[3]", direct;
+
+''')
+    for d in defines[1:]:  # skip stream id
+        out.write('drive caller: {}{}, const, 0;\n'.format(
+            MBD_PREFIX,
+            d.upper()))
+
+    out.write('''
+### output stream definition
+stream output: {}{},
+\tstream_name, "Lidia output in SMOL format",
+\tcreate, no,
+\tport, 5100,
+\thost, "127.0.0.1",
+\tsocket type, udp,
+'''.format(MBD_PREFIX, defines[0].upper()))
+
+    values = StringIO()
+    pack_fieldlists(Generator.MBDYN, values, infos, main_fields, trgt_fields, trim_fields)
+
+    out.write('\tvalues, {},\n'.format(values.getvalue().count('\n')))
+    out.write(values.getvalue())
+    out.write('''
+\tmodifier, copy cast,
+\t\tswap, f, d, i,
+''')  # TODO: verify swapped types
+    pack_fieldlists(Generator.MBDYN_TYPE, out, infos, main_fields, trgt_fields, trim_fields)
+    out.write('''\t;
+
+end: elements;
+''')
+
+def codegen_matlab(out: TextIOBase, function_name: str, infos: Dict[str, FieldInfo],
+                   main_fields: List[str], trgt_fields: List[str], trim_fields: List[str]) -> None:
+    out.write('function data = {}( ...\n    '.format(function_name))
     arglist = []
     for f in main_fields:
         if issubclass(infos[f].field_type, BaseModel):
@@ -314,22 +420,7 @@ def codegen_matlab(out: TextIOBase, name: str, infos: Dict[str, FieldInfo],
     out.write('''
     data = uint8([...
 ''')
-    length = 0
-
-    field_count = len(main_fields) + \
-        (1 if len(trgt_fields) > 0 else 0) + \
-        (1 if len(trim_fields) > 0 else 0)
-    length += pack_map(gen, out, field_count)
-
-    for name in main_fields:
-        length += pack_field(gen, out, infos[name], '')
-
-    for fieldgroup, prefix in [(trgt_fields, 'trgt'), (trim_fields, 'trim')]:
-        if len(fieldgroup) > 0:
-            length += pack_str(gen, out, prefix)
-            length += pack_map(gen, out, len(fieldgroup))
-            for name in fieldgroup:
-                length += pack_field(gen, out, infos[name], prefix)
+    length = pack_fieldlists(Generator.MATLAB, out, infos, main_fields, trgt_fields, trim_fields)
 
     out.write('''    ]);
 % data length {0} bytes
@@ -345,6 +436,26 @@ function bytes = b(value)
     bytes = typecast(swapbytes(value), 'uint8');
 end
 '''.format(length))
+
+
+def pack_fieldlists(gen: Generator, out: TextIOBase, infos: Dict[str, FieldInfo], main_fields, trgt_fields, trim_fields) -> int:
+    length = 0
+
+    field_count = len(main_fields) + \
+        (1 if len(trgt_fields) > 0 else 0) + \
+        (1 if len(trim_fields) > 0 else 0)
+    length += pack_map(gen, out, field_count)
+
+    for function_name in main_fields:
+        length += pack_field(gen, out, infos[function_name], '')
+
+    for fieldgroup, prefix in [(trgt_fields, 'trgt'), (trim_fields, 'trim')]:
+        if len(fieldgroup) > 0:
+            length += pack_str(gen, out, prefix)
+            length += pack_map(gen, out, len(fieldgroup))
+            for function_name in fieldgroup:
+                length += pack_field(gen, out, infos[function_name], prefix)
+    return length
 
 
 def pack_field(gen: Generator, out: TextIOBase, info: FieldInfo, prefix: str) -> int:
@@ -377,6 +488,11 @@ def pack_map(gen: Generator, out: TextIOBase, count: int) -> int:
     if gen == Generator.MATLAB:
         out.write(
             '        0x8{:x}, ... % map length {}\n'.format(count, count))
+    elif gen == Generator.MBDYN:
+        val = 0x80 + count
+        out.write(f'\tdrive, const, {val},\t# 0x{val:02X} map length {count}\n')
+    elif gen == Generator.MBDYN_TYPE:
+        out.write('\t\tuint8_t,\n')
     return 1
 
 
@@ -386,6 +502,12 @@ def pack_array(gen: Generator, out: TextIOBase, count: int) -> int:
     if gen == Generator.MATLAB:
         out.write(
             '        0x9{:x}, ... % array length {}\n'.format(count, count))
+    elif gen == Generator.MBDYN:
+        val = 0x90 + count
+        out.write(f'\tdrive, const, {val},\t# 0x{val:02X} array length {count}\n')
+    elif gen == Generator.MBDYN_TYPE:
+        out.write('\t\tuint8_t,\n')
+
     return 1
 
 
@@ -395,6 +517,14 @@ def pack_str(gen: Generator, out: TextIOBase, data: str) -> int:
     if gen == Generator.MATLAB:
         out.write("        0x{:x}, '{}', ... % string length {}\n".format(
             0b10100000 + len(data), data, len(data)))
+    elif gen == Generator.MBDYN:
+        val = 0x90 + len(data)
+        out.write(f'\tdrive, const, {val},\t# 0x{val:02X} string length {len(data)}\n')
+        for c in data:
+            out.write(f"\tdrive, const, {ord(c)},\t# '{c}'\n")
+    elif gen == Generator.MBDYN_TYPE:
+        for _ in range(len(data) + 1):
+            out.write('\t\tuint8_t,\n')
     return 1 + len(data)
 
 
@@ -406,6 +536,15 @@ def pack_float(gen: Generator, out: TextIOBase, name: str, double=False) -> int:
             name,
             'double' if double else 'float',
         ))
+    elif gen == Generator.MBDYN:
+        val = 0xCB if double else 0xCA
+        out.write('\tdrive, const, {},\t# 0x{:02X} {}\n'.format(
+            val, val, 'double' if double else 'float'
+            ))
+        out.write(f'\tdrive, reference, {MBD_PREFIX}{name.upper()}\n')
+    elif gen == Generator.MBDYN_TYPE:
+        out.write('\t\tuint8_t,\n') 
+        out.write(f'\t\t{"double" if double else "float"},\n')
     return 9 if double else 5
 
 
@@ -413,6 +552,13 @@ def pack_int(gen: Generator, out: TextIOBase, name: str) -> int:
     if gen == Generator.MATLAB:
         out.write(
             '        0xce, b(uint32({})), ... % 32-bit unsigned integer\n'.format(name))
+    elif gen == Generator.MBDYN:
+        val = 0xCE
+        out.write(f'\tdrive, const, {val},\t# 0x{val:02X} uint32_t\n')
+        out.write(f'\tdrive, reference, {MBD_PREFIX}{name.upper()}\n')
+    elif gen == Generator.MBDYN_TYPE:
+        out.write('\t\tuint8_t,\n') 
+        out.write('\t\tuint32_t,\n') 
     return 5
 
 
