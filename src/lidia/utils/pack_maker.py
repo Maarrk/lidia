@@ -1,10 +1,11 @@
 import argparse
 from enum import auto, IntEnum
 import inspect
-from io import StringIO
+from io import TextIOBase
 import os
 import platform
 from pydantic import BaseModel
+import re
 import sys
 from typing import Any, Dict, List, Tuple, Type
 
@@ -40,6 +41,37 @@ sys.path.append(lidia_path)
 from lidia.aircraft import AircraftData, VectorModel  # noqa prevent moving to top of file
 
 
+class FieldInfo(BaseModel):
+    """Details of a `AircraftData` field"""
+
+    name: str
+    """Field name"""
+    docstring: str
+    """Field docstring"""
+    field_type: Type
+    """Contained type"""
+
+    @staticmethod
+    def inspect_AircraftData() -> List['FieldInfo']:
+        infos = []
+        pattern = re.compile(
+            r'^[ \t]+([a-z_]+): Optional\[(?:[A-Za-z]+)\] = None\n[ \t]+"""([^"]+)"""$', flags=re.MULTILINE)
+        for name, doc in re.findall(pattern, inspect.getsource(AircraftData)):
+            field = AircraftData.__fields__[name]
+            infos.append(FieldInfo(
+                name=name,
+                docstring=doc,
+                field_type=field.annotation.__args__[
+                    0],  # annotation type Optional
+            ))
+
+        return infos
+
+
+class Generator(IntEnum):
+    MATLAB = auto()
+
+
 class Model:
     def __init__(self, output: str, verbose=False):
         self.output = output
@@ -49,14 +81,10 @@ class Model:
 
         self.parts = ['main', 'trgt', 'trim']
         self.selected_part = self.parts[0]
-        self.field_source: Dict[str, Tuple[str, str, Type]] = {
-            f: next((doc.strip().replace('"""', ''), decl, AircraftData.__fields__[f].annotation.__args__[0]) for (decl, doc)
-                    in zip(inspect.getsourcelines(AircraftData)[0], inspect.getsourcelines(AircraftData)[0][1:])
-                    if decl.strip().startswith(f))
-            for f in AircraftData.__fields__}
+
         # only serialization of vectors is supported
-        self.toggles = [(f, *src) for f, src in self.field_source.items()
-                        if (issubclass(src[2], VectorModel) or src[2] is int)]
+        self.toggles = [info for info in FieldInfo.inspect_AircraftData()
+                        if (issubclass(info.field_type, VectorModel) or info.field_type is int)]
         self.enabled = {part: ([False] * len(self.toggles))
                         for part in self.parts}
 
@@ -97,14 +125,14 @@ def view(model: Model) -> None:
         print('Choose fields to be serialized in message')
         print('Use arrows or j, k to move, select with Enter or Space\n')
 
-    for i, ((name, doc, decl, cls), enabled) in enumerate(zip(model.toggles, model.enabled[model.selected_part])):
+    for i, (info, enabled) in enumerate(zip(model.toggles, model.enabled[model.selected_part])):
         print('{}({}) {:<16}{} ({})'.format(
             '->' if i == model.selected_choice else '  ',
             '*' if enabled else ' ',
-            name if model.selected_part == model.parts[0] else '{}.{}'.format(
-                model.selected_part, name),
-            doc,
-            cls.__name__))
+            info.name if model.selected_part == model.parts[0] else '{}.{}'.format(
+                model.selected_part, info.name),
+            info.docstring,
+            info.field_type.__name__))
     print()
     for i, part in enumerate(model.parts):
         print('{}({}) {} edit {} message'.format(
@@ -118,7 +146,7 @@ def view(model: Model) -> None:
         '->' if model.selected_choice == model.choices_num - 3 else '  ',
         model.output + ('█' if model.editing_output else '')))
 
-    print('\n{}[m]ake packer for {} field{}'.format(
+    print('\n{}make MATLAB packer for {} field{}'.format(
         '->' if model.selected_choice == model.choices_num - 2 else '  ',
         model.enabled_num,
         '' if model.enabled_num == 1 else 's'))
@@ -170,14 +198,12 @@ def update_menu(model: Model, key: int) -> Tuple[Model, List[Command]]:
         model.editing_output = True
     elif key in [ord('q'), ord('Q'), 3]:  # Ctrl+C
         commands.append(Command.QUIT)
-    elif key in [ord('j'), ord('J'), 80]:
+    elif key in [ord('j'), ord('J'), 66, 80]:  # Linux down, Win down
         model.selected_choice = (
             model.selected_choice + 1) % model.choices_num
-    elif key in [ord('k'), ord('K'), 72]:
+    elif key in [ord('k'), ord('K'), 65, 72]:  # Linux up, Win up
         model.selected_choice = (
             model.selected_choice - 1) % model.choices_num
-    elif key in [ord('m'), ord('M')]:
-        commands.append(Command.MAKE)
     elif key == 9:  # Tab
         model.selected_part = model.parts[(
             model.selected_part_index + 1) % len(model.parts)]
@@ -224,7 +250,7 @@ def main():
             if cmd == Command.QUIT:
                 sys.exit(0)
             if cmd == Command.MAKE:
-                selected = {p: [f[0] for f, en in zip(
+                selected = {p: [info.name for info, en in zip(
                     model.toggles, model.enabled[p]) if en] for p in model.parts}
                 if len(os.path.dirname(model.output)) > 0:
                     os.makedirs(os.path.dirname(model.output), exist_ok=True)
@@ -233,8 +259,8 @@ def main():
                     if not filename.endswith('.m'):
                         raise ValueError(
                             'expected MATLAB script filename', filename)
-                    codegen(out, filename[:-2], model.field_source,
-                            selected['main'], selected['trgt'], selected['trim'])
+                    codegen_matlab(out, filename[:-2], {info.name: info for info in FieldInfo.inspect_AircraftData()},
+                                   selected['main'], selected['trgt'], selected['trim'])
                 messages.append(
                     (Message.STATUS, 'Saved to {}'.format(model.output)))
 
@@ -246,26 +272,27 @@ def main():
         messages.append((Message.KEY, key))
 
 
-def codegen(out: StringIO, name: str, field_source: Dict[str, Tuple[str, str, Type]],
-            main_fields: List[str], trgt_fields: List[str], trim_fields: List[str]) -> None:
+def codegen_matlab(out: TextIOBase, name: str, infos: Dict[str, FieldInfo],
+                   main_fields: List[str], trgt_fields: List[str], trim_fields: List[str]) -> None:
+    gen = Generator.MATLAB
     out.write('function data = {}( ...\n    '.format(name))
     arglist = []
     for f in main_fields:
-        if issubclass(field_source[f][2], BaseModel):
+        if issubclass(infos[f].field_type, BaseModel):
             arglist.extend('{}_{}'.format(f, a)
-                           for a in field_source[f][2].__fields__)
+                           for a in infos[f].field_type.__fields__)
         else:
             arglist.append(f)
     for f in trgt_fields:
-        if issubclass(field_source[f][2], BaseModel):
+        if issubclass(infos[f].field_type, BaseModel):
             arglist.extend('trgt_{}_{}'.format(f, a)
-                           for a in field_source[f][2].__fields__)
+                           for a in infos[f].field_type.__fields__)
         else:
             arglist.append('trgt_{}'.format(f))
     for f in trim_fields:
-        if issubclass(field_source[f][2], BaseModel):
+        if issubclass(infos[f].field_type, BaseModel):
             arglist.extend('trim_{}_{}'.format(f, a)
-                           for a in field_source[f][2].__fields__)
+                           for a in infos[f].field_type.__fields__)
         else:
             arglist.append('trim_{}'.format(f))
 
@@ -283,7 +310,7 @@ def codegen(out: StringIO, name: str, field_source: Dict[str, Tuple[str, str, Ty
     for fieldgroup, arg_prefix, doc_prefix in [(main_fields, '', ''), (trgt_fields, 'trgt_', 'TARGET '), (trim_fields, 'trim_', 'TRIM ')]:
         for f in fieldgroup:
             out.write('%       {}{}: {}{}\n'.format(
-                arg_prefix, f, doc_prefix, field_source[f][0]))
+                arg_prefix, f, doc_prefix, infos[f].docstring))
     out.write('''
     data = uint8([...
 ''')
@@ -292,17 +319,17 @@ def codegen(out: StringIO, name: str, field_source: Dict[str, Tuple[str, str, Ty
     field_count = len(main_fields) + \
         (1 if len(trgt_fields) > 0 else 0) + \
         (1 if len(trim_fields) > 0 else 0)
-    length += pack_map(out, field_count)
+    length += pack_map(gen, out, field_count)
 
-    for field in main_fields:
-        length += pack_field(out, field_source, field, '')
+    for name in main_fields:
+        length += pack_field(gen, out, infos[name], '')
 
     for fieldgroup, prefix in [(trgt_fields, 'trgt'), (trim_fields, 'trim')]:
         if len(fieldgroup) > 0:
-            length += pack_str(out, prefix)
-            length += pack_map(out, len(fieldgroup))
-            for field in fieldgroup:
-                length += pack_field(out, field_source, field, prefix)
+            length += pack_str(gen, out, prefix)
+            length += pack_map(gen, out, len(fieldgroup))
+            for name in fieldgroup:
+                length += pack_field(gen, out, infos[name], prefix)
 
     out.write('''    ]);
 % data length {0} bytes
@@ -320,65 +347,72 @@ end
 '''.format(length))
 
 
-def pack_field(out: StringIO, field_source: dict, field: str, prefix: str) -> int:
+def pack_field(gen: Generator, out: TextIOBase, info: FieldInfo, prefix: str) -> int:
     length = 0
-    length += pack_str(out, field)
-    cls = field_source[field][2]
-    if issubclass(cls, VectorModel):
-        length += pack_vector(out, field, cls, prefix)
-    elif cls is int:
-        length += pack_int(out, field if len(prefix) ==
-                           0 else '{}_{}'.format(prefix, field))
+    length += pack_str(gen, out, info.name)
+    if issubclass(info.field_type, VectorModel):
+        length += pack_vector(gen, out, info.name, info.field_type, prefix)
+    elif info.field_type is int:
+        length += pack_int(gen, out, info.name if len(prefix) ==
+                           0 else '{}_{}'.format(prefix, info.name))
     else:
-        raise NotImplementedError('No code generation for class:', cls)
+        raise NotImplementedError(
+            'No code generation for class:', info.field_type)
     return length
 
 
-def pack_vector(out: StringIO, field: str, cls: VectorModel, prefix: str) -> int:
+def pack_vector(gen: Generator, out: TextIOBase, name: str, cls: Type[VectorModel], prefix: str) -> int:
     length = 0
-    length += pack_array(out, len(cls.__fields__))
+    length += pack_array(gen, out, len(cls.__fields__))
     for inner in cls.__fields__:
-        length += pack_float(out, '{}{}_{}'.format(
+        length += pack_float(gen, out, '{}{}_{}'.format(
             '' if len(prefix) == 0 else (prefix + '_'),
-            field, inner), double=(field == 'ned'))  # special case for positional accuracy
+            name, inner), double=(name == 'ned'))  # special case for positional accuracy
     return length
 
 
-def pack_map(out: StringIO, count: int) -> int:
+def pack_map(gen: Generator, out: TextIOBase, count: int) -> int:
     if count > 15:
         raise NotImplementedError('only fixmap handled for now')
-    out.write('        0x8{:x}, ... % map length {}\n'.format(count, count))
+    if gen == Generator.MATLAB:
+        out.write(
+            '        0x8{:x}, ... % map length {}\n'.format(count, count))
     return 1
 
 
-def pack_array(out: StringIO, count: int) -> int:
+def pack_array(gen: Generator, out: TextIOBase, count: int) -> int:
     if count > 15:
         raise NotImplementedError('only fixarray handled for now')
-    out.write('        0x9{:x}, ... % array length {}\n'.format(count, count))
+    if gen == Generator.MATLAB:
+        out.write(
+            '        0x9{:x}, ... % array length {}\n'.format(count, count))
     return 1
 
 
-def pack_str(out: StringIO, data: str) -> int:
+def pack_str(gen: Generator, out: TextIOBase, data: str) -> int:
     if len(data) > 31:
         raise NotImplementedError('only fixstr handled for now')
-    out.write("        0x{:x}, '{}', ... % string length {}\n".format(
-        0b10100000 + len(data), data, len(data)))
+    if gen == Generator.MATLAB:
+        out.write("        0x{:x}, '{}', ... % string length {}\n".format(
+            0b10100000 + len(data), data, len(data)))
     return 1 + len(data)
 
 
-def pack_float(out: StringIO, name: str, double=False) -> int:
-    out.write('        0xc{}, b({}({})), ... % {}\n'.format(
-        'b' if double else 'a',
-        'double' if double else 'single',
-        name,
-        'double' if double else 'float',
-    ))
+def pack_float(gen: Generator, out: TextIOBase, name: str, double=False) -> int:
+    if gen == Generator.MATLAB:
+        out.write('        0xc{}, b({}({})), ... % {}\n'.format(
+            'b' if double else 'a',
+            'double' if double else 'single',
+            name,
+            'double' if double else 'float',
+        ))
     return 9 if double else 5
 
 
-def pack_int(out: StringIO, name: str) -> int:
-    out.write(
-        '        0xce, b(uint32({})), ... % 32-bit unsigned integer\n'.format(name))
+def pack_int(gen: Generator, out: TextIOBase, name: str) -> int:
+    if gen == Generator.MATLAB:
+        out.write(
+            '        0xce, b(uint32({})), ... % 32-bit unsigned integer\n'.format(name))
     return 5
 
 
