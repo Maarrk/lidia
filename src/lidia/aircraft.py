@@ -161,7 +161,7 @@ class AircraftData(BaseModel):
     v_ned: Optional[NED] = None
     """Velocity in local horizon coordinate system, in meters per second"""
     a_body: Optional[XYZ] = None
-    """Accelerations measured (with gravity) in body frame, in meters per second squared"""
+    """Acceleration measured (with gravity) in body frame, in meters per second squared"""
     a_ned: Optional[NED] = None
     """Acceleration measured in local horizon coordinate system, in meters per second squared"""
     ctrl: Optional[Controls] = None
@@ -190,7 +190,7 @@ class AircraftData(BaseModel):
     @classmethod
     def from_smol(cls, smol: dict) -> 'AircraftData':
         state = cls()
-        for name in ['ned', 'v_ned']:
+        for name in ['ned', 'v_ned', 'a_ned']:
             if name in smol:
                 setattr(state, name, NED.from_list(smol[name]))
         if 'att' in smol:
@@ -334,6 +334,7 @@ if __name__ == '__main__':
     state.v_body = XYZ.from_list([0.0, 0.0, 0.0])
     state.v_ned = NED.from_list([0.0, 0.0, 0.0])
     state.a_body = XYZ.from_list([0.0, 0.0, 0.0])
+    state.a_ned = NED.from_list([0.0, 0.0, 0.0])
     state.ctrl = Controls.from_list([0.0, 0.0, 0.0, 0.0, 0.0])
     state.trgt = AircraftData()
     state.trgt.ctrl = Controls.from_list([0.0, 0.0, 0.0, 0.0, 0.0])
