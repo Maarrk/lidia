@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Argument descriptions for generated code
 - Pack maker for [MBDyn](https://www.mbdyn.org/)
 - Basic arithmetic operations on `VectorModel`
+- Current state displayed in info page
 
 ### Changed
 

@@ -20,12 +20,17 @@
     </ul>
     <h2>Configuration:</h2>
     <pre id="config">waiting for server...</pre>
+    <h2>Latest state:</h2>
+    <pre id="smol">waiting for server...</pre>
   </div>
 
   <script type="text/javascript">
     var socket = io();
     socket.on("config", (s) => {
       document.getElementById("config").textContent = JSON.stringify(s, null, 2); // indent 2 spaces
+    });
+    socket.on("smol", (s) => {
+      document.getElementById("smol").textContent = JSON.stringify(s, null, 2); // indent 2 spaces
     });
     socket.emit("config_request", {});
   </script>
