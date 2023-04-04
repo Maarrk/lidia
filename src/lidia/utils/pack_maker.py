@@ -78,6 +78,7 @@ class Model:
     def __init__(self, output: str, verbose=False):
         self.output = output
         self.editing_output = False
+        self.previous_output = ''
         self.verbose = verbose
         self.last_key = 0
 
@@ -91,9 +92,9 @@ class Model:
                         for part in self.parts}
 
         self.generators = [
-                (Generator.MATLAB, 'MATLAB', '.m'),
-                (Generator.MBDYN, 'MBDyn', '.mbd'),
-                ]
+            (Generator.MATLAB, 'MATLAB', '.m'),
+            (Generator.MBDYN, 'MBDyn', '{.set, .drv, .elm}'),
+        ]
         self.enabled_gens = [False] * len(self.generators)
 
         self.extra_choices = 3
@@ -128,7 +129,7 @@ def view(model: Model) -> None:
     clear()
     if model.editing_output:
         print('Edit output filename')
-        print('Finish editing with Enter\n')
+        print('Confirm editing with Enter, cancel with Esc\n')
     else:
         print('Choose fields to be serialized in message')
         print('Use arrows or j, k to move, select with Enter or Space\n')
@@ -152,7 +153,8 @@ def view(model: Model) -> None:
     print()
     for i, (_, name, extension) in enumerate(model.generators):
         print('{}({}) {}: {}{}'.format(
-            '->' if i == model.selected_choice - len(model.toggles) - len(model.parts) else '  ',
+            '->' if i == model.selected_choice -
+            len(model.toggles) - len(model.parts) else '  ',
             '*' if model.enabled_gens[i] else ' ',
             name,
             model.output,
@@ -163,11 +165,11 @@ def view(model: Model) -> None:
         model.output + ('█' if model.editing_output else '')))
     gen_count = model.enabled_gens.count(True)
     field_count = sum([model.enabled[p].count(True) for p in model.parts])
-    print('\n{}[g]enerate {} output file{} for {} field{}'.format(
+    print('{}[g]enerate with {} generator{} for {} field{}'.format(
         '->' if model.selected_choice == model.choices_num - 2 else '  ',
         gen_count, '' if gen_count == 1 else 's',
         field_count, '' if field_count == 1 else 's',
-        ))
+    ))
     print('{}[q]uit'.format(
         '->' if model.selected_choice == model.choices_num - 1 else '  '))
 
@@ -206,15 +208,21 @@ def update_output(model: Model, key: int) -> Model:
         else:
             model.editing_output = False
             model.status = ''
+    elif key == 27:  # Esc
+        model.output = model.previous_output
+        model.editing_output = False
+        model.status = 'Edit cancelled'
     return model
 
 
 def update_menu(model: Model, key: int) -> Tuple[Model, List[Command]]:
     commands = []
     if key in [ord('o'), ord('O')]:
-        model.selected_choice = model.choices_num - 2
+        model.selected_choice = model.choices_num - 3
+        model.previous_output = model.output
         model.editing_output = True
     elif key in [ord('g'), ord('G')]:
+        model.selected_choice = model.choices_num - 2
         commands.append(Command.MAKE)
     elif key in [ord('q'), ord('Q'), 3]:  # Ctrl+C
         commands.append(Command.QUIT)
@@ -243,12 +251,13 @@ def update_menu(model: Model, key: int) -> Tuple[Model, List[Command]]:
         i -= len(model.generators)
 
         if model.selected_choice == model.choices_num - 3:
+            model.previous_output = model.output
             model.editing_output = True
         elif model.selected_choice == model.choices_num - 2:
             commands.append(Command.MAKE)
         elif model.selected_choice == model.choices_num - 1:
             commands.append(Command.QUIT)
-            
+
     return model, commands
 
 
@@ -281,29 +290,34 @@ def main():
                 if len(os.path.dirname(model.output)) > 0:
                     os.makedirs(os.path.dirname(model.output), exist_ok=True)
                 filename = os.path.basename(model.output)
-                
+
                 status = []
-                infos = {info.name: info for info in FieldInfo.inspect_AircraftData()}
+                infos = {
+                    info.name: info for info in FieldInfo.inspect_AircraftData()}
                 for enabled, (gen, name, extension) in zip(model.enabled_gens, model.generators):
                     if not enabled:
                         continue
 
                     out_path = model.output + extension
                     if gen == Generator.MATLAB:
-                        forbidden_characters = re.findall(r'[^A-Za-z0-9_]', model.output)
+                        forbidden_characters = re.findall(
+                            r'[^A-Za-z0-9_]', model.output)
                         if len(forbidden_characters) > 0:
-                            status.append(f'Error: characters {set(forbidden_characters)} not allowed in MATLAB function name')
+                            status.append(
+                                f'Error: characters {set(forbidden_characters)} not allowed in MATLAB function name')
                         else:
                             with open(out_path, 'w') as out:
                                 codegen_matlab(out, filename, infos,
-                                   selected['main'], selected['trgt'], selected['trim'])
-                            status.append(f'Saved {name} generator to {out_path}')
+                                               selected['main'], selected['trgt'], selected['trim'])
+                            status.append(
+                                f'Saved {name} generator to {out_path}')
                     elif gen == Generator.MBDYN:
-                        with open(out_path, 'w') as out:
-                            codegen_mbdyn(out, infos, 
-                                   selected['main'], selected['trgt'], selected['trim'])
-                            status.append(f'Saved {name} generator to {out_path}')
-                    messages.append((Message.STATUS, '\n'.join(status)))
+                        codegen_mbdyn(model.output, infos,
+                                      selected['main'], selected['trgt'], selected['trim'])
+                        status.append(f'Saved {name} generator to {out_path}')
+                if model.enabled_gens.count(True) == 0:
+                    status.append('No output format enabled')
+                messages.append((Message.STATUS, '\n'.join(status)))
 
         view(model)
         if len(messages) > 0:
@@ -312,72 +326,105 @@ def main():
         key = ord(getch())
         messages.append((Message.KEY, key))
 
+
 MBD_PREFIX = 'LIDIA_'
 
-def codegen_mbdyn(out: TextIOBase, infos: Dict[str, FieldInfo],
-                   main_fields: List[str], trgt_fields: List[str], trim_fields: List[str]) -> None:
-    out.write('''##### Generated with pack_maker.py
-begin: control data;
-\toutput elements: +1;
-end: control data;
 
-### identifiers:
-''')
+def codegen_mbdyn(output: str, infos: Dict[str, FieldInfo],
+                  main_fields: List[str], trgt_fields: List[str], trim_fields: List[str]) -> None:
+    filename = os.path.basename(output)
     defines = ['output']
     for group, prefix in [(main_fields, ''), (trgt_fields, 'trgt_'), (trim_fields, 'trim_')]:
         for f in group:
             if issubclass(infos[f].field_type, BaseModel):
-                defines.extend(f'{prefix}{f}_{a}' for a in infos[f].field_type.__fields__)
+                defines.extend(
+                    f'{prefix}{f}_{a}' for a in infos[f].field_type.__fields__)
             else:
                 defines.append(f'{prefix}{f}')
-    next_id = 55000
-    for d in defines:
-            out.write('set: const integer {}{} = {};\n'.format(
+    with open(output + '.set', 'w') as out_set:
+        out_set.write('''##### Generated with pack_maker.py
+# constants definition file
+# include it in your model like this:
+#
+# include: "./{}.set";
+
+### identifiers:
+'''.format(filename))
+
+        next_id = 55000
+        for d in defines:
+            out_set.write('set: const integer {}{} = {};\n'.format(
                 MBD_PREFIX,
                 d.upper(),
                 next_id))
             next_id += 1
-    
-    out.write('''
-begin: elements;
+        out_set.write('''
+# vim:ft=mbd
+''')
+
+    with open(output + '.drv', 'w') as out_drv:
+        out_drv.write('''##### Generated with pack_maker.py
+# drive definition file
+# include it in your model like this:
+#
+# include: "./{}.drv";
+#
+# modify the following drive callers to get relevant data from model
+# example of getting Z-axis position of NODE_CG:
+#
+# drive caller: LIDIA_NED_DOWN, node, NODE_CG, structural, string, "X[3]", direct;
 
 ### drive templates:
-#
-# Modify the following to get relevant data from model
-# 
-# Example of getting Z-axis position of NODE_CG:
-# drive caller: LIDIA_NED_DOWN, node, NODE_CG, structural, string "X[3]", direct;
-
+'''.format(filename))
+        for d in defines[1:]:  # skip stream id
+            out_drv.write('drive caller: {}{}, const, 0;\n'.format(
+                MBD_PREFIX,
+                d.upper()))
+        out_drv.write('''
+# vim:ft=mbd
 ''')
-    for d in defines[1:]:  # skip stream id
-        out.write('drive caller: {}{}, const, 0;\n'.format(
-            MBD_PREFIX,
-            d.upper()))
 
-    out.write('''
+    with open(output + '.elm', 'w') as out_elm:
+        out_elm.write('''##### Generated with pack_maker.py
+# output stream definition
+# include it in your model **inside the elements block** like this:
+#
+# include: "./{}.elm";
+# 
+# you also need to increase the number of output elements in the control data block:
+# begin: control data;
+#     output elements: +1;
+# end: control data;
+
 ### output stream definition
 stream output: {}{},
-\tstream_name, "Lidia output in SMOL format",
+\tstream name, "Lidia output in SMOL format",
 \tcreate, no,
 \tport, 5100,
 \thost, "127.0.0.1",
 \tsocket type, udp,
-'''.format(MBD_PREFIX, defines[0].upper()))
+'''.format(filename, MBD_PREFIX, defines[0].upper()))
 
-    values = StringIO()
-    pack_fieldlists(Generator.MBDYN, values, infos, main_fields, trgt_fields, trim_fields)
+        values = StringIO()
+        pack_fieldlists(Generator.MBDYN, values, infos,
+                        main_fields, trgt_fields, trim_fields)
 
-    out.write('\tvalues, {},\n'.format(values.getvalue().count('\n')))
-    out.write(values.getvalue())
-    out.write('''
+        out_elm.write('\tvalues, {},\n'.format(values.getvalue().count('\n')))
+        out_elm.write(values.getvalue())
+        out_elm.write('''
 \tmodifier, copy cast,
 \t\tswap, f, d, i,
 ''')  # TODO: verify swapped types
-    pack_fieldlists(Generator.MBDYN_TYPE, out, infos, main_fields, trgt_fields, trim_fields)
-    out.write('''\t;
+        type_out = StringIO()
+        pack_fieldlists(Generator.MBDYN_TYPE, type_out, infos,
+                        main_fields, trgt_fields, trim_fields)
+        out_elm.write(type_out.getvalue()[:-2]) # strip ending ',\n'
+        out_elm.write('''
+\t;
 
-end: elements;
+# vim:ft=mbd
 ''')
+
 
 def codegen_matlab(out: TextIOBase, function_name: str, infos: Dict[str, FieldInfo],
                    main_fields: List[str], trgt_fields: List[str], trim_fields: List[str]) -> None:
@@ -420,7 +467,8 @@ def codegen_matlab(out: TextIOBase, function_name: str, infos: Dict[str, FieldIn
     out.write('''
     data = uint8([...
 ''')
-    length = pack_fieldlists(Generator.MATLAB, out, infos, main_fields, trgt_fields, trim_fields)
+    length = pack_fieldlists(Generator.MATLAB, out,
+                             infos, main_fields, trgt_fields, trim_fields)
 
     out.write('''    ]);
 % data length {0} bytes
@@ -490,7 +538,8 @@ def pack_map(gen: Generator, out: TextIOBase, count: int) -> int:
             '        0x8{:x}, ... % map length {}\n'.format(count, count))
     elif gen == Generator.MBDYN:
         val = 0x80 + count
-        out.write(f'\tdrive, const, {val},\t# 0x{val:02X} map length {count}\n')
+        out.write(
+            f'\tdrive, const, {val},\t# 0x{val:02X} map length {count}\n')
     elif gen == Generator.MBDYN_TYPE:
         out.write('\t\tuint8_t,\n')
     return 1
@@ -504,7 +553,8 @@ def pack_array(gen: Generator, out: TextIOBase, count: int) -> int:
             '        0x9{:x}, ... % array length {}\n'.format(count, count))
     elif gen == Generator.MBDYN:
         val = 0x90 + count
-        out.write(f'\tdrive, const, {val},\t# 0x{val:02X} array length {count}\n')
+        out.write(
+            f'\tdrive, const, {val},\t# 0x{val:02X} array length {count}\n')
     elif gen == Generator.MBDYN_TYPE:
         out.write('\t\tuint8_t,\n')
 
@@ -518,8 +568,9 @@ def pack_str(gen: Generator, out: TextIOBase, data: str) -> int:
         out.write("        0x{:x}, '{}', ... % string length {}\n".format(
             0b10100000 + len(data), data, len(data)))
     elif gen == Generator.MBDYN:
-        val = 0x90 + len(data)
-        out.write(f'\tdrive, const, {val},\t# 0x{val:02X} string length {len(data)}\n')
+        val = 0b10100000 + len(data)
+        out.write(
+            f'\tdrive, const, {val},\t# 0x{val:02X} string length {len(data)}\n')
         for c in data:
             out.write(f"\tdrive, const, {ord(c)},\t# '{c}'\n")
     elif gen == Generator.MBDYN_TYPE:
@@ -540,10 +591,10 @@ def pack_float(gen: Generator, out: TextIOBase, name: str, double=False) -> int:
         val = 0xCB if double else 0xCA
         out.write('\tdrive, const, {},\t# 0x{:02X} {}\n'.format(
             val, val, 'double' if double else 'float'
-            ))
-        out.write(f'\tdrive, reference, {MBD_PREFIX}{name.upper()}\n')
+        ))
+        out.write(f'\tdrive, reference, {MBD_PREFIX}{name.upper()},\n')
     elif gen == Generator.MBDYN_TYPE:
-        out.write('\t\tuint8_t,\n') 
+        out.write('\t\tuint8_t,\n')
         out.write(f'\t\t{"double" if double else "float"},\n')
     return 9 if double else 5
 
@@ -555,10 +606,10 @@ def pack_int(gen: Generator, out: TextIOBase, name: str) -> int:
     elif gen == Generator.MBDYN:
         val = 0xCE
         out.write(f'\tdrive, const, {val},\t# 0x{val:02X} uint32_t\n')
-        out.write(f'\tdrive, reference, {MBD_PREFIX}{name.upper()}\n')
+        out.write(f'\tdrive, reference, {MBD_PREFIX}{name.upper()},\n')
     elif gen == Generator.MBDYN_TYPE:
-        out.write('\t\tuint8_t,\n') 
-        out.write('\t\tuint32_t,\n') 
+        out.write('\t\tuint8_t,\n')
+        out.write('\t\tuint32_t,\n')
     return 5
 
 
