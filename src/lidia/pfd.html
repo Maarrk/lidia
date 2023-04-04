@@ -555,9 +555,9 @@
       let direction = Math.sign(verticalSpeed);
       let value = Math.abs(verticalSpeed);
       const maxAngleDeg = 37;
-      let angleDeg = value <= 10 ? (value / 10 * 25) : // first 10 hft/min is 25 degrees
-        value < maxAngleDeg ? value - 10 + 25 : // above 10 it's 10 deg per 10 hft/min
-          maxAngleDeg; // limit to maximum angle
+      let angleDeg = (value <= 10) ? (value / 10 * 25) : // first 10 hft/min is 25 degrees
+        (value - 10 + 25); // above 10 it's 10 deg per 10 hft/min
+      angleDeg = Math.min(angleDeg, maxAngleDeg); // limit to maximum angle
       let angle = radians(angleDeg) * direction;
 
       // positive vertical speed is lower y in svg
