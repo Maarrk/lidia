@@ -16,6 +16,32 @@ class VectorModel(BaseModel):
     def from_list(cls, values):
         return cls(**dict(zip(cls.__fields__, values)))
 
+    def __add__(self, other):
+        assert type(self) == type(other)
+        copy = self.copy()
+        for f in self.__fields__:
+            setattr(copy, f, getattr(self, f) + getattr(other, f))
+        return copy
+
+    def __neg__(self):
+        copy = self.copy()
+        for f in self.__fields__:
+            setattr(copy, f, -getattr(self, f))
+        return copy
+
+    def __sub__(self, other):
+        return self + (-other)
+
+    def __mul__(self, other):
+        o = float(other)
+        copy = self.copy()
+        for f in self.__fields__:
+            setattr(copy, f, getattr(self, f) * o)
+        return copy
+
+    def __truediv__(self, other):
+        return self * (1 / other)
+
 
 class IntFlagModel(BaseModel):
     """Data like `enum.IntFlag` to be serialized as int bits in SMOL"""

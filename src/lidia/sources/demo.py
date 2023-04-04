@@ -50,6 +50,8 @@ def run(q: Queue, args: Namespace, config: Config):
     def current_phase(): return (time() / args.period) % 1
 
     last_trim = Controls()
+    last_v_ned = NED()
+    last_time = time()
 
     while True:
         state = AircraftState()
@@ -68,7 +70,11 @@ def run(q: Queue, args: Namespace, config: Config):
 
         state.v_ned = state.xyz2ned(state.v_body)
 
-        state.a_body = state.ned2xyz(NED(down=9.81))
+        dt = time() - last_time
+        state.a_ned = NED(down=9.81) + (state.v_ned - last_v_ned) / dt
+        # a_body is simulated by instruments model if it's unset
+        last_v_ned = state.v_ned
+        last_time = time()
 
         state.ctrl = Controls()
         state.ctrl.stick_pull = val(0.1)

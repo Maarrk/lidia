@@ -1,7 +1,7 @@
 import json
 from math import cos, sin, sqrt
 from time import time
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 from typing import Any, Dict, List, Optional, Sequence
 
 from .config import Config as LidiaConfig
@@ -161,7 +161,9 @@ class AircraftData(BaseModel):
     v_ned: Optional[NED] = None
     """Velocity in local horizon coordinate system, in meters per second"""
     a_body: Optional[XYZ] = None
-    """Acceleration in body frame, in meters per second squared"""
+    """Accelerations measured (with gravity) in body frame, in meters per second squared"""
+    a_ned: Optional[NED] = None
+    """Acceleration measured in local horizon coordinate system, in meters per second squared"""
     ctrl: Optional[Controls] = None
     """Control inceptors position, normalized by max deflection"""
     brdr: Optional[Borders] = None
@@ -235,6 +237,10 @@ class AircraftData(BaseModel):
         self._model_gs(config)
         self._model_alt(config)
         self._model_ralt(config)
+
+        # rotate acceleration to XYZ for sideslip
+        if self.a_body is None and self.a_ned is not None:
+            self.a_body = self.ned2xyz(self.a_ned)
 
     def _get_instr(self) -> Instruments:
         if self.instr is None:

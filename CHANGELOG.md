@@ -10,10 +10,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Interactive editing of output filename in pack maker
-- Body-frame acceleration in `AircraftState`
+- Accelerations in `AircraftState`
 - Working sideslip angle indicator in on ADI
 - Argument descriptions for generated code
 - Pack maker for [MBDyn](https://www.mbdyn.org/)
+- Basic arithmetic operations on `VectorModel`
 
 ### Changed
 
