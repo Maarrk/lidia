@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.8.0] - 2023-04-04
+
 ### Added
 
 - Interactive editing of output filename in pack maker
@@ -183,7 +185,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Initial release with `demo` and `rpctask` sources
 
 <!-- prettier-ignore -->
-[Unreleased]: https://gitlab.com/Maarrk/lidia/-/compare/v0.7.1...dev
+[Unreleased]: https://gitlab.com/Maarrk/lidia/-/compare/v0.8.0...dev
+[0.8.0]: https://gitlab.com/Maarrk/lidia/-/compare/v0.7.1...v0.8.0
 [0.7.1]: https://gitlab.com/Maarrk/lidia/-/compare/v0.7.0...v0.7.1
 [0.7.0]: https://gitlab.com/Maarrk/lidia/-/compare/v0.6.0...v0.7.0
 [0.6.0]: https://gitlab.com/Maarrk/lidia/-/compare/v0.5.0...v0.6.0
