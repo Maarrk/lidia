@@ -51,7 +51,8 @@ def run(q: Queue, args: Namespace, config: Config):
 
     last_trim = Controls()
     last_v_ned = NED()
-    last_time = time()
+    # prevent zero division on first iteration
+    last_time = time() - 1 / args.frequency
 
     while True:
         state = AircraftState()

@@ -7,9 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.8.1] - 2023-04-17
+
 ### Fixed
 
 - Serializing `a_ned` field of `AircraftState`
+- Zero division error on some runs of `demo` source
 
 ## [0.8.0] - 2023-04-04
 
@@ -189,7 +192,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Initial release with `demo` and `rpctask` sources
 
 <!-- prettier-ignore -->
-[Unreleased]: https://gitlab.com/Maarrk/lidia/-/compare/v0.8.0...dev
+[Unreleased]: https://gitlab.com/Maarrk/lidia/-/compare/v0.8.1...dev
+[0.8.1]: https://gitlab.com/Maarrk/lidia/-/compare/v0.8.0...v0.8.1
 [0.8.0]: https://gitlab.com/Maarrk/lidia/-/compare/v0.7.1...v0.8.0
 [0.7.1]: https://gitlab.com/Maarrk/lidia/-/compare/v0.7.0...v0.7.1
 [0.7.0]: https://gitlab.com/Maarrk/lidia/-/compare/v0.6.0...v0.7.0
