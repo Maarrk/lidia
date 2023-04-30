@@ -33,6 +33,8 @@ class PfdConfig(NestingModel):
     """Move roll angle scale with horizon, keeping sideslip triangle in place"""
     sideslip_max: float = 15.0
     """Maximal displayed sideslip angle, in degrees"""
+    traffic_range: float = 18520.0
+    """Range of displayed traffic information, in meters"""
 
 
 class ApproachConfig(NestingModel):

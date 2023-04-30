@@ -1,3 +1,4 @@
+from enum import Enum
 import json
 from math import cos, sin, sqrt
 from time import time
@@ -64,6 +65,41 @@ class Buttons(IntFlagModel):
     coll_ftr: bool = False
 
 
+class CASMessage(BaseModel):
+    msg_id: int
+    blinking: bool
+
+
+class CAS(BaseModel):
+    """Crew Alerting System state"""
+    msgs: List[CASMessage]
+
+
+class TrafficVolume(Enum):
+    OTHER_TRAFFIC = 0
+    """No collision threat, fits in entire surveillance range; hollow white diamond"""
+    PROXIMATE_TRAFFIC = 1
+    """No collision threat, intruder in a specified range; filled white diamond"""
+    TRAFFIC_ADVISORY = 2
+    """Possible threat of collision in 40 seconds; filled amber circle"""
+    RESOLUTION_ADVISORY = 3
+    """Real threat of collision in 25 seconds; filled red square"""
+
+
+class TrafficObject(BaseModel):
+    """Object displayed on TCAS view"""
+    vol: TrafficVolume = TrafficVolume.OTHER_TRAFFIC
+    """Type of traffic advisory issued"""
+    brg: float = 0
+    """Relative bearing to right, in radians"""
+    dist: float = 0
+    """Distance to intruder, in meters"""
+    alt: float = 0
+    """Altitude difference positive for intruder higher, in meters"""
+    vsi: int = 0
+    """Intruder vertical speed indicator, positive for climb"""
+
+
 class Instruments(BaseModel):
     ias: float = 0
     """Indicated airspeed"""
@@ -75,16 +111,8 @@ class Instruments(BaseModel):
     """Altimeter setting, None for STD"""
     ralt: Optional[float] = None
     """Radio altimeter"""
-
-
-class CASMessage(BaseModel):
-    msg_id: int
-    blinking: bool
-
-
-class CAS(BaseModel):
-    """Crew Alerting System state"""
-    msgs: List[CASMessage]
+    tcas: Optional[List[TrafficObject]] = None
+    """Traffic objects"""
 
 
 class Transforms:
@@ -205,9 +233,12 @@ class AircraftData(BaseModel):
             state.btn = Buttons.from_list(smol['btn'])
         if 'instr' in smol:
             state.instr = Instruments()
-            for name in ['ias', 'gs', 'alt', 'qnh', 'alt']:
+            for name in ['ias', 'gs', 'alt', 'qnh', 'ralt']:
                 if name in smol['instr']:
                     setattr(state.instr, name, smol['instr'][name])
+            if 'tcas' in smol['instr']:
+                state.instr.tcas = [
+                    TrafficObject(**t) for t in smol['instr']['tcas']]
         if 't_boot' in smol:
             state.t_boot = smol['t_boot']
 
@@ -340,6 +371,11 @@ if __name__ == '__main__':
     state.trgt.ctrl = Controls.from_list([0.0, 0.0, 0.0, 0.0, 0.0])
     state.t_boot = 0x10000000
     state.model_instruments(config)
+    state.instr.tcas = []
+    state.instr.tcas.append(TrafficObject(
+        vol=TrafficVolume.PROXIMATE_TRAFFIC,
+        brg=0.5, dist=5000.0, alt=10.0, vsi=0
+    ))
     print(state.smol())
     import msgpack
     packer = msgpack.Packer(use_single_float=False)
