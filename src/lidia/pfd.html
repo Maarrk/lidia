@@ -32,25 +32,26 @@
         <path d="M -2,0 a 2,2 0 0,0 4,0 a 2,2 0 0,0 -4,0 M 0,-2 v-2 M -1.73, 1 l -1.73, 1 M 1.73, 1 l 1.73, 1" />
         <path d="M -2.82,-2.82 L 2.82,2.82 M -2.82,2.82 L 2.82,-2.82" transform="scale(0.5)" />
       </g>
-      <g id="trafficLabel">
+      <!-- Duplication of label code, because the <use> element creates a closed shadow root, inaccessible to outside JS -->
+      <g id="trafficOT">
+        <polygon points="-10,0 0,12 10,0 0,-12" fill="none" stroke-width="3" />
         <text x="15" y="-25" text-anchor="end" dominant-baseline="central" font-size="25" stroke="none">+00</text>
         <path d="M 20,13 v-17 h5 l-5,-8 l-5,8 h5" stroke-width="3" transform="scale(1,1)" />
       </g>
-      <g id="trafficOT">
-        <polygon points="-10,0 0,12 10,0 0,-12" fill="none" stroke-width="3" />
-        <use href="#trafficLabel" />
-      </g>
       <g id="trafficPD">
         <polygon points="-10,0 0,12 10,0 0,-12" />
-        <use href="#trafficLabel" />
+        <text x="15" y="-25" text-anchor="end" dominant-baseline="central" font-size="25" stroke="none">+00</text>
+        <path d="M 20,13 v-17 h5 l-5,-8 l-5,8 h5" stroke-width="3" transform="scale(1,1)" />
       </g>
       <g id="trafficTA">
         <circle cx="0" cy="0" r="10" stroke="none" />
-        <use href="#trafficLabel" />
+        <text x="15" y="-25" text-anchor="end" dominant-baseline="central" font-size="25" stroke="none">+00</text>
+        <path d="M 20,13 v-17 h5 l-5,-8 l-5,8 h5" stroke-width="3" transform="scale(1,1)" />
       </g>
       <g id="trafficRA">
         <rect x="-9" y="-9" width="18" height="18" />
-        <use href="#trafficLabel" />
+        <text x="15" y="-25" text-anchor="end" dominant-baseline="central" font-size="25" stroke="none">+00</text>
+        <path d="M 20,13 v-17 h5 l-5,-8 l-5,8 h5" stroke-width="3" transform="scale(1,1)" />
       </g>
     </defs>
     <g id="autopilotRegion" data-extents="0 1325 30 775">
@@ -629,9 +630,8 @@
           }
         } else if (volumeGroup.childElementCount < count) {
           for (let i = count - volumeGroup.childElementCount; i > 0; i--) {
-            let use = document.createElementNS("http://www.w3.org/2000/svg", 'use');
-            use.setAttribute('href', '#traffic' + volume);
-            volumeGroup.appendChild(use);
+            let clone = document.getElementById("traffic" + volume).cloneNode(true);
+            volumeGroup.appendChild(clone);
           }
         }
       }
@@ -640,15 +640,23 @@
       for (const t of tcas) {
         if (t.dist <= config.traffic_range) {
           const group = document.getElementById("hsiTraffic" + trafficVolumeNames[t.vol]);
-          let use = group.children[nextChildIndex[t.vol]];
+          let blip = group.children[nextChildIndex[t.vol]];
           nextChildIndex[t.vol] += 1;
 
           let r = t.dist / config.traffic_range * trafficPerimeterRadius;
           let y = -Math.cos(t.brg) * r;
           let x = Math.sin(t.brg) * r;
-          use.setAttribute("transform", `translate(${x}, ${y})`);
+          blip.setAttribute("transform", `translate(${x}, ${y})`);
 
           // TODO: handle altitude text, position and arrow orientation
+          let hectofeet = Math.round(feet(t.alt) / 100.0);
+          let sign = hectofeet > 0 ? "+" : hectofeet < 0 ? "-" : "";
+          let altText = sign + Math.abs(hectofeet).toString().padStart(2, "0");
+          let textElement = blip.querySelector("text");
+          textElement.innerHTML = altText;
+          let ty = parseFloat(textElement.getAttribute("y"));
+          textElement.setAttribute("y", (hectofeet >= 0 ? -1 : 1) * Math.abs(ty));
+          blip.querySelector("path").setAttribute("transform", `scale(1, ${Math.sign(t.vsi)})`)
         }
       }
     }
