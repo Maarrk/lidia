@@ -91,7 +91,7 @@
               <!-- <use href="#flightpathRetrograde" stroke="black" stroke-width="1.0" /> -->
               <use href="#flightpathRetrograde" stroke="var(--pfdGreen)" stroke-width="0.625" />
             </g>
-            <g id="adiTargetIndicator" display="none">
+            <g id="adiTargetIndicator" display="block">
               <use href="#attTarget" stroke="black" stroke-width="1.0" />
               <use href="#attTarget" stroke="var(--pfdMagenta)" stroke-width="0.625" />
             </g>
@@ -228,15 +228,16 @@
           <g transform="scale(6)">
             <g id="iasTape" transform="translate(0 0)" fill="white" font-size="6" text-anchor="end"
               dominant-baseline="central" stroke="white" stroke-width="1">
-              <g id="iasVne" transform="translate(0 -167)">
-                <path d="m0 0 h-30 " stroke="var(--pfdRed)" stroke-width="2" />
+              <path id="iasVne" transform="translate(0 -167)" d="m0 0 h-30 " stroke="var(--pfdRed)" stroke-width="2" />
+              <g id="iasTapeTicks">
+                <path d="m0 10 h-10" />
+                <path d="m0 20 h-10" />
+                <path d="m0 30 h-10" />
+                <path d="m0 40 h-10" />
+                <!-- Other ticks generated with script -->
               </g>
-
-              <path d="m0 10 h-10" />
-              <path d="m0 20 h-10" />
-              <path d="m0 30 h-10" />
-              <path d="m0 40 h-10" />
-              <!-- Other ticks generated with script -->
+              <path id="iasTargetIndicator" transform="translate(0 -0)" d="m0 0 l -4 -4 v-2 h4 v12 h-4 v-2 z"
+                fill="var(--pfdMagenta)" stroke-width="0.4" stroke="black" />
             </g>
           </g>
         </g>
@@ -451,8 +452,8 @@
         <path d="m0 ${-ias} h-10" />
         <text x="-12" y="${-ias}" stroke="none">${ias}</text>`);
     }
-    let iasTape = document.getElementById("iasTape");
-    iasTape.innerHTML = iasTape.innerHTML + iasTapeHTML.join("");
+    let iasTapeTicks = document.getElementById("iasTapeTicks");
+    iasTapeTicks.innerHTML = iasTapeTicks.innerHTML + iasTapeHTML.join("");
 
     let pitchHTML = [];
     for (let pitch = -50; pitch <= 50; pitch += 10) {
@@ -498,6 +499,7 @@
     var socket = io();
     var config = {
       ias_never_exceed: 167,
+      show_ias_target: true,
       rotate_adi_target: true,
       show_adi_target: true,
       adi_target_roll: true,
@@ -660,6 +662,7 @@
     }
 
     const adiTargetIndicator = document.getElementById("adiTargetIndicator");
+    const iasTargetIndicator = document.getElementById("iasTargetIndicator");
     function updateTarget(s) {
       if ("att" in s.trgt && "att" in s) {
         const roll = degrees(s.att[0]);
@@ -678,6 +681,12 @@
           targetTransform = targetTransform + ` rotate(${targetRoll})`
         }
         adiTargetIndicator.setAttribute("transform", targetTransform);
+      }
+      if ("instr" in s.trgt) {
+        if ("ias" in s.trgt.instr) {
+          iasTargetIndicator.setAttribute("display", config.show_ias_target ? "block" : "none");
+          iasTargetIndicator.setAttribute("transform", `translate(0 ${-s.trgt.instr.ias})`);
+        }
       }
     }
 

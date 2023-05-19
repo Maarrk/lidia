@@ -19,8 +19,10 @@ class PfdConfig(NestingModel):
     """configuration for `pfd`"""
     ias_never_exceed: float = 167.0
     """Never exceed speed (Vne) shown on IAS tape"""
+    show_ias_target: bool = True
+    """Display the IAS target after receiving `trgt.instr.ias`"""
     show_adi_target: bool = True
-    """Display the attitude target after receiving trgt.att"""
+    """Display the attitude target after receiving `trgt.att`"""
     adi_target_roll: bool = True
     """Rotate attitude target indicator to show desired roll"""
     adi_target_yaw: bool = False

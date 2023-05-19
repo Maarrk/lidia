@@ -92,6 +92,8 @@ def run(q: Queue, args: Namespace, config: Config):
         state.trgt.att = Attitude()
         state.trgt.att.roll = 0.3 * val(0.35)
         state.trgt.att.pitch = 0.3 * val(0.1)
+        state.trgt.instr = Instruments()
+        state.trgt.instr.ias = 28 + 5 * val(0.6)
 
         state.btn = Buttons()
         if cycle_index() == 1 and args.trim:
