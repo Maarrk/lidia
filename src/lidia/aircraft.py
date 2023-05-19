@@ -75,6 +75,10 @@ class Instruments(BaseModel):
     """Altimeter setting, None for STD"""
     ralt: Optional[float] = None
     """Radio altimeter"""
+    rpm_e: Optional[float] = None
+    """Engine RPM, relative to nominal"""
+    rpm_r: Optional[float] = None
+    """Rotor RPM, relative to nominal"""
 
 
 class CASMessage(BaseModel):
@@ -205,7 +209,7 @@ class AircraftData(BaseModel):
             state.btn = Buttons.from_list(smol['btn'])
         if 'instr' in smol:
             state.instr = Instruments()
-            for name in ['ias', 'gs', 'alt', 'qnh', 'alt']:
+            for name in ['ias', 'gs', 'alt', 'qnh', 'ralt', 'rpm_e', 'rpm_r']:
                 if name in smol['instr']:
                     setattr(state.instr, name, smol['instr'][name])
         if 't_boot' in smol:

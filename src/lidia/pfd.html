@@ -300,6 +300,41 @@
       </g>
     </g>
 
+    <g id="rpmRegion" data-extents="660 755 1220 575">
+      <g transform="translate(750 940)">
+        <rect id="rpmBackground" x="-170" y="-275" height="550" width="170" />
+        <use href="#rpmBackground" class="tapeContour" />
+        <g text-anchor="middle" font-size="50" fill="white" transform="translate(-85)">
+          <text id="rpmEName" x="-30" y="-200">E</text>
+          <text id="rpmRName" x="30" y="-200">R</text>
+          <g font-size="30" text-anchor="end">
+            <text id="rpmEReadout" x="-5" y="240">00%</text>
+            <text id="rpmRReadout" x="80" y="240">00%</text>
+          </g>
+        </g>
+        <g transform="translate(-85 180) rotate(-90) scale(3)">
+          <!-- Engine RPM -->
+          <g transform="translate(0 -10)">
+            <rect id="rpmEBackground" y="-4.5" x="-1.5" height="9" width="123" fill="var(--pfdRed)" />
+            <rect id="rpmEFillLow" y="-3" x="0" height="6" width="100" fill="var(--pfdRed)" />
+            <rect id="rpmEFillHigh" y="-3" x="100" height="6" width="20" fill="black" />
+            <rect id="rpmETapeWarn" y="-4.5" x="97" height="9" width="6" fill="var(--pfdAmber)" />
+            <rect id="rpmETapeGood" y="-4.5" x="97" height="9" width="6" fill="var(--pfdGreen)" />
+            <path id="rpmEIndicator" d="M0 -4.5 l5 -10 h-10 z" fill="var(--pfdRed)" transform="translate(0)" />
+          </g>
+          <!-- Rotor RPM -->
+          <g transform="translate(0 10)">
+            <rect id="rpmRBackground" y=" -4.5" x="-1.5" height="9" width="123" fill="var(--pfdRed)" />
+            <rect id="rpmRFillLow" y="-3" x="0" height="6" width="100" fill="var(--pfdRed)" />
+            <rect id="rpmRFillHigh" y="-3" x="100" height="6" width="20" fill="black" />
+            <rect id="rpmRTapeWarn" y="-4.5" x="90" height="9" width="20" fill="var(--pfdAmber)" />
+            <rect id="rpmRTapeGood" y="-4.5" x="97" height="9" width="6" fill="var(--pfdGreen)" />
+            <path id="rpmRIndicator" d="M0 4.5 l5 10 h-10 z" fill="var(--pfdRed)" transform="translate(0)" />
+          </g>
+        </g>
+      </g>
+    </g>
+
     <g id="hsiRegion" data-extents="595 1325 1180 775">
       <g transform="translate(1050 900)">
         <circle cx="0" cy="0" r="275" fill="black" stroke="none" />
@@ -471,6 +506,14 @@
       show_retrograde: false,
       move_roll_ticks: false,
       sideslip_max: 15,
+      rpm_e_good_low: 0.97,
+      rpm_e_good_high: 1.03,
+      rpm_e_warn_low: 0.97,
+      rpm_e_warn_high: 1.03,
+      rpm_r_good_low: 0.97,
+      rpm_r_good_high: 1.03,
+      rpm_r_warn_low: 0.90,
+      rpm_r_warn_high: 1.10,
     };
 
     function updateOptional(value, element, decimal = 0, width = 1) {
@@ -581,6 +624,41 @@
       document.getElementById("hsiWheel").setAttribute("transform", `rotate(${hdg})`);
     }
 
+    function updateRPM(rpmE, rpmR) {
+      for (const part of [[rpmE, "E"], [rpmR, "R"]]) {
+        const rpm = part[0];
+        const P = part[1];
+        const p = P.toLowerCase();
+
+        const x = Math.max(0, Math.min(120, rpm * 100));
+        const indicator = document.getElementById(`rpm${P}Indicator`);
+        const fillLow = document.getElementById(`rpm${P}FillLow`);
+        const fillHigh = document.getElementById(`rpm${P}FillHigh`);
+        const name = document.getElementById(`rpm${P}Name`);
+        const readout = document.getElementById(`rpm${P}Readout`);
+
+        indicator.setAttribute("transform", `translate(${x})`);
+        fillLow.setAttribute("fill", "black");
+        fillHigh.setAttribute("fill", "black");
+        name.setAttribute("fill", "white");
+        if (rpm >= config[`rpm_${p}_good_low`] && rpm <= config[`rpm_${p}_good_high`]) {
+          indicator.setAttribute("fill", "var(--pfdGreen)");
+        } else if (rpm >= config[`rpm_${p}_warn_low`] && rpm <= config[`rpm_${p}_warn_high`]) {
+          indicator.setAttribute("fill", "var(--pfdAmber)");
+        } else {
+          indicator.setAttribute("fill", "var(--pfdRed)");
+          if (rpm > 1.0) {
+            fillHigh.setAttribute("fill", "var(--pfdRed)");
+          } else {
+            fillLow.setAttribute("fill", "var(--pfdRed)");
+          }
+          name.setAttribute("fill", "var(--pfdRed)");
+        }
+
+        readout.textContent = `${Math.round(rpm * 100)}%`;
+      }
+    }
+
     const adiTargetIndicator = document.getElementById("adiTargetIndicator");
     function updateTarget(s) {
       if ("att" in s.trgt && "att" in s) {
@@ -605,6 +683,20 @@
 
     function updateLimits() {
       document.getElementById("iasVne").setAttribute("transform", `translate(0 ${-config.ias_never_exceed})`);
+      for (const P of ["E", "R"]) {
+        const p = P.toLowerCase();
+
+        for (const Area of ["Good", "Warn"]) {
+          const area = Area.toLowerCase();
+
+          const tape = document.getElementById(`rpm${P}Tape${Area}`);
+          const low = config[`rpm_${p}_${area}_low`];
+          const high = config[`rpm_${p}_${area}_high`];
+
+          tape.setAttribute("x", 100 * low);
+          tape.setAttribute("width", 100 * (high - low));
+        }
+      }
     }
 
     socket.on("smol", (s) => {
@@ -627,6 +719,7 @@
         if ("alt" in s.instr) updateALT(s.instr.alt);
         if ("qnh" in s.instr) updateQNH(s.instr.qnh);
         if ("ralt" in s.instr) updateRHT(s.instr.ralt);
+        if ("rpm_e" in s.instr) updateRPM(s.instr.rpm_e, s.instr.rpm_r);
       }
       if ("trgt" in s) {
         updateTarget(s);

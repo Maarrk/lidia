@@ -127,6 +127,11 @@ def run(q: Queue, args: Namespace, config: Config):
             state.instr.ralt = None
         else:
             state.instr.qnh = None
+        state.instr.rpm_e = 1.0 + 0.1 * val(0.0)
+        state.instr.rpm_r = 1.0 + 0.2 * val(0.1)
+        # Simulate sprag clutch
+        state.instr.rpm_r = max(state.instr.rpm_e, state.instr.rpm_r)
+
         state.set_time(config)
 
         q.put(('smol', state.smol()))

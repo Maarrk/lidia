@@ -33,6 +33,23 @@ class PfdConfig(NestingModel):
     """Move roll angle scale with horizon, keeping sideslip triangle in place"""
     sideslip_max: float = 15.0
     """Maximal displayed sideslip angle, in degrees"""
+    # TODO: Rewrite docstrings to reference terms like "safe", "warning", "desired" etc. instead of colors
+    rpm_e_good_low: float = 0.97
+    """Engine RPM green tape lower limit"""
+    rpm_e_good_high: float = 1.03
+    """Engine RPM green tape upper limit"""
+    rpm_e_warn_low: float = 0.97
+    """Engine RPM yellow tape lower limit"""
+    rpm_e_warn_high: float = 1.03
+    """Engine RPM yellow tape upper limit"""
+    rpm_r_good_low: float = 0.97
+    """Rotor RPM green tape lower limit"""
+    rpm_r_good_high: float = 1.03
+    """Rotor RPM green tape upper limit"""
+    rpm_r_warn_low: float = 0.90
+    """Rotor RPM yellow tape lower limit"""
+    rpm_r_warn_high: float = 1.10
+    """Rotor RPM yellow tape upper limit"""
 
 
 class ApproachConfig(NestingModel):
