@@ -32,6 +32,27 @@
         <path d="M -2,0 a 2,2 0 0,0 4,0 a 2,2 0 0,0 -4,0 M 0,-2 v-2 M -1.73, 1 l -1.73, 1 M 1.73, 1 l 1.73, 1" />
         <path d="M -2.82,-2.82 L 2.82,2.82 M -2.82,2.82 L 2.82,-2.82" transform="scale(0.5)" />
       </g>
+      <!-- Duplication of label code, because the <use> element creates a closed shadow root, inaccessible to outside JS -->
+      <g id="trafficOT">
+        <polygon points="-10,0 0,12 10,0 0,-12" fill="none" stroke-width="3" />
+        <text x="15" y="-25" text-anchor="end" dominant-baseline="central" font-size="25" stroke="none">+00</text>
+        <path d="M 20,13 v-17 h5 l-5,-8 l-5,8 h5" stroke-width="3" transform="scale(1,1)" />
+      </g>
+      <g id="trafficPD">
+        <polygon points="-10,0 0,12 10,0 0,-12" />
+        <text x="15" y="-25" text-anchor="end" dominant-baseline="central" font-size="25" stroke="none">+00</text>
+        <path d="M 20,13 v-17 h5 l-5,-8 l-5,8 h5" stroke-width="3" transform="scale(1,1)" />
+      </g>
+      <g id="trafficTA">
+        <circle cx="0" cy="0" r="10" stroke="none" />
+        <text x="15" y="-25" text-anchor="end" dominant-baseline="central" font-size="25" stroke="none">+00</text>
+        <path d="M 20,13 v-17 h5 l-5,-8 l-5,8 h5" stroke-width="3" transform="scale(1,1)" />
+      </g>
+      <g id="trafficRA">
+        <rect x="-9" y="-9" width="18" height="18" />
+        <text x="15" y="-25" text-anchor="end" dominant-baseline="central" font-size="25" stroke="none">+00</text>
+        <path d="M 20,13 v-17 h5 l-5,-8 l-5,8 h5" stroke-width="3" transform="scale(1,1)" />
+      </g>
     </defs>
     <g id="autopilotRegion" data-extents="0 1325 30 775">
       <path id="PIC" d="M1050 15 v5 h15 v 10 l15 -15 l-15 -15 v10 h-15 z" fill="var(--pfdGreen)" stroke="none" />
@@ -339,7 +360,9 @@
     <g id="hsiRegion" data-extents="595 1325 1180 775">
       <g transform="translate(1050 900)">
         <circle cx="0" cy="0" r="275" fill="black" stroke="none" />
-        <circle cx="0" cy="0" r="137.5" fill="none" stroke="white" stroke-dasharray="3" stroke-width="3" />
+        <circle cx="0" cy="0" r="80" fill="none" stroke="gray" stroke-dasharray="3,9" stroke-width="3" />
+        <circle id="hsiTrafficPerimeter" cx="0" cy="0" r="160" fill="none" stroke="gray" stroke-dasharray="3,6"
+          stroke-width="3" />
         <path d="M0 -280 l20 -20 h-40 z" stroke="white" stroke-width="5" />
         <g id="hsiWheel" text-anchor="middle" dominant-baseline="hanging" fill="white" font-size="40" font-weight="600">
           <text x="0" y="-225">N</text>
@@ -357,7 +380,17 @@
 
           <!-- Ticks generated with script -->
         </g>
-        <g id="hsiHeli">
+        <g id="hsiTraffic">
+          <g id="hsiTrafficOT" fill="white" stroke="white">
+          </g>
+          <g id="hsiTrafficPD" fill="white" stroke="white">
+          </g>
+          <g id="hsiTrafficTA" fill="var(--pfdAmber)" stroke="var(--pfdAmber)">
+          </g>
+          <g id="hsiTrafficRA" fill="var(--pfdRed)" stroke="var(--pfdRed)">
+          </g>
+        </g>
+        <g id="hsiHeli" transform="scale(0.75)">
           <ellipse cx="0" cy="0" rx="12" ry="30" fill="white" />
           <path d="M0 0 v60 M-7 50 h15" stroke-width="5" stroke="white" />
           <path d="M-32 -32 l64 64 M-32 32 l64 -64" stroke-width="8" stroke="white" />
@@ -516,6 +549,7 @@
       rpm_r_good_high: 1.03,
       rpm_r_warn_low: 0.90,
       rpm_r_warn_high: 1.10,
+      traffic_range: 18520,
     };
 
     function updateOptional(value, element, decimal = 0, width = 1) {
@@ -619,6 +653,56 @@
         document.getElementById("rhtTape").setAttribute("transform", `translate(0 ${rht})`);
       } else {
         document.getElementById("rhtTape").setAttribute("transform", `translate(0 0)`);
+      }
+    }
+
+    const trafficVolumeNames = ["OT", "PD", "TA", "RA"];
+    const trafficPerimeterRadius = document.getElementById("hsiTrafficPerimeter").getAttribute("r");
+    function updateTCAS(tcas) {
+      let counts = [0, 0, 0, 0];
+      for (const t of tcas) {
+        if (t.dist <= config.traffic_range) {
+          counts[t.vol] += 1;
+        }
+      }
+      for (let volumeIndex = 0; volumeIndex < 4; volumeIndex++) {
+        const volume = trafficVolumeNames[volumeIndex]
+        const volumeGroup = document.getElementById("hsiTraffic" + volume);
+        const count = counts[volumeIndex];
+        if (volumeGroup.childElementCount > count) {
+          for (let i = volumeGroup.childElementCount - count; i > 0; i--) {
+            volumeGroup.lastChild.remove();
+          }
+        } else if (volumeGroup.childElementCount < count) {
+          for (let i = count - volumeGroup.childElementCount; i > 0; i--) {
+            let clone = document.getElementById("traffic" + volume).cloneNode(true);
+            volumeGroup.appendChild(clone);
+          }
+        }
+      }
+
+      let nextChildIndex = [0, 0, 0, 0];
+      for (const t of tcas) {
+        if (t.dist <= config.traffic_range) {
+          const group = document.getElementById("hsiTraffic" + trafficVolumeNames[t.vol]);
+          let blip = group.children[nextChildIndex[t.vol]];
+          nextChildIndex[t.vol] += 1;
+
+          let r = t.dist / config.traffic_range * trafficPerimeterRadius;
+          let y = -Math.cos(t.brg) * r;
+          let x = Math.sin(t.brg) * r;
+          blip.setAttribute("transform", `translate(${x}, ${y})`);
+
+          // TODO: handle altitude text, position and arrow orientation
+          let hectofeet = Math.round(feet(t.alt) / 100.0);
+          let sign = hectofeet > 0 ? "+" : hectofeet < 0 ? "-" : "";
+          let altText = sign + Math.abs(hectofeet).toString().padStart(2, "0");
+          let textElement = blip.querySelector("text");
+          textElement.innerHTML = altText;
+          let ty = parseFloat(textElement.getAttribute("y"));
+          textElement.setAttribute("y", (hectofeet >= 0 ? -1 : 1) * Math.abs(ty));
+          blip.querySelector("path").setAttribute("transform", `scale(1, ${Math.sign(t.vsi)})`)
+        }
       }
     }
 
@@ -731,6 +815,7 @@
         if ("alt" in s.instr) updateALT(s.instr.alt);
         if ("qnh" in s.instr) updateQNH(s.instr.qnh);
         if ("ralt" in s.instr) updateRHT(s.instr.ralt);
+        if ("tcas" in s.instr) updateTCAS(s.instr.tcas);
       }
       if ("trgt" in s) {
         updateTarget(s);

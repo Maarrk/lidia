@@ -138,5 +138,23 @@ def run(q: Queue, args: Namespace, config: Config):
 
         state.set_time(config)
 
+        state.instr.tcas = []
+        state.instr.tcas.append(TrafficObject(
+            vol=TrafficVolume.OTHER_TRAFFIC,
+            brg=1.0, dist=12000, alt=100, vsi=-1
+        ))
+        state.instr.tcas.append(TrafficObject(
+            vol=TrafficVolume.PROXIMATE_TRAFFIC,
+            brg=0.3, dist=18000, alt=30, vsi=1
+        ))
+        state.instr.tcas.append(TrafficObject(
+            vol=TrafficVolume.TRAFFIC_ADVISORY,
+            brg=-0.3, dist=10000, alt=-10, vsi=1
+        ))
+        state.instr.tcas.append(TrafficObject(
+            vol=TrafficVolume.RESOLUTION_ADVISORY,
+            brg=-0.5, dist=5000, alt=-120, vsi=0
+        ))
+
         q.put(('smol', state.smol()))
         sleep(1 / args.frequency)

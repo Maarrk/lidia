@@ -52,6 +52,8 @@ class PfdConfig(NestingModel):
     """Rotor RPM yellow tape lower limit"""
     rpm_r_warn_high: float = 1.10
     """Rotor RPM yellow tape upper limit"""
+    traffic_range: float = 18520.0
+    """Range of displayed traffic information, in meters"""
 
 
 class ApproachConfig(NestingModel):
