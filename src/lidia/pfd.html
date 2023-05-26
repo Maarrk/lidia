@@ -722,13 +722,15 @@
       if ("a_body" in s) {
         updateSlip(s.a_body[1], s.a_body[2]); // units irrelevant
       }
+      if ("hrpm" in s) {
+        updateRPM(s.hrpm[1], s.hrpm[0]);
+      }
       if ("instr" in s) {
         if ("ias" in s.instr) updateIAS(s.instr.ias);
         if ("gs" in s.instr) updateGS(s.instr.gs);
         if ("alt" in s.instr) updateALT(s.instr.alt);
         if ("qnh" in s.instr) updateQNH(s.instr.qnh);
         if ("ralt" in s.instr) updateRHT(s.instr.ralt);
-        if ("rpm_e" in s.instr) updateRPM(s.instr.rpm_e, s.instr.rpm_r);
       }
       if ("trgt" in s) {
         updateTarget(s);

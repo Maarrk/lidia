@@ -83,6 +83,12 @@ def run(q: Queue, args: Namespace, config: Config):
         state.ctrl.pedals_right = val(0.6)
         state.ctrl.collective_up = 0.3 + 0.5 * (val(0.2) + outside_offset)
 
+        state.hrpm = HelicopterRPM()
+        state.hrpm.rotor = 1.0 + 0.2 * val(0.1)
+        state.hrpm.engine = 1.0 + 0.1 * val(0.0)
+        # Simulate sprag clutch
+        state.hrpm.rotor = max(state.hrpm.rotor, state.hrpm.engine)
+
         state.trgt = AircraftData()
         state.trgt.ctrl = Controls()
         state.trgt.ctrl.stick_pull = val(0.55)
@@ -129,10 +135,6 @@ def run(q: Queue, args: Namespace, config: Config):
             state.instr.ralt = None
         else:
             state.instr.qnh = None
-        state.instr.rpm_e = 1.0 + 0.1 * val(0.0)
-        state.instr.rpm_r = 1.0 + 0.2 * val(0.1)
-        # Simulate sprag clutch
-        state.instr.rpm_r = max(state.instr.rpm_e, state.instr.rpm_r)
 
         state.set_time(config)
 

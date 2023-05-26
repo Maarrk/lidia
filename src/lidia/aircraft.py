@@ -48,6 +48,13 @@ class Controls(VectorModel):
     """Collective input to increase lift, between 0 and 1"""
 
 
+class HelicopterRPM(VectorModel):
+    rotor: float = 0
+    """Rotor RPM, relative to nominal"""
+    engine: float = 0
+    """Engine RPM, relative to nominal"""
+
+
 class Borders(BaseModel):
     low = Controls.from_list([-1, -1, 0, -1, 0])
     high = Controls.from_list([1, 1, 1, 1, 1])
@@ -75,10 +82,6 @@ class Instruments(BaseModel):
     """Altimeter setting, None for STD"""
     ralt: Optional[float] = None
     """Radio altimeter"""
-    rpm_e: Optional[float] = None
-    """Engine RPM, relative to nominal"""
-    rpm_r: Optional[float] = None
-    """Rotor RPM, relative to nominal"""
 
 
 class CASMessage(BaseModel):
@@ -170,6 +173,8 @@ class AircraftData(BaseModel):
     """Acceleration measured in local horizon coordinate system, in meters per second squared"""
     ctrl: Optional[Controls] = None
     """Control inceptors position, normalized by max deflection"""
+    hrpm: Optional[HelicopterRPM] = None
+    """RPM value, normalized to nominal"""
     brdr: Optional[Borders] = None
     """Task borders for inceptors"""
     btn: Optional[Buttons] = None
@@ -194,16 +199,18 @@ class AircraftData(BaseModel):
     @classmethod
     def from_smol(cls, smol: dict) -> 'AircraftData':
         state = cls()
-        for name in ['ned', 'v_ned', 'a_ned']:
+        for VectorType, name in [
+            (NED, 'ned'),
+            (NED, 'v_ned'),
+            (NED, 'a_ned'),
+            (Attitude, 'att'),
+            (XYZ, 'v_body'),
+            (XYZ, 'a_body'),
+            (Controls, 'ctrl'),
+            (HelicopterRPM, 'hrpm'),
+        ]:
             if name in smol:
-                setattr(state, name, NED.from_list(smol[name]))
-        if 'att' in smol:
-            state.att = Attitude.from_list(smol['att'])
-        for name in ['v_body', 'a_body']:
-            if name in smol:
-                setattr(state, name, XYZ.from_list(smol[name]))
-        if 'ctrl' in smol:
-            state.ctrl = Controls.from_list(smol['ctrl'])
+                setattr(state, name, VectorType.from_list(smol[name]))
         # TODO: Borders
         if 'btn' in smol:
             state.btn = Buttons.from_list(smol['btn'])
