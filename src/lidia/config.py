@@ -21,6 +21,8 @@ class PfdConfig(NestingModel):
     """Never exceed speed (Vne) shown on IAS tape"""
     show_ias_target: bool = True
     """Display the IAS target after receiving `trgt.instr.ias`"""
+    show_vsi_target: bool = True
+    """Display the VSI target after receiving `trgt.v_ned`"""
     show_adi_target: bool = True
     """Display the attitude target after receiving `trgt.att`"""
     adi_target_roll: bool = True

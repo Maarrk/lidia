@@ -100,6 +100,10 @@ def run(q: Queue, args: Namespace, config: Config):
         state.trgt.att.pitch = 0.3 * val(0.1)
         state.trgt.instr = Instruments()
         state.trgt.instr.ias = 28 + 5 * val(0.6)
+        state.trgt.v_body = XYZ()
+        state.trgt.v_body.x = state.v_body.x = 15 + 2.0 * val(0.4)
+        state.trgt.v_ned = NED()
+        state.trgt.v_ned.down = 2 * val(0.6)
 
         state.btn = Buttons()
         if cycle_index() == 1 and args.trim:

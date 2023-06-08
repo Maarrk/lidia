@@ -112,7 +112,7 @@
               <!-- <use href="#flightpathRetrograde" stroke="black" stroke-width="1.0" /> -->
               <use href="#flightpathRetrograde" stroke="var(--pfdGreen)" stroke-width="0.625" />
             </g>
-            <g id="adiTargetIndicator" display="block">
+            <g id="adiTargetIndicator" display="none">
               <use href="#attTarget" stroke="black" stroke-width="1.0" />
               <use href="#attTarget" stroke="var(--pfdMagenta)" stroke-width="0.625" />
             </g>
@@ -151,6 +151,10 @@
           <text y="240">2</text>
         </g>
         <line id="vsiIndicator" x1="320" y1="0" x2="370" y2="0" stroke="var(--pfdGreen)" stroke-width="8" />
+        <line id="vsiTargetIndicatorContour" x1="378" y1="0" x2="417" y2="0" stroke="black" stroke-width="12"
+          display="none" />
+        <line id="vsiTargetIndicator" x1="380" y1="0" x2="415" y2="0" stroke="var(--pfdMagenta)" stroke-width="8"
+          display="none" />
       </g>
     </g>
 
@@ -258,7 +262,7 @@
                 <!-- Other ticks generated with script -->
               </g>
               <path id="iasTargetIndicator" transform="translate(0 -0)" d="m0 0 l -4 -4 v-2 h4 v12 h-4 v-2 z"
-                fill="var(--pfdMagenta)" stroke-width="0.4" stroke="black" />
+                fill="var(--pfdMagenta)" stroke-width="0.4" stroke="black" display="none" />
             </g>
           </g>
         </g>
@@ -533,6 +537,7 @@
     var config = {
       ias_never_exceed: 167,
       show_ias_target: true,
+      show_vsi_target: true,
       rotate_adi_target: true,
       show_adi_target: true,
       adi_target_roll: true,
@@ -630,14 +635,17 @@
     const vsiIndicator = document.getElementById("vsiIndicator");
     const vsiX1 = parseFloat(vsiIndicator.getAttribute("x1"));
     const vsiX2 = parseFloat(vsiIndicator.getAttribute("x2"));
-    function updateVSI(verticalSpeed) {
+    function vsiAngleRadians(verticalSpeed) {
       let direction = Math.sign(verticalSpeed);
       let value = Math.abs(verticalSpeed);
       const maxAngleDeg = 37;
       let angleDeg = (value <= 10) ? (value / 10 * 25) : // first 10 hft/min is 25 degrees
         (value - 10 + 25); // above 10 it's 10 deg per 10 hft/min
       angleDeg = Math.min(angleDeg, maxAngleDeg); // limit to maximum angle
-      let angle = radians(angleDeg) * direction;
+      return radians(angleDeg) * direction;
+    }
+    function updateVSI(verticalSpeed) {
+      let angle = vsiAngleRadians(verticalSpeed);
 
       // positive vertical speed is lower y in svg
       vsiIndicator.setAttribute("y1", -Math.sin(angle) * vsiX1);
@@ -747,6 +755,12 @@
 
     const adiTargetIndicator = document.getElementById("adiTargetIndicator");
     const iasTargetIndicator = document.getElementById("iasTargetIndicator");
+    const vsiTargetIndicator = document.getElementById("vsiTargetIndicator");
+    const vsiTargetX1 = parseFloat(vsiTargetIndicator.getAttribute("x1"));
+    const vsiTargetX2 = parseFloat(vsiTargetIndicator.getAttribute("x2"));
+    const vsiTargetIndicatorContour = document.getElementById("vsiTargetIndicatorContour");
+    const vsiTargetContourX1 = parseFloat(vsiTargetIndicator.getAttribute("x1"));
+    const vsiTargetContourX2 = parseFloat(vsiTargetIndicator.getAttribute("x2"));
     function updateTarget(s) {
       if ("att" in s.trgt && "att" in s) {
         const roll = degrees(s.att[0]);
@@ -765,6 +779,18 @@
           targetTransform = targetTransform + ` rotate(${targetRoll})`
         }
         adiTargetIndicator.setAttribute("transform", targetTransform);
+      }
+      if ("v_ned" in s.trgt) {
+        vsiTargetIndicator.setAttribute("display", config.show_ias_target ? "block" : "none");
+        vsiTargetIndicatorContour.setAttribute("display", config.show_ias_target ? "block" : "none");
+
+        let angle = vsiAngleRadians(feet(s.trgt.v_ned[2]) * -0.6); // from m/s down to 100ft/min up
+
+        // positive vertical speed is lower y in svg
+        vsiTargetIndicator.setAttribute("y1", -Math.sin(angle) * vsiTargetX1);
+        vsiTargetIndicator.setAttribute("y2", -Math.sin(angle) * vsiTargetX2);
+        vsiTargetIndicatorContour.setAttribute("y1", -Math.sin(angle) * vsiTargetContourX1);
+        vsiTargetIndicatorContour.setAttribute("y2", -Math.sin(angle) * vsiTargetContourX2);
       }
       if ("instr" in s.trgt) {
         if ("ias" in s.trgt.instr) {
