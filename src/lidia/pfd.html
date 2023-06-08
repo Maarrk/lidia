@@ -668,9 +668,12 @@
     const trafficPerimeterRadius = document.getElementById("hsiTrafficPerimeter").getAttribute("r");
     function updateTCAS(tcas) {
       let counts = [0, 0, 0, 0];
-      for (const t of tcas) {
-        if (t.dist <= config.traffic_range) {
-          counts[t.vol] += 1;
+      // when TCAS is null, update the children count with zeros and return early
+      if (tcas !== null) {
+        for (const t of tcas) {
+          if (t.dist <= config.traffic_range) {
+            counts[t.vol] += 1;
+          }
         }
       }
       for (let volumeIndex = 0; volumeIndex < 4; volumeIndex++) {
@@ -688,6 +691,7 @@
           }
         }
       }
+      if (tcas === null) return;
 
       let nextChildIndex = [0, 0, 0, 0];
       for (const t of tcas) {
@@ -781,8 +785,8 @@
         adiTargetIndicator.setAttribute("transform", targetTransform);
       }
       if ("v_ned" in s.trgt) {
-        vsiTargetIndicator.setAttribute("display", config.show_ias_target ? "block" : "none");
-        vsiTargetIndicatorContour.setAttribute("display", config.show_ias_target ? "block" : "none");
+        vsiTargetIndicator.setAttribute("display", config.show_vsi_target ? "block" : "none");
+        vsiTargetIndicatorContour.setAttribute("display", config.show_vsi_target ? "block" : "none");
 
         let angle = vsiAngleRadians(feet(s.trgt.v_ned[2]) * -0.6); // from m/s down to 100ft/min up
 

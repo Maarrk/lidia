@@ -55,6 +55,10 @@ def run(q: Queue, args: Namespace, config: Config):
                     try:
                         state = AircraftState.from_smol(decoded)
                         state.model_instruments(config)
+                        if state.trgt is not None:
+                            state.trgt.model_instruments(config)
+                        if state.trim is not None:
+                            state.trim.model_instruments(config)
                         q.put(('smol', state.smol()))
                     except Exception as e:
                         print(e)
