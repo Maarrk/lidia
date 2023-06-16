@@ -38,14 +38,15 @@ def background_loop(q: Queue, sio: socketio.Server, args: Namespace):
 def run_server(q: Queue, args: Namespace, config: Config):
     # specifying just local path breaks when run as a module
     root_path = path.abspath(path.dirname(__file__))
+    pages_path = path.join(root_path, 'pages')
     static_files = {
-        '/': {'content_type': 'text/html', 'filename': path.join(root_path, 'rpctask.html')},
-        '/info': {'content_type': 'text/html', 'filename': path.join(root_path, 'info.html')},
-        '/controls': {'content_type': 'text/html', 'filename': path.join(root_path, 'controls.html')},
+        '/': {'content_type': 'text/html', 'filename': path.join(pages_path, 'rpctask.html')},
+        '/info': {'content_type': 'text/html', 'filename': path.join(pages_path, 'info.html')},
+        '/controls': {'content_type': 'text/html', 'filename': path.join(pages_path, 'controls.html')},
         # TODO: Add some wsgi app that can do a redirect
-        '/rpctask': {'content_type': 'text/html', 'filename': path.join(root_path, 'controls.html')},
-        '/pfd': {'content_type': 'text/html', 'filename': path.join(root_path, 'pfd.html')},
-        '/approach': {'content_type': 'text/html', 'filename': path.join(root_path, 'approach.html')},
+        '/rpctask': {'content_type': 'text/html', 'filename': path.join(pages_path, 'controls.html')},
+        '/pfd': {'content_type': 'text/html', 'filename': path.join(pages_path, 'pfd.html')},
+        '/approach': {'content_type': 'text/html', 'filename': path.join(pages_path, 'approach.html')},
         '/static': path.join(root_path, 'static'),
     }
 
