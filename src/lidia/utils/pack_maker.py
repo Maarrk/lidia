@@ -390,7 +390,7 @@ def codegen_mbdyn(output: str, infos: Dict[str, FieldInfo],
 # include it in your model **inside the elements block** like this:
 #
 # include: "./{}.elm";
-# 
+#
 # you also need to increase the number of output elements in the control data block:
 # begin: control data;
 #     output elements: +1;
@@ -414,11 +414,11 @@ stream output: {}{},
         out_elm.write('''
 \tmodifier, copy cast,
 \t\tswap, f, d, i,
-''')  # TODO: verify swapped types
+''')
         type_out = StringIO()
         pack_fieldlists(Generator.MBDYN_TYPE, type_out, infos,
                         main_fields, trgt_fields, trim_fields)
-        out_elm.write(type_out.getvalue()[:-2]) # strip ending ',\n'
+        out_elm.write(type_out.getvalue()[:-2])  # strip ending ',\n'
         out_elm.write('''
 \t;
 

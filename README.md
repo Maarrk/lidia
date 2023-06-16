@@ -59,6 +59,7 @@ Report problems in [GitLab Issues](https://gitlab.com/Maarrk/lidia/-/issues)
 - Other source files should be formatted with Prettier
 - Install packages for development with `pip install -r requirements.txt`
 - To properly run as a module without building and installing, **cd into `src/`** and run `python3 -m lidia`
+- APIs deprecated in previous versions, waiting to be changed in next major release are marked with `@deprecated` comment
 
 ## Acknowledgements
 

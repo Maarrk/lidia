@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Handling of `null` TCAS data
 - Simulating instruments for `trgt` and `trim` values
 - VSI target visibility configuration
+- Serializing `brdr` field of `AircraftState`
 
 ## [0.9.0] - 2023-06-08
 

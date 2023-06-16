@@ -239,7 +239,10 @@ class AircraftData(BaseModel):
         ]:
             if name in smol:
                 setattr(state, name, VectorType.from_list(smol[name]))
-        # TODO: Borders
+        if 'brdr' in smol:
+            state.brdr = Borders()
+            state.brdr.low = Controls.from_list(smol['brdr']['low'])
+            state.brdr.high = Controls.from_list(smol['brdr']['high'])
         if 'btn' in smol:
             state.btn = Buttons.from_list(smol['btn'])
         if 'instr' in smol:
@@ -356,9 +359,8 @@ class AircraftState(AircraftData):
         state = cls(**super().from_smol(smol).dict())
         for name in ['trgt', 'trim']:
             if name in smol:
-                # For backwards compatibility
+                # @deprecated
                 if smol[name] is List:
-                    # TODO: Some warning when logging setup available
                     smol[name] = {'ctrl': {name: smol[name]}}
                 setattr(state, name, AircraftData.from_smol(smol[name]))
 
@@ -387,6 +389,9 @@ if __name__ == '__main__':
         vol=TrafficVolume.PROXIMATE_TRAFFIC,
         brg=0.5, dist=5000.0, alt=10.0, vsi=0
     ))
+    state.brdr = Borders()
+    state.brdr.low = Controls.from_list([0.0, 0.0, 0.0, 0.0, 0.0])
+    state.brdr.high = Controls.from_list([0.0, 0.0, 0.0, 0.0, 0.0])
     print(state.smol())
     import msgpack
     packer = msgpack.Packer(use_single_float=False)
