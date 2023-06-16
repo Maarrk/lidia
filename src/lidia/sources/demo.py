@@ -159,6 +159,9 @@ def run(q: Queue, args: Namespace, config: Config):
             vol=TrafficVolume.RESOLUTION_ADVISORY,
             brg=-0.5, dist=5000, alt=-120, vsi=0
         ))
+        # Keep traffic objects fixed in world space
+        for trobj in state.instr.tcas:
+            trobj.brg += state.att.yaw
 
         q.put(('smol', state.smol()))
         sleep(1 / args.frequency)
