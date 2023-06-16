@@ -41,7 +41,9 @@ def run_server(q: Queue, args: Namespace, config: Config):
     static_files = {
         '/': {'content_type': 'text/html', 'filename': path.join(root_path, 'rpctask.html')},
         '/info': {'content_type': 'text/html', 'filename': path.join(root_path, 'info.html')},
-        '/rpctask': {'content_type': 'text/html', 'filename': path.join(root_path, 'rpctask.html')},
+        '/controls': {'content_type': 'text/html', 'filename': path.join(root_path, 'controls.html')},
+        # TODO: Add some wsgi app that can do a redirect
+        '/rpctask': {'content_type': 'text/html', 'filename': path.join(root_path, 'controls.html')},
         '/pfd': {'content_type': 'text/html', 'filename': path.join(root_path, 'pfd.html')},
         '/approach': {'content_type': 'text/html', 'filename': path.join(root_path, 'approach.html')},
         '/static': path.join(root_path, 'static'),

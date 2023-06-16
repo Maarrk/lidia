@@ -705,7 +705,6 @@
           let x = Math.sin(t.brg) * r;
           blip.setAttribute("transform", `translate(${x}, ${y})`);
 
-          // TODO: handle altitude text, position and arrow orientation
           let hectofeet = Math.round(feet(t.alt) / 100.0);
           let sign = hectofeet > 0 ? "+" : hectofeet < 0 ? "-" : "";
           let altText = sign + Math.abs(hectofeet).toString().padStart(2, "0");
