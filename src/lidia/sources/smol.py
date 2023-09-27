@@ -48,6 +48,8 @@ def run(q: Queue, args: Namespace, config: Config):
                 else:
                     try:
                         decoded = msgpack.unpackb(data)
+                    except msgpack.exceptions.ExtraData:
+                        pass  # Some applications put extra bytes in the UDP packet
                     except Exception as e:
                         print(e)
 
